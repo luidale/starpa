@@ -456,51 +456,51 @@ of the task.
 
  libraries/					-	data in library wise
 	XXX.biotype_annotation.statistics	-	read alignement statistics
-									by annotation biotypes
+							by annotation biotypes
 	XXX.gene_annotation.statistics		-	read alignement statistics
-									by genes
+							by genes
 	pp_metacontig_XXX_counted.BED		-	absolute quantification of 
-									predicted processing products 
-									in BED format
+							predicted processing products 
+							in BED format
 													
  collected.annotation2.statistics 		-	combined alignement	statistics
-									by annotation biotypes
+							by annotation biotypes
  pp_metacontig_biotype.BED			-	predicted processing products
-									with biotype in BED-like format
+							with biotype in BED-like format
  pp_metacontig_biotype_match.BED		-	predicted processing products
-									match with genes in BED-like 
-									format
+							match with genes in BED-like 
+							format
  pp_metacontig_counts_total.tsv			-	absolute quantification of 
-									predicted processing products 
-									in BED format
+							predicted processing products 
+							in BED format
  pp_metacontig_counts_RPM.tsv			-	relative quantification of 
-									predicted processing products
-									as read per million mapped reads
-									(RPM) in BED format
+							predicted processing products
+							as read per million mapped reads
+							(RPM) in BED format
  pp_metacontig_counts_biotype_RPM.tsv		-	relative quantification of 
-									predicted processing products
-									as RPM of biotype in BED format
+							predicted processing products
+							as RPM of biotype in BED format
  pp_metacontig_counts_groupped_biotype_RPM.tsv	-	relative quantification of 
-									predicted processing products
-									as RPM of biotype groups in BED 
-									format
+							predicted processing products
+							as RPM of biotype groups in BED 
+							format
  pp_metacontig_cons_qual.tsv			-	quality of consensus sequence 
- 									of predicted processing products
-									expressed as frequency of the most
-									abundant base in a given position
+ 							of predicted processing products
+							expressed as frequency of the most
+							abundant base in a given position
  pp_metacontig_cons_seq.tsv			-	consensus sequence of predicted 
-									processing products
+							processing products
  pp_metacontig_coverage.tsv			-	coverage of reads assigned to 
-									predicted processing products 
-									at single position level
+							predicted processing products 
+							at single position level
  pp_metacontig_genomic_seq.tsv			-	genomic sequence of predicted 
-									processing products 
- pp_metacontig_rel_cov.tsv				-	relative coverage of predicted 
-									processing products
- pp_metacontig_uniqness.tsv				-	mean number of genomic genomic 
-									matches of reads assigned
-									to the predicted processing 
-									products
+							processing products 
+ pp_metacontig_rel_cov.tsv			-	relative coverage of predicted 
+							processing products
+ pp_metacontig_uniqness.tsv			-	mean number of genomic genomic 
+							matches of reads assigned
+							to the predicted processing 
+							products
 
 To do
 -------------
