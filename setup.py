@@ -1,4 +1,4 @@
-import starpa
+import src.starpa
 
 import setuptools
 
