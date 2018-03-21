@@ -1,4 +1,4 @@
-import src.starpa
+#import src.starpa
 
 import setuptools
 
@@ -13,7 +13,8 @@ setuptools.setup(
     description="Stable RNA processing product analyzer",
     long_description=open('README.rst').read(),
 
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages('src'),
+	package_dir={'': 'src'},
 
     install_requires=["pyfaidx","schema"],
 
