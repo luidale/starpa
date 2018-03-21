@@ -275,6 +275,7 @@ Each task has different requirements for the input data:
 |	Aligned SE or pseudoSE reads in SAM format (BAM format currently not supported).
 |	Reads require NH tag to describe the number of reported alignments.
 
+
 **Output folder**
 
 Output folder will contain individual files:
@@ -298,9 +299,9 @@ of the task.
  PE:
  discard/
 	XXX_1_short.fq		-	forward reads discared while being too short after
-							trimming
+					trimming
 	XXX_2_short.fq		-	reverse reads discared while being too short after
-							trimming
+					trimming
 							
  XXX_trim_1.fq			-	trimmed forward reads
  XXX_trim_2.fq			-	trimmed reverse reads
@@ -308,7 +309,7 @@ of the task.
  SE:
  discard/
 	XXX_short.fq		-	reads discarded while being too short after 
-							trimming
+					trimming
 	XXX_untrimmed.fq	-	reads discarded while having no adapter trimmed
 	
  XXX_trim.fq			-	trimmed reads
@@ -320,9 +321,9 @@ of the task.
  align_info/
 	XXX_aligninfo.log	-	log of task
 	
- XXX.sam				-	aligned reads
+ XXX.sam			-	aligned reads
 
-- **sam_sort**
+- *sam_sort*
 
 ::
 
@@ -337,25 +338,25 @@ of the task.
 ::
 
  pseudoSE_info/
-	XXX_pseudoSEinfo.log			-	log of task
+	XXX_pseudoSEinfo.log		-	log of task
 	
  mismatched/
-	XXX_pseudoSE_mismatch.sam		-	reads discarded while having too many
-										mismatches
+	XXX_pseudoSE_mismatch.sam	-	reads discarded while having too many
+							mismatches
 										
  too_many_matches/
-	XXX_pseudoSE_multimatch.sam		-	reads discarded while haveing too many
-										genomic matches
+	XXX_pseudoSE_multimatch.sam	-	reads discarded while haveing too many
+							genomic matches
 										
- XXX_pseudoSE.sam					-	processed reads
+ XXX_pseudoSE.sam				-	processed reads
 	
  If oligoA allowed:
  oligoA/
-	XXX-oligoA-mm_pseudoSE.sam		-	reads with 3' oligoA (non-genome 
-										encoded) which would have otherwise 
-										discarded
-	XXX-oligoA-pseudoSE.sam			-	reads with 3' oligoA (non-genome
-										encoded)
+	XXX-oligoA-mm_pseudoSE.sam	-	reads with 3' oligoA (non-genome 
+							encoded) which would have otherwise 
+							discarded
+	XXX-oligoA-pseudoSE.sam		-	reads with 3' oligoA (non-genome
+							encoded)
 	
 - *identify*
 
@@ -368,21 +369,21 @@ of the task.
 			
 	flaimapper_temp/
 		XXX/
-			XXX_strand_Y_flaimapper.tab			-	flaimapper predicitons
+			XXX_strand_Y_flaimapper.tab		-	flaimapper predicitons
 			
  bam/
-	XXX_strand.bam								-	strand-wise sorted reads 
-													from input
-	XXX_strand.bam.bai							-	index of of bam file
-	XXX_strand.sam 								-	NOT NEEDED
+	XXX_strand.bam						-	strand-wise sorted reads 
+									from input
+	XXX_strand.bam.bai					-	index of of bam file
+	XXX_strand.sam 						-	NOT NEEDED
 	
  identify_info/
 	 XXX_strand_identifyinfo.log				-	log of task
 	 
- XXX_strand_pp.BED								-	NOT NEEDED
- XXX_strand_pp_counted.BED						-	predicted processing 
-													products with 
-													quantification
+ XXX_strand_pp.BED						-	NOT NEEDED
+ XXX_strand_pp_counted.BED				-	predicted processing 
+									products with 
+									quantification
 
 			
 - *cluster*
@@ -390,64 +391,64 @@ of the task.
 ::
 
  cd_hit_est/
-	pp_cd_hit_est.info			-	log of sequence identity based clustering 
-									of combined and overlap clustered predicted
-									processing products via CD-HIT-EST
-	pp_combined.cdhit			-	genomic sequence of combined and overlap 
-									clustered predicted processing products
+	pp_cd_hit_est.info		-	log of sequence identity based clustering 
+						of combined and overlap clustered predicted
+						processing products via CD-HIT-EST
+	pp_combined.cdhit		-	genomic sequence of combined and overlap 
+							clustered predicted processing products
 	pp_combined.cdhit.clstr		-	clusters of combined and overlap clustered
-									predicted processing products created via
-									CD-HIT-EST
+							predicted processing products created via
+							CD-HIT-EST
 									
  contigs/
-	XXX_contigs.BED				-	list of contigs identified
+	XXX_contigs.BED			-	list of contigs identified
 	XXX/
-		contig_name.fasta		-	sequences of all reads belonging to the
-									corresponding contigs
-		contig_name.sam			-	all reads belonging to the
-									corresponding contigs
+		contig_name.fasta	-	sequences of all reads belonging to the
+						corresponding contigs
+		contig_name.sam		-	all reads belonging to the
+						corresponding contigs
 									
  contigs_meta/
 	combined_contigs_meta.BED	-	combined contigs to be used to create 
-									metacontigs from all libraries
+							metacontigs from all libraries
 	XXX_contigs_meta.BED		-	list of contigs to be used to created
-									metacontigs
+							metacontigs
 	metacontig_cd_hit_est.info	-	log of sequence identity based clustering 
-									of metacontigs via CD-HIT-EST
+							of metacontigs via CD-HIT-EST
 	metacontigs.cdhit			-	genomic sequence of metacontigs
 	metacontigs.cdhit.clstr		-	clusters of metacontigs created via
-									CD-HIT-EST
+							CD-HIT-EST
 	metacontigs.BED				-	list of metacontigs in bed format
 	pp_to_metacontig.BED		-	combined and overlap clustered predicted
-									processing product match with metacontigs
-									in BED-like format
+							processing product match with metacontigs
+							in BED-like format
 									
  mpileup/
 	XXX_strand_mpileup.info		-	log of bedtools mpileup
 	
  wig/
-	XXX_strand.wig				-	strand specific absolute read coverage
-	XXX_strand_RPM.wig			-	strand specific relative read coverage
-									as read per million mapped reads (RPM)
+	XXX_strand.wig			-	strand specific absolute read coverage
+	XXX_strand_RPM.wig		-	strand specific relative read coverage
+							as read per million mapped reads (RPM)
 									
- pp_clusterinfo.log				-	log of task
+ pp_clusterinfo.log			-	log of task
  pp_unique.library_info			-	combined predicted processing 
-									products and the origins of libraries
+							products and the origins of libraries
  pp_combined.BED				-	representatives of combined and overlap 
-									clustered predicted processing products 
-									in BED format
+							clustered predicted processing products 
+							in BED format
  pp_combined.cluster			-	overlap clusters of combined predicted 
-									processing products
- pp_combined.library_info		-	representatives of combined and overlap 
-									clustered predicted processing 
-									products and the origins of libraries
- pp_metacontig.BED				-	representatives of predicted processing
-									products from pp_combined.BED clustered
-									by sequence identity supported by 
-									metacontig clustering in BED format
+							processing products
+ pp_combined.library_info	-	representatives of combined and overlap 
+							clustered predicted processing 
+							products and the origins of libraries
+ pp_metacontig.BED			-	representatives of predicted processing
+							products from pp_combined.BED clustered
+							by sequence identity supported by 
+							metacontig clustering in BED format
  pp_metacontig.cluster			-	sequence identity clusters of predicted 
-									processing products from pp_combined.BED
-									supported by metacontig clustering
+							processing products from pp_combined.BED
+							supported by metacontig clustering
 
 - *quantify*
 
