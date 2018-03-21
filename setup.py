@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="starpa",
-    version=starpa.__version__,
+    version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
 
     author="Hannes Luidalepp",
@@ -30,5 +30,5 @@ setuptools.setup(
         'Topic :: Scientific/Engineering',
 		'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
-    package_data={'': ['data/*.*','data/tests/*.*']}
+    package_data={'': ['src/starpa/data*.*','tests/data*.*']}
 )
