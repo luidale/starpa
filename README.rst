@@ -342,21 +342,21 @@ of the task.
 	
  mismatched/
 	XXX_pseudoSE_mismatch.sam	-	reads discarded while having too many
-							mismatches
+						mismatches
 										
  too_many_matches/
 	XXX_pseudoSE_multimatch.sam	-	reads discarded while haveing too many
-							genomic matches
+						genomic matches
 										
- XXX_pseudoSE.sam				-	processed reads
+ XXX_pseudoSE.sam			-	processed reads
 	
  If oligoA allowed:
  oligoA/
 	XXX-oligoA-mm_pseudoSE.sam	-	reads with 3' oligoA (non-genome 
-							encoded) which would have otherwise 
-							discarded
+						encoded) which would have otherwise 
+						discarded
 	XXX-oligoA-pseudoSE.sam		-	reads with 3' oligoA (non-genome
-							encoded)
+						encoded)
 	
 - *identify*
 
@@ -381,7 +381,7 @@ of the task.
 	 XXX_strand_identifyinfo.log				-	log of task
 	 
  XXX_strand_pp.BED						-	NOT NEEDED
- XXX_strand_pp_counted.BED				-	predicted processing 
+ XXX_strand_pp_counted.BED					-	predicted processing 
 									products with 
 									quantification
 
@@ -395,10 +395,10 @@ of the task.
 						of combined and overlap clustered predicted
 						processing products via CD-HIT-EST
 	pp_combined.cdhit		-	genomic sequence of combined and overlap 
-							clustered predicted processing products
+						clustered predicted processing products
 	pp_combined.cdhit.clstr		-	clusters of combined and overlap clustered
-							predicted processing products created via
-							CD-HIT-EST
+						predicted processing products created via
+						CD-HIT-EST
 									
  contigs/
 	XXX_contigs.BED			-	list of contigs identified
@@ -410,18 +410,18 @@ of the task.
 									
  contigs_meta/
 	combined_contigs_meta.BED	-	combined contigs to be used to create 
-							metacontigs from all libraries
+						metacontigs from all libraries
 	XXX_contigs_meta.BED		-	list of contigs to be used to created
-							metacontigs
+						metacontigs
 	metacontig_cd_hit_est.info	-	log of sequence identity based clustering 
-							of metacontigs via CD-HIT-EST
-	metacontigs.cdhit			-	genomic sequence of metacontigs
+						of metacontigs via CD-HIT-EST
+	metacontigs.cdhit		-	genomic sequence of metacontigs
 	metacontigs.cdhit.clstr		-	clusters of metacontigs created via
-							CD-HIT-EST
-	metacontigs.BED				-	list of metacontigs in bed format
+						CD-HIT-EST
+	metacontigs.BED			-	list of metacontigs in bed format
 	pp_to_metacontig.BED		-	combined and overlap clustered predicted
-							processing product match with metacontigs
-							in BED-like format
+						processing product match with metacontigs
+						in BED-like format
 									
  mpileup/
 	XXX_strand_mpileup.info		-	log of bedtools mpileup
@@ -429,78 +429,78 @@ of the task.
  wig/
 	XXX_strand.wig			-	strand specific absolute read coverage
 	XXX_strand_RPM.wig		-	strand specific relative read coverage
-							as read per million mapped reads (RPM)
+						as read per million mapped reads (RPM)
 									
  pp_clusterinfo.log			-	log of task
  pp_unique.library_info			-	combined predicted processing 
-							products and the origins of libraries
- pp_combined.BED				-	representatives of combined and overlap 
-							clustered predicted processing products 
-							in BED format
+						products and the origins of libraries
+ pp_combined.BED			-	representatives of combined and overlap 
+						clustered predicted processing products 
+						in BED format
  pp_combined.cluster			-	overlap clusters of combined predicted 
-							processing products
- pp_combined.library_info	-	representatives of combined and overlap 
-							clustered predicted processing 
-							products and the origins of libraries
+						processing products
+ pp_combined.library_info		-	representatives of combined and overlap 
+						clustered predicted processing 
+						products and the origins of libraries
  pp_metacontig.BED			-	representatives of predicted processing
-							products from pp_combined.BED clustered
-							by sequence identity supported by 
-							metacontig clustering in BED format
+						products from pp_combined.BED clustered
+						by sequence identity supported by 
+						metacontig clustering in BED format
  pp_metacontig.cluster			-	sequence identity clusters of predicted 
-							processing products from pp_combined.BED
-							supported by metacontig clustering
+						processing products from pp_combined.BED
+						supported by metacontig clustering
 
 - *quantify*
 
 ::
 
- libraries/										-	data in library wise
-	XXX.biotype_annotation.statistics					-	read alignement statistics
-													by annotation biotypes
-	XXX.gene_annotation.statistics				-	read alignement statistics
-													by genes
-	pp_metacontig_XXX_counted.BED				-	absolute quantification of 
-													predicted processing products 
-													in BED format
+ libraries/					-	data in library wise
+	XXX.biotype_annotation.statistics	-	read alignement statistics
+									by annotation biotypes
+	XXX.gene_annotation.statistics		-	read alignement statistics
+									by genes
+	pp_metacontig_XXX_counted.BED		-	absolute quantification of 
+									predicted processing products 
+									in BED format
 													
- collected.annotation2.statistics 				-	combined alignement	statistics
-													by annotation biotypes
- pp_metacontig_biotype.BED						-	predicted processing products
-													with biotype in BED-like format
- pp_metacontig_biotype_match.BED				-	predicted processing products
-													match with genes in BED-like 
-													format
- pp_metacontig_counts_total.tsv					-	absolute quantification of 
-													predicted processing products 
-													in BED format
- pp_metacontig_counts_RPM.tsv					-	relative quantification of 
-													predicted processing products
-													as read per million mapped reads
-													(RPM) in BED format
- pp_metacontig_counts_biotype_RPM.tsv			-	relative quantification of 
-													predicted processing products
-													as RPM of biotype in BED format
+ collected.annotation2.statistics 		-	combined alignement	statistics
+									by annotation biotypes
+ pp_metacontig_biotype.BED			-	predicted processing products
+									with biotype in BED-like format
+ pp_metacontig_biotype_match.BED		-	predicted processing products
+									match with genes in BED-like 
+									format
+ pp_metacontig_counts_total.tsv			-	absolute quantification of 
+									predicted processing products 
+									in BED format
+ pp_metacontig_counts_RPM.tsv			-	relative quantification of 
+									predicted processing products
+									as read per million mapped reads
+									(RPM) in BED format
+ pp_metacontig_counts_biotype_RPM.tsv		-	relative quantification of 
+									predicted processing products
+									as RPM of biotype in BED format
  pp_metacontig_counts_groupped_biotype_RPM.tsv	-	relative quantification of 
-													predicted processing products
-													as RPM of biotype groups in BED 
-													format
- pp_metacontig_cons_qual.tsv					-	quality of consensus sequence 
- 													of predicted processing products
-													expressed as frequency of the most
-													abundant base in a given position
- pp_metacontig_cons_seq.tsv						-	consensus sequence of predicted 
-													processing products
- pp_metacontig_coverage.tsv						-	coverage of reads assigned to 
-													predicted processing products 
-													at single position level
- pp_metacontig_genomic_seq.tsv					-	genomic sequence of predicted 
-													processing products 
- pp_metacontig_rel_cov.tsv						-	relative coverage of predicted 
-													processing products
- pp_metacontig_uniqness.tsv						-	mean number of genomic genomic 
-													matches of reads assigned
-													to the predicted processing 
-													products
+									predicted processing products
+									as RPM of biotype groups in BED 
+									format
+ pp_metacontig_cons_qual.tsv			-	quality of consensus sequence 
+ 									of predicted processing products
+									expressed as frequency of the most
+									abundant base in a given position
+ pp_metacontig_cons_seq.tsv			-	consensus sequence of predicted 
+									processing products
+ pp_metacontig_coverage.tsv			-	coverage of reads assigned to 
+									predicted processing products 
+									at single position level
+ pp_metacontig_genomic_seq.tsv			-	genomic sequence of predicted 
+									processing products 
+ pp_metacontig_rel_cov.tsv				-	relative coverage of predicted 
+									processing products
+ pp_metacontig_uniqness.tsv				-	mean number of genomic genomic 
+									matches of reads assigned
+									to the predicted processing 
+									products
 
 To do
 -------------
