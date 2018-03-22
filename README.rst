@@ -181,13 +181,13 @@ Tasks in sequential order:
 
 **Configuration file**
 
-`Configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ 
+`Configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ 
 is used to set various parameters which allow to adjust the 
 performance of the work-flow according to the user needs and input data.
 The description of each parameter is given in the file itself.
 
 Configuration file states also the location of file describing the libraries to be analysed, so called 
-`"library_file" <https://github.com/luidale/starpa/blob/master/starpa/data/libraries.txt>`_.
+`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_.
 
 "library_file" is a tabular file containing:
  1) the name of the libraries
@@ -218,21 +218,21 @@ Each task has different requirements for the input data:
 
 | Sequencing data in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz", ".bz2" or ".xz".
 
 - *align*
 
 | Trimmed and cleaned reads in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz" (requires bowtie2.3.1+)
 
 - *sam_sort*
 
 | Aligned reads in SAM format. 
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 
 | BAM format is not currently supported.
 
@@ -240,7 +240,7 @@ Each task has different requirements for the input data:
 
 | Aligned reads in SAM format. 
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | File can not be sorted by position.
 
 | BAM format is not currently supported.

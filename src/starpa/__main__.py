@@ -27,7 +27,7 @@ Options:
 
 from docopt import docopt
 from schema import Schema, And, Or, Use, SchemaError
-from __init__ import __version__
+from starpa.__init__ import __version__
 
 from starpa.trim import trim
 from starpa.align import align
