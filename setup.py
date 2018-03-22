@@ -10,7 +10,7 @@ setuptools.setup(
 	download_url="https://github.com/luidale/starpa/archive/v0.1-beta.tar.gz",
     author="Hannes Luidalepp",
     author_email="luidale@gmail.com",
-
+	license=src.starpa.__license__,
     description="Stable RNA processing product analyzer",
     long_description=open('README.rst').read(),
 
