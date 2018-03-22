@@ -23,7 +23,7 @@ import sys
 import multiprocessing as mp
 from collections import defaultdict
 
-from annotation import annotation 
+from starpa.annotation import annotation 
 
 from pyfaidx import Fasta
 

@@ -16,7 +16,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages('src'),
 	package_dir={'': 'src'},
-
+	
     install_requires=["pyfaidx","schema","docopt"],
 
     classifiers=[
