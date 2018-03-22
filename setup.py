@@ -1,10 +1,11 @@
 #import src.starpa
 
 import setuptools
+import src.starpa
 
 setuptools.setup(
     name="starpa",
-    version="0.1",#src.starpa.__version__,
+    version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
 	download_url="https://github.com/luidale/starpa/archive/v0.1-alpha.tar.gz",
     author="Hannes Luidalepp",
