@@ -1,10 +1,11 @@
 #import src.starpa
 
 import setuptools
-
+import src.starpa
+tere
 setuptools.setup(
     name="starpa",
-    version="0.1",#src.starpa.__version__,
+    version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
 	download_url="https://github.com/luidale/starpa/archive/v0.1-alpha.tar.gz",
     author="Hannes Luidalepp",
@@ -16,7 +17,7 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
 	package_dir={'': 'src'},
 
-    install_requires=["pyfaidx","schema"],
+    install_requires=["pyfaidx","schema","docopt"],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -27,7 +28,7 @@ setuptools.setup(
 		'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Operating System :: OS Independent',
+        'Operating System :: Unix',
         'Topic :: Scientific/Engineering',
 		'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
