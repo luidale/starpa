@@ -2,7 +2,7 @@
 
 import setuptools
 import src.starpa
-tere
+
 setuptools.setup(
     name="starpa",
     version=src.starpa.__version__,
@@ -32,5 +32,5 @@ setuptools.setup(
         'Topic :: Scientific/Engineering',
 		'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
-    package_data={'': ['src/starpa/data*.*','tests/data*.*']}
+    package_data={'': ['data/*.*']}
 )
