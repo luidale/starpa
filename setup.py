@@ -16,7 +16,9 @@ setuptools.setup(
 
     packages=setuptools.find_packages('src'),
 	package_dir={'': 'src'},
-	
+	entry_points = {
+        'console_scripts': ['starpa=starpa.__main__']},
+		
     install_requires=["pyfaidx","schema","docopt"],
 
     classifiers=[
