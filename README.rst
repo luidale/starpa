@@ -188,14 +188,14 @@ The description of each parameter is given in the file itself.
 
 Configuration file states also the location of following files:
 
-adapter files - adapter sequencies if fasta format
+adapter files - adapter sequencies in fasta format
 
 genome file - genome sequence in fasta format
 
 annotation file - in GFF or GFF3 format.
 
 `"flaimapper parameter file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/flaimapper_parameters/parameters.dev-2-100-2.txt>`_  -
-described in more deteil `"here" <https://github.com/yhoogstrate/flaimapper#the---parameters-argument>`_. Given Flaimapper-2 parameters file is adjusted to be suitable to predict processing products with rather defined ends.
+described in more deteil `here <https://github.com/yhoogstrate/flaimapper#the---parameters-argument>`_. Given Flaimapper-2 parameters file is adjusted to be suitable to predict processing products with rather defined ends.
 
 `"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ - 
 describing libraries to be analysed.
@@ -232,12 +232,14 @@ Each task has different requirements for the input data:
  `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz", ".bz2" or ".xz".
 
+
 - *align*
 
 | Trimmed and cleaned reads in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
  `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz" (requires bowtie2.3.1+)
+
 
 - *sam_sort*
 
@@ -246,6 +248,7 @@ Each task has different requirements for the input data:
  `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 
 | BAM format is not currently supported.
+
 
 - *pseudoSE*
 
@@ -256,12 +259,14 @@ Each task has different requirements for the input data:
 
 | BAM format is not currently supported.
 
+
 - *identify*
 
 | Aligned SE or pseudoSE reads in SAM format. 
 | Reads require NH tag to describe the number of reported alignments.
 
 | BAM format currently not supported.
+
 
 - *cluster*
 
@@ -277,6 +282,7 @@ Each task has different requirements for the input data:
 | 		Aligned SE or pseudoSE reads in SAM format 
 | 		(BAM format currently not supported).
 | 		Reads require NH tag to describe the number of reported alignments.
+
 
 - *quantify*
 
@@ -306,6 +312,7 @@ of the task.
 | XXX - library name
 | strand - For or Rev
 | Y -	order number of fragmented read group
+
 
 - *trim*
 
