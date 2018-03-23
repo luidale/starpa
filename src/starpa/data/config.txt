@@ -1,8 +1,8 @@
 #Configuration file
 
 #general
-library_file = data/libraries2.txt		#Relative loaction of file with library names (each name on separate line)
-genome = /data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
+library_file = data/libraries.txt		#Relative loaction of file with library names (each name on separate line)
+genome = ../starpa/tests/data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
 samtools_call = samtools		#Call for samtools command [eg. samtools]
 samtools_threads = 1		#Thread (cores) used by samtools [integer, eg. 1]
 bedtools_call = ~/bin/bedtools2.26/bin/bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
