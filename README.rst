@@ -217,6 +217,16 @@ describing libraries to be analysed.
 
 | 
 
+`Configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_,
+`"flaimapper parameter file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/flaimapper_parameters/parameters.dev-2-100-2.txt>`_ and
+`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ are available in:
+
+::
+ src/starpa/data
+
+|
+
+
 **Input folder**
 
 While running a single or multiple tasks, the input folder has to contain specific data 
