@@ -67,7 +67,7 @@ class align():
             if not any(file.endswith(index_file) for file in files):
                 bowtie2_index_command = (
                             settings["align"]["align_index_call"],
-                            "-f", settings["genome"],
+                            "-f", settings["genome"], "-q",
                             ".".join(settings["genome"].split(".")[:-1])
                             )
                 os.system(" ".join(list(bowtie2_index_command)))

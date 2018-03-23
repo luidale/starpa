@@ -7,17 +7,19 @@ setuptools.setup(
     name="starpa",
     version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
-	download_url="https://github.com/luidale/starpa/archive/v0.1-alpha.tar.gz",
+	download_url="https://github.com/luidale/starpa/archive/v0.2.1.tar.gz",
     author="Hannes Luidalepp",
     author_email="luidale@gmail.com",
-
+	license=src.starpa.__license__,
     description="Stable RNA processing product analyzer",
     long_description=open('README.rst').read(),
 
     packages=setuptools.find_packages('src'),
 	package_dir={'': 'src'},
-
-    install_requires=["pyfaidx","schema"],
+	entry_points = {
+        'console_scripts': ['starpa=starpa.__main__:main']},
+		
+    install_requires=["pyfaidx","schema","docopt"],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -28,9 +30,9 @@ setuptools.setup(
 		'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Operating System :: OS Independent',
+        'Operating System :: Unix',
         'Topic :: Scientific/Engineering',
 		'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
-    package_data={'': ['src/starpa/data*.*','tests/data*.*']}
+    package_data={'': ['data/*.*']}
 )

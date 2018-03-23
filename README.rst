@@ -99,7 +99,7 @@ individual libraries) are created.
 
 - *quantify*
 
-Representative processing products will be quantified using BEDtools intersect in every library.
+Representative processing products will be quantified using bedtools intersect in every library.
 Additional characteristics will be gathered (relative coverage, coverage at single position level, 
 consensus sequence, quality of consensus sequence, genomic sequence, uniqueness). Quantification data
 is also converted to read per million of mapped reads (RPM), RPM of biotype and RPM of biotype groups.
@@ -145,8 +145,8 @@ Usage
 Usage of starpa is as follows::
 
  Usage:
-     starpa.py      [-hv]
-     starpa.py -s <start_task> -e <end_task> -c <parameter_file> -i <input> 
+     starpa      [-hv]
+     starpa -s <start_task> -e <end_task> -c <parameter_file> -i <input> 
      -o <output>
 
  Arguments:
@@ -181,13 +181,24 @@ Tasks in sequential order:
 
 **Configuration file**
 
-`Configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ 
+`Configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ 
 is used to set various parameters which allow to adjust the 
 performance of the work-flow according to the user needs and input data.
 The description of each parameter is given in the file itself.
 
-Configuration file states also the location of file describing the libraries to be analysed, so called 
-`"library_file" <https://github.com/luidale/starpa/blob/master/starpa/data/libraries.txt>`_.
+Configuration file states also the location of following files:
+
+adapter files - adapter sequencies in fasta format
+
+genome file - genome sequence in fasta format
+
+annotation file - in GFF or GFF3 format.
+
+`"flaimapper parameter file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/flaimapper_parameters/parameters.dev-2-100-2.txt>`_  -
+described in more deteil `here <https://github.com/yhoogstrate/flaimapper#the---parameters-argument>`_. Given Flaimapper-2 parameters file is adjusted to be suitable to predict processing products with rather defined ends.
+
+`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ - 
+describing libraries to be analysed.
 
 "library_file" is a tabular file containing:
  1) the name of the libraries
@@ -206,6 +217,17 @@ Configuration file states also the location of file describing the libraries to 
 
 | 
 
+`Configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_,
+`"flaimapper parameter file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/flaimapper_parameters/parameters.dev-2-100-2.txt>`_ and
+`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ are available in:
+
+::
+
+ src/starpa/data
+
+|
+
+
 **Input folder**
 
 While running a single or multiple tasks, the input folder has to contain specific data 
@@ -218,32 +240,36 @@ Each task has different requirements for the input data:
 
 | Sequencing data in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz", ".bz2" or ".xz".
+
 
 - *align*
 
 | Trimmed and cleaned reads in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz" (requires bowtie2.3.1+)
+
 
 - *sam_sort*
 
 | Aligned reads in SAM format. 
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 
 | BAM format is not currently supported.
+
 
 - *pseudoSE*
 
 | Aligned reads in SAM format. 
 | Can be in PE or SE format which has to be indicated in 
- `configuration file <https://github.com/luidale/starpa/blob/master/starpa/data/config.txt>`_ .
+ `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | File can not be sorted by position.
 
 | BAM format is not currently supported.
+
 
 - *identify*
 
@@ -251,6 +277,7 @@ Each task has different requirements for the input data:
 | Reads require NH tag to describe the number of reported alignments.
 
 | BAM format currently not supported.
+
 
 - *cluster*
 
@@ -267,6 +294,7 @@ Each task has different requirements for the input data:
 | 		(BAM format currently not supported).
 | 		Reads require NH tag to describe the number of reported alignments.
 
+
 - *quantify*
 
 | Predicted processing products in BED format (preferentially representatives form clustering).
@@ -278,15 +306,24 @@ Each task has different requirements for the input data:
 
 **Output folder**
 
-Output folder will contain individual files:
-copy of configuration file
-"arguments.txt" - contains command line arguments
+Output folder will contain parameter folder:
+
+::
+
+ parameters/
+	eg. config.txt			-	copy of configuration file
+	arguments.txt			-	command line arguments
+	eg. libraries.txt		-	copy of library file
+	eg. parameters.dev-2-100-2.txt	-	copy of Flaimapper-2 parameter file
+ 
+
 Each task creates a subfolder with its name containing specific output 
 of the task.
 
 | XXX - library name
 | strand - For or Rev
 | Y -	order number of fragmented read group
+
 
 - *trim*
 
