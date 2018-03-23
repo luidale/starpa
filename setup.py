@@ -7,7 +7,7 @@ setuptools.setup(
     name="starpa",
     version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
-	download_url="https://github.com/luidale/starpa/archive/v0.1-beta.tar.gz",
+#	download_url="https://github.com/luidale/starpa/archive/v0.1-gamma.tar.gz",
     author="Hannes Luidalepp",
     author_email="luidale@gmail.com",
 	license=src.starpa.__license__,
@@ -17,7 +17,7 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
 	package_dir={'': 'src'},
 	entry_points = {
-        'console_scripts': ['starpa=starpa.__main__']},
+        'console_scripts': ['starpa=starpa.__main__:main']},
 		
     install_requires=["pyfaidx","schema","docopt"],
 

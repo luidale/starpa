@@ -22,7 +22,7 @@ class annotation():
         '''
         Script doing the annoation
         '''
-        print("Convert annotation file")
+        print("\tConvert annotation file")
         annotations = {} #dictionary for annotations
         biotypes=set() #set with identified biotypes
         #open input_gff_file

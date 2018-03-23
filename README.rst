@@ -186,8 +186,19 @@ is used to set various parameters which allow to adjust the
 performance of the work-flow according to the user needs and input data.
 The description of each parameter is given in the file itself.
 
-Configuration file states also the location of file describing the libraries to be analysed, so called 
-`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_.
+Configuration file states also the location of following files:
+
+adapter files - adapter sequencies if fasta format
+
+genome file - genome sequence in fasta format
+
+annotation file - in GFF or GFF3 format.
+
+`"flaimapper parameter file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/flaimapper_parameters/parameters.dev-2-100-2.txt>`_  -
+described in more deteil `"here" <https://github.com/yhoogstrate/flaimapper#the---parameters-argument>`_. Given Flaimapper-2 parameters file is adjusted to be suitable to predict processing products with rather defined ends.
+
+`"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ - 
+describing libraries to be analysed.
 
 "library_file" is a tabular file containing:
  1) the name of the libraries
@@ -278,9 +289,17 @@ Each task has different requirements for the input data:
 
 **Output folder**
 
-Output folder will contain individual files:
-copy of configuration file
-"arguments.txt" - contains command line arguments
+Output folder will contain parameter folder:
+
+::
+
+ parameters/
+	eg. config.txt				-	copy of configuration file
+	arguments.txt			-	command line arguments
+	eg. libraries.txt			-	copy of library file
+	eg. parameters.dev-2-100-2.txt	-	copy of Flaimapper-2 parameter file
+ 
+
 Each task creates a subfolder with its name containing specific output 
 of the task.
 

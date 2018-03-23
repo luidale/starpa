@@ -3,8 +3,8 @@
 
 '''
 Usage:
-    starpa.py [-hv]
-    starpa.py -s <start_task> -e <end_task> -c <config_file> -i <input> -o <output>
+    starpa [-hv]
+    starpa -s <start_task> -e <end_task> -c <config_file> -i <input> -o <output>
     
 Arguments:
     <start_task>        task to start with
@@ -514,6 +514,8 @@ def check_output_folder(args):
     #make output folder if needed
     if not os.path.exists(args["--output"]):
         os.makedirs(args["--output"])
+    if not os.path.exists(os.path.join(args["--output"],"parameters")):
+        os.makedirs(os.path.join(args["--output"],"parameters"))
     #test output parameter
     schema = Schema({
         "--output": And(os.path.isdir, error='<output_folder> should be folder'),
@@ -585,71 +587,75 @@ def write_arguments(args):
     Also copies argument file into output folder.
     '''
     #write arguments
-    with open(os.path.join(args["--output"],"arguments.txt"),"w") as f_out:
+    with open(os.path.join(args["--output"],"parameters","arguments.txt"),"w") as f_out:
         for argument in args:
             if argument not in ["--help","--version"]:
                 if argument.startswith("--"):
                     f_out.write("\t".join([argument,str(args[argument])])+"\n")
 
     #copy config file
-    copy2(args["--config"],args["--output"])
+    copy2(args["--config"],os.path.join(args["--output"],"parameters"))
+    #copy library file
+    copy2(args["library_file"],os.path.join(args["--output"],"parameters"))
+    #copy adapterfiles
+    copy2(args["identify"]["identify_flaimapper_parameters"],os.path.join(args["--output"],"parameters"))
 
 
 ########
 #SCRIPT#
 ########
-       
-args = docopt(__doc__,version=__version__)
-args,tasks_to_run = check_arguments(args, tasks)
-args = get_libraries(args)
-check_input_files(args)
-args = check_output_folder(args)
-write_arguments(args)
+
+def main():    
+    args = docopt(__doc__,version=__version__)
+    args,tasks_to_run = check_arguments(args, tasks)
+    args = get_libraries(args)
+    check_input_files(args)
+    args = check_output_folder(args)
+    write_arguments(args)
 
 
 
-#Run tasks
-if "trim" in tasks_to_run:
-    print("Trim")
-    trim(args)
+    #Run tasks
+    if "trim" in tasks_to_run:
+        print("Trim")
+        trim(args)
 
-if "align" in tasks_to_run:
-    #sensitive mode includes task sort
-    if args["align"]["align_sensitive"]:
-        print("Align I, L 22")
-        align(args,"I",tasks_to_run[0])           
-        print("Sort SAM I")
-        sam_sort(args,"I",tasks_to_run[0])
-        print("Align II, L 14")
-        align(args,"II",tasks_to_run[0])
-        print("Sort SAM II")
-        sam_sort(args,"II",tasks_to_run[0])
-    else:
-        print("Align, L 22")
-        align(args,"all",tasks_to_run[0])           
-              
-##If align in sensitive mode then sam_sort is already done
-if (not args["align"]["align_sensitive"]) or (tasks_to_run[0] == "sam_sort"):
-    if "sam_sort" in tasks_to_run:
-        print("Sort SAM")
-        sam_sort(args,"all",tasks_to_run[0])
-        
-if "pseudoSE" in tasks_to_run:
-    print("PseudoSE")
-    pseudoSE(args,tasks_to_run[0])
+    if "align" in tasks_to_run:
+        #sensitive mode includes task sort
+        if args["align"]["align_sensitive"]:
+            print("Align I, L 22")
+            align(args,"I",tasks_to_run[0])           
+            print("Sort SAM I")
+            sam_sort(args,"I",tasks_to_run[0])
+            print("Align II, L 14")
+            align(args,"II",tasks_to_run[0])
+            print("Sort SAM II")
+            sam_sort(args,"II",tasks_to_run[0])
+        else:
+            print("Align, L 22")
+            align(args,"all",tasks_to_run[0])           
+                  
+    ##If align in sensitive mode then sam_sort is already done
+    if (not args["align"]["align_sensitive"]) or (tasks_to_run[0] == "sam_sort"):
+        if "sam_sort" in tasks_to_run:
+            print("Sort SAM")
+            sam_sort(args,"all",tasks_to_run[0])
+            
+    if "pseudoSE" in tasks_to_run:
+        print("PseudoSE")
+        pseudoSE(args,tasks_to_run[0])
 
-if "identify" in tasks_to_run:
-    print("Identify pp-s")
-    identify(args,tasks_to_run[0])
+    if "identify" in tasks_to_run:
+        print("Identify pp-s")
+        identify(args,tasks_to_run[0])
 
-if "cluster" in tasks_to_run:
-    print("Cluster pp-s")
-    cluster(args,tasks_to_run[0])
-        
-if "quantify" in tasks_to_run:
-    print("Quantify pp-s")
-    quantify(args,tasks_to_run[0])
+    if "cluster" in tasks_to_run:
+        print("Cluster pp-s")
+        cluster(args,tasks_to_run[0])
+            
+    if "quantify" in tasks_to_run:
+        print("Quantify pp-s")
+        quantify(args,tasks_to_run[0])
                              
-#if __name__ == '__main__':
-#    arguments = docopt(__doc__)
-#    print(arguments)
+if __name__ == '__main__':
+    main()
