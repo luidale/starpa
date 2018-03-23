@@ -222,6 +222,7 @@ describing libraries to be analysed.
 `"library_file" <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/libraries.txt>`_ are available in:
 
 ::
+
  src/starpa/data
 
 |
