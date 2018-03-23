@@ -99,7 +99,7 @@ individual libraries) are created.
 
 - *quantify*
 
-Representative processing products will be quantified using BEDtools intersect in every library.
+Representative processing products will be quantified using bedtools intersect in every library.
 Additional characteristics will be gathered (relative coverage, coverage at single position level, 
 consensus sequence, quality of consensus sequence, genomic sequence, uniqueness). Quantification data
 is also converted to read per million of mapped reads (RPM), RPM of biotype and RPM of biotype groups.
@@ -145,8 +145,8 @@ Usage
 Usage of starpa is as follows::
 
  Usage:
-     starpa.py      [-hv]
-     starpa.py -s <start_task> -e <end_task> -c <parameter_file> -i <input> 
+     starpa      [-hv]
+     starpa -s <start_task> -e <end_task> -c <parameter_file> -i <input> 
      -o <output>
 
  Arguments:
@@ -300,9 +300,9 @@ Output folder will contain parameter folder:
 ::
 
  parameters/
-	eg. config.txt				-	copy of configuration file
+	eg. config.txt			-	copy of configuration file
 	arguments.txt			-	command line arguments
-	eg. libraries.txt			-	copy of library file
+	eg. libraries.txt		-	copy of library file
 	eg. parameters.dev-2-100-2.txt	-	copy of Flaimapper-2 parameter file
  
 
