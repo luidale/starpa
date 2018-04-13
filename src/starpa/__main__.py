@@ -606,7 +606,6 @@ def write_arguments(args):
 ########
 
 def main():    
-    args = docopt(__doc__,version=__version__)
     args,tasks_to_run = check_arguments(args, tasks)
     args = get_libraries(args)
     check_input_files(args)
@@ -658,4 +657,5 @@ def main():
         quantify(args,tasks_to_run[0])
                              
 if __name__ == '__main__':
-    main()
+    args = docopt(__doc__,version=__version__)
+    main(args)
