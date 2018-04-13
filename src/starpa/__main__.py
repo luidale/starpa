@@ -3,7 +3,7 @@
 
 '''
 Usage:
-    starpa [-hv]
+    starpa	[-hv]
     starpa -s <start_task> -e <end_task> -c <config_file> -i <input> -o <output>
     
 Arguments:
@@ -605,7 +605,7 @@ def write_arguments(args):
 #SCRIPT#
 ########
 
-def main():    
+def main(args):    
     args,tasks_to_run = check_arguments(args, tasks)
     args = get_libraries(args)
     check_input_files(args)
