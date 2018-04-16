@@ -34,7 +34,7 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
                             "-i",input_folder,"-o","tests/data/output"])
         #change trim call in Travis
-        if is_travis = 'TRAVIS' in os.environ:
+        if os.environ.get('TRAVIS') == 'true':
             args["cutaadapt"]["trim_call"] = "cutadapt"
         starpa.main(args)
         shutil.rmtree("tests/data/output")
