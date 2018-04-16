@@ -7,7 +7,7 @@ python:
 install:
 #travis can is not able to install schema
   - pip install schema 
-  - pip install cutadapt 
+  - pip install --user cutadapt 
   - python setup.py install
 #  - pip install -e .
 # command to run tests
