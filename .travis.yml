@@ -5,8 +5,9 @@ python:
   - "3.6"
 # command to install dependencies
 install:
-#  - pip install pyfaidx
-  - pip install schema
+#travis can is not able to install schema
+  - pip install schema 
+  - pip install cutadapt 
   - python setup.py install
 #  - pip install -e .
 # command to run tests
