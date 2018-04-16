@@ -19,7 +19,7 @@ setuptools.setup(
 	entry_points = {
         'console_scripts': ['starpa=starpa.__main__:main']},
 		
-    install_requires=["pyfaidx","schema","docopt"],
+    install_requires=["pyfaidx","schema","docopt","cutadapt"],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

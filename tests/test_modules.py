@@ -33,6 +33,7 @@ class TestStarpa(unittest.TestCase):
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
                             "-i",input_folder,"-o","tests/data/output"])
+        print(args)
         #change trim call in Travis
         if os.environ.get('TRAVIS') == 'true':
             args["cutadapt"]["trim_call"] = "cutadapt2"
