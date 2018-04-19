@@ -35,8 +35,8 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o","tests/data/output"])
         print(args)
         #change trim call in Travis
-        if os.environ.get('TRAVIS') == 'true':
-            args["cutadapt"]["trim_call"] = "cutadapt2"
+##        if os.environ.get('TRAVIS') == 'true':
+##            args["cutadapt"]["trim_call"] = "cutadapt2"
         starpa.main(args)
         shutil.rmtree("tests/data/output")
         #self.assertTrue(run)
