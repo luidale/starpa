@@ -83,7 +83,7 @@ pseudoSE_input_file_suffix = _sort.sam		#Suffix for input file names as name for
 ##Name format of input_file: "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
 identify_flaimapper_parameters = tests/data/flaimapper_parameters/parameters.dev-2-100-2.txt		#Relative location of Flaimapper2 parameter file
 #identify_overlap = 30		#
-identify_flaimapper_call = ~/.local/bin/flaimapper		#Call for Flaimapper2 command
+identify_flaimapper_call = flaimapper		#Call for Flaimapper2 command
 identify_input_file_suffix = _pseudoSE.sam		#Suffix for input file names as name format above [eg. _pseudoSE.sam]
 												#It should be "_pseudoSE.sam" if input data is coming from STARPA pipeline
 identify_split_step = 10		#Read length intervals for sam file fragmentation which will be analysed separately by Flaimapper2.
@@ -137,7 +137,7 @@ quantify_sam_file_location = ../pseudoSE		#Location of a folder (relative to inp
 												#- output of task "pseudoSE" 
 												#(Reads require NH tag to describe the number of reported alignments.)
 quantify_sam_file_suffix = _pseudoSE.sam		#Suffixs for sam file; "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
-quantify_annotation_file = data/annotation/sequence.gff3		#Annotation file in GFF, GFF3 format.
+quantify_annotation_file = tests/data/annotation/sequence.gff3		#Annotation file in GFF, GFF3 format.
 
 ##parameters for annotation:
 quantify_keys_to_skip = [Src, mobile_element, misc_feature, STS]		#Annotation elements which are skipped
