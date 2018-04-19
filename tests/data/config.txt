@@ -5,8 +5,8 @@ library_file = tests/data/libraries.txt		#Relative loaction of file with library
 genome = tests/data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
 samtools_call = samtools		#Call for samtools command [eg. samtools]
 samtools_threads = 1		#Thread (cores) used by samtools [integer, eg. 1]
-bedtools_call = ~/bin/bedtools2.26/bin/bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
-cd_hit_est_call = ~/bin/cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
+bedtools_call = bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
+cd_hit_est_call = cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
 CPUs = 2		#Number of libraries to be analysed in parallel manner [integer, eg. 2]
 min_length = 18		#Minimum length of reads, shorter reads will be discarded [integer, eg. 18]
 max_length = 300		#Maximum length of reads,shorter reads will be discarded [integer, eg. 300]
@@ -20,7 +20,7 @@ paired = True		#Are reads in paired-end format [True or False]
 #trim
 #Trims reads using cutadapt
 ##Name format of input_file: "library" + "suffix" (eg. "_1.fq") -> library_1.fq
-trim_call = ~/.local/bin/cutadapt		#Call for cutadapt (eg. ~/.local/bin/cutadapt)
+trim_call = cutadapt		#Call for cutadapt (eg. ~/.local/bin/cutadapt)
 trim_min_qual = 30		#3' end trimming quality threshold [integer, eg. 30]
 trim_overlap = 1	#Mininum match between adapter and read's 3' end. In case of paired end read it can be set to 1 as paired match will
 					#cover short trimmings happeinging by chance.
@@ -39,8 +39,8 @@ trim_input_file_suffix_SE = _1.fq		#Suffix for input file names as name format a
 #align
 #Aligns reads using bowtie2
 ##Name format of input_file: "library" + "suffix" (eg. "_1_trim.fq") -> library_1_trim.fq
-align_call = ~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2		#Call for bowtie2 command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2]
-align_index_call = ~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build		#Call for bowtie2-build command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build]
+align_call = bowtie2		#Call for bowtie2 command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2]
+align_index_call = bowtie2-build		#Call for bowtie2-build command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build]
 align_threads = 1		#Threads(cores) used by bowtie2 [integer, eg. 1]
 align_quality_base = 64		#Phred quality encoding of input data of task "align" [64 if Phred+64 or 33 if Phred+33]
 align_sensitive = False		#Alignment in sensitive mode (two step process) [True or False]
