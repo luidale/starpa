@@ -156,7 +156,7 @@ class identify():
                                              library+"_"+strand_name+".bam")
             samtools_sort_command = (
                 settings["samtools_call"], "sort",
-				"-@", str(settings["samtools_threads"]),
+#				"-@", str(settings["samtools_threads"]),
                 "-o", strand_split_bam, strand_split_unsorted_bam
                 )
             os.system("\t".join(samtools_sort_command))
