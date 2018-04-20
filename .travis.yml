@@ -7,6 +7,10 @@ python:
 # command to install dependencies
 install:
 #travis can is not able to install schema
+  - which python
+  - curl -sSf -o python-2.7.tar.bz2 ${archive_url}
+  - sudo tar xjf python-2.7.tar.bz2 --directory / 
+  - which python  
   - pip install schema 
   - pip install cutadapt 
   - sudo apt-get update -qq

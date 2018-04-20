@@ -50,33 +50,33 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o","tests/data/output"])
         starpa.main(args)
 
-##    def test_align(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output","trim")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
-##        starpa.main(args)
-##
-##    def test_sort(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output","align")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
-##        starpa.main(args)
-##
-##    def test_pseudoSE(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output","sam_sort")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
-##        starpa.main(args)
-##
+    def test_align(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","trim")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
+                            "-i",input_folder,"-o","tests/data/output"])
+        starpa.main(args)
+
+    def test_sort(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","align")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file,\
+                            "-i",input_folder,"-o","tests/data/output"])
+        starpa.main(args)
+
+    def test_pseudoSE(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","sam_sort")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file,\
+                            "-i",input_folder,"-o","tests/data/output"])
+        starpa.main(args)
+
 ##    def test_identify(self):
 ##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 ##                           os.path.join("data","output","pseudoSE")))
