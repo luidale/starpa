@@ -150,6 +150,8 @@ class identify():
             #sort stranded bam
             print("B",os.listdir(os.path.join(settings["--output"],"identify",\
                                              "bam")))
+            print("B1",os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+".bam"))
             strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
                                              library+"_"+strand_name+".bam")
             samtools_sort_command = (
