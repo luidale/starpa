@@ -50,7 +50,7 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
         if os.path.isdir(output_folder):
-            print(output_folder):
+            print(output_folder)
             is os.path.isdir(os.path.join(output_folder,"trim"))
                 print(os.path.join(output_folder,"trim"))
             else:
