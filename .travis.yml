@@ -17,6 +17,7 @@ install:
   - cd src
   - sudo pip install .
   - cd ../..
+  - rm -r flaimapper-3.0.0
   - pip install schema 
   - pip install cutadapt 
   - sudo apt-get update -qq
