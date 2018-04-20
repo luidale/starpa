@@ -14,8 +14,8 @@ install:
   - sudo apt-get install -qq bowtie2
   - sudo apt-get install -qq bedtools
   - wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
-  - tar xvf cd-hit-v4.6.8-2017-1208.tar.gz --gunzip
-  - cd cd-hit-v4.6.8-2017-1208
+  - tar xvf cd-hit-v4.6.8-2017-1208-source.tar.gz --gunzip
+  - cd cd-hit-v4.6.8-2017-1208-source
   - make
   - cd cd-hit-auxtools
   - make
