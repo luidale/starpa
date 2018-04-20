@@ -13,7 +13,7 @@ install:
 #  - which python
   - wget https://github.com/yhoogstrate/flaimapper/archive/v3.0.0.tar.gz
   - tar xvf v3.0.0.tar.gz --gunzip
-  - cd flaimapper-v3.0.0
+  - cd flaimapper-3.0.0
   - cd src
   - sudo pip install .
   - cd ../..
