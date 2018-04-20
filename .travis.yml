@@ -13,7 +13,13 @@ install:
   - sudo apt-get install -qq samtools
   - sudo apt-get install -qq bowtie2
   - sudo apt-get install -qq bedtools
-  - sudo apt-get install -qq cd-hit-est
+  - wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
+  - tar xvf cd-hit-v4.6.8-2017-1208.tar.gz --gunzip
+  - cd cd-hit-v4.6.8-2017-1208
+  - make
+  - cd cd-hit-auxtools
+  - make
+
 #  - pip install -e .
 # command to run tests
 script:
