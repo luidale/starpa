@@ -26,20 +26,20 @@ class TestStarpa(unittest.TestCase):
         pass
 
 
-    def test_01(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","fq")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
-        print(args)
-        #change trim call in Travis
-##        if os.environ.get('TRAVIS') == 'true':
-##            args["cutadapt"]["trim_call"] = "cutadapt2"
-        starpa.main(args)
-        shutil.rmtree("tests/data/output")
-        #self.assertTrue(run)
+##    def test_01(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","fq")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
+##                            "-i",input_folder,"-o","tests/data/output"])
+##        print(args)
+##        #change trim call in Travis
+####        if os.environ.get('TRAVIS') == 'true':
+####            args["cutadapt"]["trim_call"] = "cutadapt2"
+##        starpa.main(args)
+##        shutil.rmtree("tests/data/output")
+##        #self.assertTrue(run)
 
     def test_trim(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -47,7 +47,7 @@ class TestStarpa(unittest.TestCase):
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
+                            "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
     def test_align(self):
@@ -56,7 +56,7 @@ class TestStarpa(unittest.TestCase):
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
+                            "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
     def test_sort(self):
@@ -65,7 +65,7 @@ class TestStarpa(unittest.TestCase):
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
+                            "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
     def test_pseudoSE(self):
@@ -74,7 +74,7 @@ class TestStarpa(unittest.TestCase):
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
+                            "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
 ##    def test_identify(self):
