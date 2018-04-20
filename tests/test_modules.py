@@ -41,7 +41,7 @@ class TestStarpa(unittest.TestCase):
 ##        shutil.rmtree("tests/data/output")
 ##        #self.assertTrue(run)
 
-    def test_trim(self):
+    def test_01_trim(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","fq")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -57,8 +57,9 @@ class TestStarpa(unittest.TestCase):
                 print("A")
         else:
             print("B")
+            
 
-    def test_align(self):
+    def test_02_align(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output","trim")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -67,7 +68,7 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
-    def test_sort(self):
+    def test_03_sort(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output","align")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -76,7 +77,7 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
-    def test_pseudoSE(self):
+    def test_04_pseudoSE(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output","sam_sort")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
