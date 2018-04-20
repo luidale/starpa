@@ -21,7 +21,7 @@ install:
   - pip install schema 
   - pip install cutadapt 
   - sudo apt-get update -qq
-  - sudo apt-get install -qq samtools
+  - sudo apt-get install -g -qq samtools
   - sudo apt-get install -qq bowtie2
   - sudo apt-get install -qq bedtools
   - wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
