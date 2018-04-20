@@ -42,6 +42,8 @@ class TestStarpa(unittest.TestCase):
 ##        #self.assertTrue(run)
 
     def test_01_trim(self):
+        if os.environ.get('TRAVIS') == 'true':
+            return
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","fq")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -92,7 +94,7 @@ class TestStarpa(unittest.TestCase):
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
         args = docopt(doc, ["-s","identify","-e","identify","-c",config_file,\
-                            "-i",input_folder,"-o","tests/data/output"])
+                            "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 ##
 ##    def test_06_cluster(self):
@@ -101,7 +103,7 @@ class TestStarpa(unittest.TestCase):
 ##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 ##                           os.path.join("data","output")))
 ##        args = docopt(doc, ["-s","cluster","-e","cluster","-c",config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
+##                            "-i",input_folder,"-o",output_folder])
 ##        starpa.main(args)
 ##
 ##    def test_07_quantify(self):
@@ -110,9 +112,9 @@ class TestStarpa(unittest.TestCase):
 ##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 ##                           os.path.join("data","output")))
 ##        args = docopt(doc, ["-s","quantify","-e","quantify","-c",config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
+##                            "-i",input_folder,"-o",output_folder])
 ##        starpa.main(args)
-##        shutil.rmtree("tests/data/output")
+##        shutil.rmtree(output_folder)
 ##        
 ##    def test_08_full(self):
 ##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -120,9 +122,9 @@ class TestStarpa(unittest.TestCase):
 ##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
 ##                           os.path.join("data","output")))
 ##        args = docopt(doc, ["-s","trim","-e","quantify", "-c", config_file,\
-##                            "-i",input_folder,"-o","tests/data/output"])
+##                            "-i",input_folder,"-o",output_folder])
 ##        starpa.main(args)
-##        shutil.rmtree("tests/data/output")
+##        shutil.rmtree(output_folder)
 ##        #self.assertTrue(run)
 
     def test_01a(self):
