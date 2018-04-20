@@ -62,10 +62,18 @@ class TestStarpa(unittest.TestCase):
             
 
     def test_02_align(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","trim")))
+
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
+        if '__pypy__' in sys.builtin_module_names:
+            #in pypy the cutadapt does not work, prepared input is used
+            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","trim_output")))
+
+        else:
+            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","trim")))
+            
         args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
