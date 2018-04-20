@@ -42,7 +42,7 @@ class TestStarpa(unittest.TestCase):
 ##        #self.assertTrue(run)
 
     def test_01_trim(self):
-        if os.environ.get('TRAVIS') == 'true':
+        if is_pypy = '__pypy__' in sys.builtin_module_names:
             return
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","fq")))
