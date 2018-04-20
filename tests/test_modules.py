@@ -49,6 +49,14 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
+        if os.path.isdir(output_folder):
+            print(output_folder):
+            is os.path.isdir(os.path.join(output_folder,"trim"))
+                print(os.path.join(output_folder,"trim"))
+            else:
+                print("A")
+        else:
+            print("B")
 
     def test_align(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
