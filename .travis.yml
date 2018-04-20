@@ -7,12 +7,19 @@ python:
 # command to install dependencies
 install:
 #travis can is not able to install schema
-  - which python
-  - curl -sSf -o python-2.7.tar.bz2 ${archive_url}
-  - sudo tar xjf python-2.7.tar.bz2 --directory / 
-  - which python  
+#  - which python
+#  - curl -sSf -o python-2.7.tar.bz2 ${archive_url}
+#  - sudo tar xjf python-2.7.tar.bz2 --directory / 
+#  - which python
+  - wget https://github.com/yhoogstrate/flaimapper/archive/v3.0.0.tar.gz
+  - tar xvf v3.0.0.tar.gz --gunzip
+  - cd v3.0.0
+  - cd src
+  - sudo pip install .
+  - cd ../..
   - pip install schema 
   - pip install cutadapt 
+  - pip install flaimapper
   - sudo apt-get update -qq
   - sudo apt-get install -qq samtools
   - sudo apt-get install -qq bowtie2
