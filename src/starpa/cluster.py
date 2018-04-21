@@ -696,7 +696,8 @@ class cluster():
                                        library+"_contigs_meta.BED"),'rb') as fd:
                     shutil.copyfileobj(fd, wfd, 1024*1024*10)
 
-        with open("combined_contigs_meta_unsorted.BED") as f_in:
+        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                               "combined_contigs_meta_unsorted.BED")) as f_in:
             for line in f_in:
                 print(line)
                 
@@ -712,7 +713,8 @@ class cluster():
         os.remove(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                "combined_contigs_meta_unsorted.BED"))
 
-        with open("combined_contigs_meta.BED") as f_in:
+        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                              "combined_contigs_meta_unsorted.BED")) as f_in:
             for line in f_in:
                 print(line)
         
