@@ -714,7 +714,7 @@ class cluster():
                                "combined_contigs_meta_unsorted.BED"))
 
         with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                              "combined_contigs_meta_unsorted.BED")) as f_in:
+                              "combined_contigs_meta.BED")) as f_in:
             for line in f_in:
                 print(line)
         
