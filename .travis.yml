@@ -24,6 +24,7 @@ install:
   - sudo apt-get install -qq samtools
   - sudo apt-get install -qq bowtie2
   - sudo apt-get install -qq bedtools
+  - pwd
   - samtools view -@ 1 -F 0x10 -Sb /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_pseudoSE.sam > /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For_unsorted.bam
   - ls -l starpa/tests/data/trim_output/
   - samtools sort -o /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For.bam /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For_unsorted.bam
