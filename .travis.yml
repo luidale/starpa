@@ -25,7 +25,8 @@ install:
   - tar -xjvf samtools.tar.bz2
   - cd samtools-1.8/
   - make
-  - make prefix=/usr/local/bin install
+  - sudo make install
+  - sudo make prefix=/usr/local/bin install
   - cd ..
   - sudo apt-get install -qq bowtie2
   - sudo apt-get install -qq bedtools
