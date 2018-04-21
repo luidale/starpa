@@ -696,6 +696,10 @@ class cluster():
                                        library+"_contigs_meta.BED"),'rb') as fd:
                     shutil.copyfileobj(fd, wfd, 1024*1024*10)
 
+        with open("combined_contigs_meta_unsorted.BED") as f_in:
+            for line in f_in:
+                print(line)
+                
         #sort combined file
         sort_command = (
             settings["bedtools_call"], "sort",
@@ -707,6 +711,10 @@ class cluster():
         os.system(" ".join(sort_command))
         os.remove(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                "combined_contigs_meta_unsorted.BED"))
+
+        with open("combined_contigs_meta.BED") as f_in:
+            for line in f_in:
+                print(line)
         
         #merge contigs into metacontigs
         merge_command = (
