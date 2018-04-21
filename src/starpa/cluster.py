@@ -699,7 +699,7 @@ class cluster():
         with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                "combined_contigs_meta_unsorted.BED")) as f_in:
             for line in f_in:
-                print(line)
+                print("a",line)
                 
         #sort combined file
         sort_command = (
@@ -716,7 +716,7 @@ class cluster():
         with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
                               "combined_contigs_meta.BED")) as f_in:
             for line in f_in:
-                print(line)
+                print("b",line)
         
         #merge contigs into metacontigs
         merge_command = (
@@ -728,7 +728,12 @@ class cluster():
                               "metacontigs.BED")
             )
         os.system(" ".join(merge_command))
-
+        
+        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                              "metacontigs.BED")) as f_in:
+            for line in f_in:
+                print("c",line)
+                
         #name metacontigs
         self.name_contigs(settings,os.path.join(settings["--output"],"cluster","contigs_meta",\
                                                 "metacontigs.BED"))
