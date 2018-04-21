@@ -134,8 +134,6 @@ class identify():
             print("\t"+" ".join([library,strand_name,"Flaimapper"]))
             
             #split by strand
-            print("A",os.listdir(os.path.join(settings["--output"],"identify",\
-                                             "bam")))
             strand_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
                                              "bam",library+"_"+strand_name+"_unsorted.bam")
             samtools_split_by_strand_command = (
@@ -148,10 +146,6 @@ class identify():
             os.system("\t".join(samtools_split_by_strand_command))
             
             #sort stranded bam
-            print("B",os.listdir(os.path.join(settings["--output"],"identify",\
-                                             "bam")))
-            print("B1",os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand_name+".bam"))
             strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
                                              library+"_"+strand_name+".bam")
             samtools_sort_command = (
@@ -162,8 +156,6 @@ class identify():
             os.system("\t".join(samtools_sort_command))
 
             #index bam
-            print("C",os.listdir(os.path.join(settings["--output"],"identify",\
-                                             "bam")))
             samtools_index_command = (
                 settings["samtools_call"], "index",
 				"-@", str(settings["samtools_threads"]),
@@ -173,8 +165,6 @@ class identify():
             os.system(" ".join(samtools_index_command))
             
             #sorted bam to sam
-            print("D",os.listdir(os.path.join(settings["--output"],"identify",\
-                                             "bam")))
             samtools_bam_to_sam_command = (
                 settings["samtools_call"], "view", "-h",
 				"-@", str(settings["samtools_threads"]),
@@ -186,8 +176,6 @@ class identify():
             
             #split bam by length
             for i in range(len(length_range_upper)):
-                print("E"+str(i),os.listdir(os.path.join(settings["--output"],"identify",\
-                                             "bam")))
                 length_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
                                                  "bam",library+\
                                                "_"+strand_name+"_"+str(i)+"_unsorted.bam")

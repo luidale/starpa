@@ -104,36 +104,36 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s","identify","-e","identify","-c",config_file,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-##
-##    def test_06_cluster(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output","identify")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","cluster","-e","cluster","-c",config_file,\
-##                            "-i",input_folder,"-o",output_folder])
-##        starpa.main(args)
-##
-##    def test_07_quantify(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output","cluster")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","quantify","-e","quantify","-c",config_file,\
-##                            "-i",input_folder,"-o",output_folder])
-##        starpa.main(args)
-##        shutil.rmtree(output_folder)
-##        
-##    def test_08_full(self):
-##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","fq")))
-##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-##                           os.path.join("data","output")))
-##        args = docopt(doc, ["-s","trim","-e","quantify", "-c", config_file,\
-##                            "-i",input_folder,"-o",output_folder])
-##        starpa.main(args)
-##        shutil.rmtree(output_folder)
-##        #self.assertTrue(run)
+
+    def test_06_cluster(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","identify")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","cluster","-e","cluster","-c",config_file,\
+                            "-i",input_folder,"-o",output_folder])
+        starpa.main(args)
+
+    def test_07_quantify(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output","cluster")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","quantify","-e","quantify","-c",config_file,\
+                            "-i",input_folder,"-o",output_folder])
+        starpa.main(args)
+        shutil.rmtree(output_folder)
+        
+    def test_08_full(self):
+        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","fq")))
+        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","output")))
+        args = docopt(doc, ["-s","trim","-e","quantify", "-c", config_file,\
+                            "-i",input_folder,"-o",output_folder])
+        starpa.main(args)
+        shutil.rmtree(output_folder)
+        #self.assertTrue(run)
 
     def test_01a(self):
         args = docopt(doc, ["--version"])
