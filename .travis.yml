@@ -27,6 +27,7 @@ install:
   - pwd
   - samtools view -@ 1 -F 0x10 -Sb /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_pseudoSE.sam > /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For_unsorted.bam
   - ls -l tests/data/trim_output/
+  - samtools sort
   - samtools sort -o /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For.bam /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For_unsorted.bam
   - ls -l tests/data/trim_output/  
   - wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
