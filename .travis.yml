@@ -26,10 +26,14 @@ install:
   - cd samtools-1.8/
   - make
   - sudo make install
-  - sudo make prefix=/usr/local/bin install
   - cd ..
   - sudo apt-get install -qq bowtie2
-  - sudo apt-get install -qq bedtools
+  - wget https://github.com/arq5x/bedtools2/releases/download/v2.27.0/bedtools-2.27.0.tar.gz
+  - tar -zxvf bedtools-2.27.0.tar.gz
+  - cd bedtools2/
+  - make
+  - sudo make install
+  - cd ..
   - pwd
   - samtools view -@ 1 -F 0x10 -Sb /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_pseudoSE.sam > /home/travis/build/luidale/starpa/tests/data/trim_output/HLRPI13_For_unsorted.bam
   - ls -l tests/data/trim_output/
