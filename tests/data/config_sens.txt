@@ -1,0 +1,154 @@
+#Configuration file
+
+#general
+library_file = tests/data/libraries.txt		#Relative loaction of file with library names (each name on separate line)
+genome = tests/data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
+samtools_call = samtools		#Call for samtools command [eg. samtools]
+samtools_threads = 1		#Thread (cores) used by samtools [integer, eg. 1]
+bedtools_call = bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
+cd_hit_est_call = cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
+CPUs = 1		#Number of libraries to be analysed in parallel manner [integer, eg. 2]
+min_length = 18		#Minimum length of reads, shorter reads will be discarded [integer, eg. 18]
+max_length = 300		#Maximum length of reads,shorter reads will be discarded [integer, eg. 300]
+non_overlap = 2		#Number of bases allowed to not overlap between read and processing product
+					#It can be up to around square root of the 'min_length' parameter (minimal length of the allowed reads)
+min_pp_reads = 10	#Minimum number of reads matching processing product to be considered
+#Important only for tasks "trim","sma_sort","pseudoSE":
+paired = True		#Are reads in paired-end format [True or False]
+
+
+#trim
+#Trims reads using cutadapt
+##Name format of input_file: "library" + "suffix" (eg. "_1.fq") -> library_1.fq
+trim_call = cutadapt		#Call for cutadapt (eg. ~/.local/bin/cutadapt)
+trim_min_qual = 30		#3' end trimming quality threshold [integer, eg. 30]
+trim_overlap = 1	#Mininum match between adapter and read's 3' end. In case of paired end read it can be set to 1 as paired match will
+					#cover short trimmings happeinging by chance.
+trim_adapter_for = tests/data/adapters/adapter1.fasta		#Relative path of the 5' adapter file (in fasta format)
+trim_adapter_rev = tests/data/adapters/adapter2.fasta		#Relative path of the 3' adapter file (in fasta format)
+trim_threads = 1		#Thread (cores) used by cutadapt, currently works only with 1 [integer, eg. 1]
+trim_quality_base = 64		#Phred quality encoding of input data of task "trim" [64 if Phred+64 or 33 if Phred+33]
+trim_input_file_suffix_for = _1.fq		#Suffix for forward input file names as name format above [eg. _1.fq]
+trim_input_file_suffix_rev = _2.fq		#Suffix for reverse input file names as name format above [eg. _2.fq]
+										#They should be "_1.fq" and "_2.fq" if input data is coming from STARPA pipeline
+##Important only in non paired (single-end) mode  [paired = False]:
+trim_input_file_suffix_SE = _1.fq		#Suffix for input file names as name format above [Default: .fq]
+										#It should be "_1.fq" if input data is coming from STARPA pipeline
+										
+										
+#align
+#Aligns reads using bowtie2
+##Name format of input_file: "library" + "suffix" (eg. "_1_trim.fq") -> library_1_trim.fq
+align_call = bowtie2		#Call for bowtie2 command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2]
+align_index_call = bowtie2-build		#Call for bowtie2-build command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build]
+align_threads = 1		#Threads(cores) used by bowtie2 [integer, eg. 1]
+align_quality_base = 64		#Phred quality encoding of input data of task "align" [64 if Phred+64 or 33 if Phred+33]
+align_sensitive = True		#Alignment in sensitive mode (two step process) [True or False]
+align_input_file_suffix_for = _1_trim.fq		#Suffix for forward input file names as name format above [Default: _1_trim.fq]
+align_input_file_suffix_rev = _2_trim.fq		#Suffix for reverse input file names as name format above [Default: _2_trim.fq]
+												#They should be "_1_trim.fq" and "_2_trim.fq" if input data is coming from STARPA pipeline
+##Important only in non paired (single-end) mode  [paired = False]:
+align_input_file_suffix_SE = _trim.fq		#Suffix for input file names as name format above [Default: _trim.fq]
+											#It should be "_trim.fq" if input data is coming from STARPA pipeline
+
+
+#sort
+#Removes unaligned reads and discards mappings with lower quality
+##Name format of input_file: "library" + ".sam" -> library.sam 
+
+
+#pseudoSE
+#Converts PE reads to pseudo SE, removes reads with too many mismatches or too many mappings.
+#If SE reads are used as input: removes reads with too many mismatches or too many mappings.
+#If the read pairs (in case of PE) are not overlapping then the gap between reads is filled with genomic sequence.
+##Name format of input_file: "library" + "suffix" (eg. "_sort.sam") -> library_sort.sam 
+pseudoSE_max_mappings = 100		#Number of maximum mappings [integer, eg. 100]
+pseudoSE_oligoA = True		#Are reads with extragenomic A-s at the 3' end and having too many mismatches included?
+							#They might be easily discarded if number of allowed mismatches is too lower that lenght of oligoA tale.
+							#In bacteria RNAs are often oligoadenylated [True or False]
+pseudoSE_quality_base = 33		#Phred quality encoding of input data for task "psudoSE" [64 if Phred+64 or 33 if Phred+33]
+								#If input for task "pseudoSE" originates from task "align" the initially Phred+64 data is converted to Phred+33.
+pseudoSE_allowed_mismatch = 2		#Maximum number of mismatches allowed [integer, eg. 2]
+pseudoSE_mismatch_precentage = 0		#Maximum percentage of mismatches allowed in sequenced region [integer: 0-100]
+										#If the read pairs (in case of PE) are not overlapping then the mismatches are calculated 
+										#only for the region of reads.
+#pseudoSE_max_read_length = 49		#Maximum length of read from pair [integer, eg. 49]
+pseudoSE_input_file_suffix = _sort.sam		#Suffix for input file names as name format above [eg. _sort.sam]
+											#It should be "_sort.sam" if input data is coming from STARPA pipeline
+
+											
+#identify
+#Identifies processing products via Flaimapper2 which are filtered by read number estimated by flaimapper (50% of min_pp_reads)
+#Then reads are quantified by BEDtools intersect.
+##Name format of input_file: "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
+identify_flaimapper_parameters = tests/data/flaimapper_parameters/parameters.dev-2-100-2.txt		#Relative location of Flaimapper2 parameter file
+#identify_overlap = 30		#
+identify_flaimapper_call = flaimapper		#Call for Flaimapper2 command
+identify_input_file_suffix = _pseudoSE.sam		#Suffix for input file names as name format above [eg. _pseudoSE.sam]
+												#It should be "_pseudoSE.sam" if input data is coming from STARPA pipeline
+identify_split_step = 10		#Read length intervals for sam file fragmentation which will be analysed separately by Flaimapper2.
+								#This allows identification of reads with overlapping start or end positions.
+
+								
+#cluster
+#Filters processing product by the number of reads they they match and relative coverage
+#(combined coverage o
+#Clusters processing products by overlap and sequence identity if they
+#belong to the same metacontig classes
+##Name format of input_file: "library" + "suffix" (eg. "__pp_counted.BED") -> library__pp_counted.BED
+cluster_min_contig_length = 18		#Minimum contig length, could be equal with minimal read length.
+cluster_min_contig_cov = 1		#Coverage threshold of genomic positions to be included in a contig.
+cluster_min_contig_reads = 10		#Minimum number of reads in contig, should be equal with min_pp_reads,
+									#otherwise too many non-informative contigs will be saved.
+cluster_min_contig_length_meta = 18		#Minimum contig length for contigs used to create metacontigs, could be equal with minimal read length
+cluster_min_contig_cov_meta = 5		#Coverage threshold of genomic positions to be included in a contig used to create metacontigs,
+									# can/should be set bigger than 1. Then contigs connected by few reads will be separated
+									#allowing adjusting clustering via metacontigs.
+									#Most efficient clustering via metacontigs depends on the nature on library but good starting points
+									#are around 100% to 50% of the value of parameter "min_pp_reads".
+cluster_min_contig_reads_meta = 10		#Minimum number of reads in contig used to create metacontigs, should be equal with min_pp_reads,
+										#otherwise too many non-informative contigs will be used
+##Relative coverage of pp (average coverage of each position of the whole processing product)
+cluster_rel_cov_list = [0.25,0.1]		#Minimum relative coverage. In form: [x] or [x,y,...]. [eg [0.25,0.1]]
+										#First value is minimum relative coverage of processing products from minimum length untill
+										#the first size (excluded) in cluster_rel_cov_size_range. If cluster_rel_cov_size_range is [] (no numbers given)
+										#then it is minimal relative coverage for all processing products.
+										#Following numbers (if there) represent minimal relative coverage for processing products for next 
+										#size range (first (included) and second (excluded) number of cluster_rel_cov_size_range). And so forth.
+										#For example:
+										#cluster_rel_cov_list = [0.25,0.1]
+										#cluster_rel_cov_size_range = [120]
+										#read size_range -> minimum relative coverage
+										#min_length(18)-119 -> 0.25
+										#120-max_length(300) -> 0.1
+cluster_rel_cov_size_range = [120]		#Size range for minimum relative coverage. In form: [], [x] or [x,y,...] and has to be shorter by 1 
+										#compared with cluster_rel_cov_size_range and numbers has to be in growing order. [eg. [120]]
+cluster_input_file_suffix = _pp_counted.BED		#Suffix for pp counted BED file: "library1" + "suffix" (eg. "_pp_counted.BED") -> library1_pp_counted.BED
+												#It should be "_pp_counted.BED" if input data is coming from STARPA pipeline
+##important when "cluster" is first task
+cluster_pseudoSE_location = ../pseudoSE/pseudoSE_info		#Location of folder with task "pseudoSE" info files relative to input folder
+
+										
+#quantify
+#Quantifies processing products in all libraries and collects and calculates various parameters.
+##Name format of input_file: "library" + "suffix" (eg. "__pp_counted.BED") -> library__pp_counted.BED
+##important if "quantify" or "cluster" is first task:
+quantify_sam_file_location = ../pseudoSE		#Location of a folder (relative to input folder) with aligned SE or pseudoSE reads in SAM format
+												#- output of task "pseudoSE" 
+												#(Reads require NH tag to describe the number of reported alignments.)
+quantify_sam_file_suffix = _pseudoSE.sam		#Suffixs for sam file; "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
+quantify_annotation_file = tests/data/annotation/sequence.gff3		#Annotation file in GFF, GFF3 format.
+
+##parameters for annotation:
+quantify_keys_to_skip = [Src, mobile_element, misc_feature, STS]		#Annotation elements which are skipped
+quantify_single_line_elements = [repeat_region, telomere, rep_origin, centromere]		#Annotation elements which are given as single line. Those are included 
+quantify_ncRNA_types = [antisense_RNA, ncRNA, RNase_P_RNA,tmRNA, SRP_RNA, RNase_MRP_RNA, miscRNA,tmRNA_pseudogene,tRNA_pseudogene,ncRNA_pseudogene,telomerase_RNA]		#RNA types groupped as ncRNAs
+quantify_non_groupped_biotypes = [tRNA, rRNA, repeat_region]		#Annotatioon elements not groupped
+##RNA groups annotated separately:
+#tRNA,rRNA,snRNA,snoRNA,
+
+
+
+
+
+
