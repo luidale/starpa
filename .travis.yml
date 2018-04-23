@@ -43,8 +43,10 @@ install:
   - tar xvf cd-hit-v4.6.8-2017-1208-source.tar.gz --gunzip
   - cd cd-hit-v4.6.8-2017-1208
   - make
+  - PATH=$(pwd):$PATH
   - cd cd-hit-auxtools
   - make
+  - PATH=$(pwd):$PATH
   - cd ../..
   - python setup.py install
 #  - pip install -e .
