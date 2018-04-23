@@ -1,0 +1,63 @@
+This is cutadapt 1.16 with Python 3.5.3 (PyPy)
+Command line parameters: -a file:tests/data/adapters/adapter1.fasta --too-short-output /storage9/user/luidalepp/starpa/tests/data/output/trim/discard/HLRPI10_short.fq --untrimmed-output /storage9/user/luidalepp/starpa/tests/data/output/trim/discard/HLRPI10_untrimmed.fq --minimum-length 18 -q 30 --quality-base 64 -j 1 -O 3 -o /storage9/user/luidalepp/starpa/tests/data/output/trim/HLRPI10_trim.fq /storage9/user/luidalepp/starpa/tests/data/fq/HLRPI10_1.fq
+Running on 1 core
+Trimming 1 adapter with at most 10.0% errors in single-end mode ...
+Finished in 1.28 s (360 us/read; 0.17 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:                   3,548
+Reads with adapters:                     1,499 (42.2%)
+Reads that were too short:                   0 (0.0%)
+Reads written (passing filters):         3,548 (100.0%)
+
+Total basepairs processed:       173,852 bp
+Quality-trimmed:                   1,320 bp (0.8%)
+Total written (filtered):        150,796 bp (86.7%)
+
+=== Adapter 1 ===
+
+Sequence: TGGAATTCTCGGGTGCCAAGGAACTCCAGTCAC; Type: regular 3'; Length: 33; Trimmed: 1499 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-19 bp: 1; 20-29 bp: 2; 30-33 bp: 3
+
+Bases preceding removed adapters:
+  A: 29.6%
+  C: 39.7%
+  G: 17.2%
+  T: 13.5%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+3	93	55.4	0	93
+4	118	13.9	0	118
+5	53	3.5	0	53
+6	127	0.9	0	127
+7	66	0.2	0	66
+8	57	0.1	0	57
+9	49	0.0	0	49
+10	41	0.0	1	39 2
+11	48	0.0	1	47 1
+12	31	0.0	1	31
+13	57	0.0	1	56 1
+14	37	0.0	1	37
+15	43	0.0	1	43
+16	41	0.0	1	41
+17	60	0.0	1	58 2
+18	56	0.0	1	55 1
+19	46	0.0	1	44 2
+20	44	0.0	2	43 1
+21	51	0.0	2	50 1
+22	49	0.0	2	48 1
+23	55	0.0	2	51 3 1
+24	45	0.0	2	44 1
+25	38	0.0	2	35 3
+26	33	0.0	2	32 1
+27	36	0.0	2	35 1
+28	34	0.0	2	32 2
+29	37	0.0	2	34 3
+30	26	0.0	3	24 2
+31	28	0.0	3	26 2
+
