@@ -30,115 +30,115 @@ class TestStarpa(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_01_trim(self):
-        if '__pypy__' in sys.builtin_module_names:
-            return
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","fq")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_02_align(self):
-
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        if '__pypy__' in sys.builtin_module_names:
-            #in pypy the cutadapt does not work, prepared input is used
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","trim_output")))
-
-        else:
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","trim")))
-            
-        args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_02sens_align(self):
-
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        if '__pypy__' in sys.builtin_module_names:
-            #in pypy the cutadapt does not work, prepared input is used
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","trim_output")))
-
-        else:
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","trim")))
-            
-        args = docopt(doc, ["-s","align","-e","align","-c",config_file_sens,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-
-    def test_03_sort(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","align")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_04_pseudoSE(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","sam_sort")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_05_identify(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","pseudoSE")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","identify","-e","identify","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_06_cluster(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","identify")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","cluster","-e","cluster","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-
-    def test_07_quantify(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","cluster")))
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s","quantify","-e","quantify","-c",config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-        shutil.rmtree(output_folder)
-        
-    def test_08_full(self):
-        if '__pypy__' in sys.builtin_module_names:
-            #in pypy the cutadapt does not work, prepared input is used
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","trim_output")))
-            start_task = "align"
-        else:
-            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","fq")))
-            start_task = "trim"
-        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
-        args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file,\
-                            "-i",input_folder,"-o",output_folder])
-        starpa.main(args)
-        shutil.rmtree(output_folder)
-        #self.assertTrue(run)
+##    def test_01_trim(self):
+##        if '__pypy__' in sys.builtin_module_names:
+##            return
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","fq")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","trim","-e","trim","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_02_align(self):
+##
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        if '__pypy__' in sys.builtin_module_names:
+##            #in pypy the cutadapt does not work, prepared input is used
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","trim_output")))
+##
+##        else:
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","trim")))
+##            
+##        args = docopt(doc, ["-s","align","-e","align","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_02sens_align(self):
+##
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        if '__pypy__' in sys.builtin_module_names:
+##            #in pypy the cutadapt does not work, prepared input is used
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","trim_output")))
+##
+##        else:
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","trim")))
+##            
+##        args = docopt(doc, ["-s","align","-e","align","-c",config_file_sens,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##
+##    def test_03_sort(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","align")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_04_pseudoSE(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","sam_sort")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_05_identify(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","pseudoSE")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","identify","-e","identify","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_06_cluster(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","identify")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","cluster","-e","cluster","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##
+##    def test_07_quantify(self):
+##        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output","cluster")))
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s","quantify","-e","quantify","-c",config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##        shutil.rmtree(output_folder)
+##        
+##    def test_08_full(self):
+##        if '__pypy__' in sys.builtin_module_names:
+##            #in pypy the cutadapt does not work, prepared input is used
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","trim_output")))
+##            start_task = "align"
+##        else:
+##            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","fq")))
+##            start_task = "trim"
+##        output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+##                           os.path.join("data","output")))
+##        args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file,\
+##                            "-i",input_folder,"-o",output_folder])
+##        starpa.main(args)
+##        shutil.rmtree(output_folder)
+##        #self.assertTrue(run)
 
     def test_09_SE_trim(self):
         if '__pypy__' in sys.builtin_module_names:

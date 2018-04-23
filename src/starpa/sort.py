@@ -362,7 +362,7 @@ class sam_sort():
         ## pars rest of the input file
         for line in f_input:
             #eliminating unmapped reads
-            while mate1_new.split("\t")[2] =="*" and int(mate1.split("\t")[1]) & 4: 
+            while mate1_new.split("\t")[2] =="*" and int(mate1_new.split("\t")[1]) & 4: 
                 unmapped_reads += 1
                 f_unmapped.write(mate1_new)
                 mate1_new = line
