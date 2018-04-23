@@ -904,6 +904,7 @@ class pseudoSE():
         if many_match_reads > 0:
             f_info.write(">"+str(settings["pseudoSE"]["pseudoSE_max_mappings"]) + "\t" +\
                          str(many_match_reads) + "\n")
+        f_info.close()
 
     def test_errors(self,settings):
         '''
