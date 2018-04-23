@@ -642,7 +642,7 @@ class quantify():
         Looks up genes overlaping with mapping and puts mapping info to gene_list
         '''
 
-
+        #if pp-s only in one strand but reads in both
         if chrom not in gene_pos_list:
             return gene_list
         
@@ -688,7 +688,12 @@ class quantify():
                       start,end,chrom):
         '''
         Looks up pp overlaping with mapping and puts mapping info to gene_list
-        '''                                                     
+        '''
+
+        #if pp-s only in one strand but reads in both
+        if chrom not in gene_pos_list:
+            return gene_list
+        
         #get the annotation elements in the positions of the mapping
         ##get positions which are also positions of the annotation elements
         ##and gets directly gene names
