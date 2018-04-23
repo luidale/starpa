@@ -125,11 +125,18 @@ class TestStarpa(unittest.TestCase):
         shutil.rmtree(output_folder)
         
     def test_08_full(self):
-        input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+        if '__pypy__' in sys.builtin_module_names:
+            #in pypy the cutadapt does not work, prepared input is used
+            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           os.path.join("data","trim_output")))
+            start_task = "align"
+        else:
+            input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","fq")))
+            start_task = "trim"
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
-        args = docopt(doc, ["-s","trim","-e","quantify", "-c", config_file,\
+        args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
         shutil.rmtree(output_folder)
