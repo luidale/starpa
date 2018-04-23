@@ -1021,11 +1021,10 @@ class cluster():
             start = int(line.strip().split("\t")[1])
             end = int(line.strip().split("\t")[2])
             strand = line.strip().split("\t")[3]
-            score = line.strip().split("\t")[4]
             name = "MC_"+strand+chrom+"_"+\
                     (len(str(len(genome[chrom])))-len(str(start)))*"0"+\
                     str(start)+"_"+str(end-start+1)
-            f_out.write("\t".join([chrom,str(start),str(end),name,score,strand])+"\n")
+            f_out.write("\t".join([chrom,str(start),str(end),name,"1",strand])+"\n")
         f_in.close()
         f_out.close()
         #old file will be replaced by new file
