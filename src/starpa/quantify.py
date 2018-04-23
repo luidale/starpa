@@ -640,11 +640,15 @@ class quantify():
     def reads_to_genes4(self,mapping,gene_list,gene_pos_list,gene_name_list,strand,start,end,chrom):
         '''
         Looks up genes overlaping with mapping and puts mapping info to gene_list
-        '''                                                             
+        '''
+
+
+        if chrom not in gene_pos_list:
+            return gene_list
+        
         #get the annotation elements in the positions of the mapping
         ##get positions which are also positions of the annotation elements
-        ##and gets directly gene names
-
+        ##and gets directly gene names        
         index1=bisect.bisect_left(gene_pos_list[chrom],start)
         index2=bisect.bisect(gene_pos_list[chrom],end)
         #print("b", index1,index2)
