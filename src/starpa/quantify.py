@@ -688,7 +688,7 @@ class quantify():
 
         #if pp-s only in one strand but reads in both
         if chrom not in pp_pos_list:
-            return gene_list
+            return pp_data
         
         #get the annotation elements in the positions of the mapping
         ##get positions which are also positions of the annotation elements
