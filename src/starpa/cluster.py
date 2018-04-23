@@ -723,7 +723,7 @@ class cluster():
             settings["bedtools_call"], "merge",
             "-i",os.path.join(settings["--output"],"cluster","contigs_meta",\
                               "combined_contigs_meta.BED"),
-            "-s", "-c", "5,6", "-o", "disttinct,distinct",
+            "-s", "-c", "5,6", "-o", "distinct,distinct",
             ">", os.path.join(settings["--output"],"cluster","contigs_meta",\
                               "metacontigs.BED")
             )
