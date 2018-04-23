@@ -27,7 +27,7 @@ class trim():
                 r.get()
         else:
             pool = mp.Pool(processes=settings["CPUs"])
-            results = [pool.apply_async(self.cutadapt_PE, \
+            results = [pool.apply_async(self.cutadapt_SE, \
                               args = (settings,library)) \
                               for library in sorted(settings["libraries"])]
             pool.close()

@@ -168,7 +168,7 @@ class TestStarpa(unittest.TestCase):
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
-    def test_10_SE_align(self):
+    def test_10sens_SE_align(self):
 
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","output")))
