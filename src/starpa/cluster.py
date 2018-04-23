@@ -991,7 +991,6 @@ class cluster():
         #parsing input and writing fasta of metacontig
         print("\tName metacontigs")
         for line in f_in:
-            print("e",line)
             chrom = line.strip().split("\t")[0]
             start = int(line.strip().split("\t")[1])
             end = int(line.strip().split("\t")[2])
