@@ -549,7 +549,7 @@ class pseudoSE():
 #                            qual2 = mapping[1][10][::-1]
                     else:
                         qual1 = mapping[0][10]
-#                            qual2 = mapping[1][10]                         
+#                            qual2 = mapping[1][10]
                 ##if needed convert seq quality to phred+33
                 if settings["pseudoSE"]["pseudoSE_quality_base"] == 64:
                     qual1 = self.convert_to_phred33(qual1)
@@ -562,7 +562,7 @@ class pseudoSE():
 ##                    seq1pos2 = int(mapping[0][3]) + int(mapping[0][5][:-1])
 ##                    seq2pos1 = int(mapping[1][3])
 ##                    seq2pos2 = int(mapping[1][3]) + int(mapping[1][5][:-1])
-##                    chrom = str(mapping[0][2])
+                chrom = str(mapping[0][2])
 ##                    if seq1pos1 > seq2pos2: #no overlap
 ##                        #full sequence:
 ##                        mapping[0][9] = seq2+genome[chrom][seq2pos2-1:seq1pos1-1]+seq1 
