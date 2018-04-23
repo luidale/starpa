@@ -695,11 +695,6 @@ class cluster():
                 with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                        library+"_contigs_meta.BED"),'rb') as fd:
                     shutil.copyfileobj(fd, wfd, 1024*1024*10)
-
-        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                               "combined_contigs_meta_unsorted.BED")) as f_in:
-            for line in f_in:
-                print("a",line)
                 
         #sort combined file
         sort_command = (
@@ -712,11 +707,6 @@ class cluster():
         os.system(" ".join(sort_command))
         os.remove(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                "combined_contigs_meta_unsorted.BED"))
-
-        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                              "combined_contigs_meta.BED")) as f_in:
-            for line in f_in:
-                print("b",line)
         
         #merge contigs into metacontigs
         merge_command = (
@@ -728,21 +718,12 @@ class cluster():
                               "metacontigs.BED")
             )
         os.system(" ".join(merge_command))
-        
-        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                              "metacontigs.BED")) as f_in:
-            for line in f_in:
-                print("c",line)
+
                 
         #name metacontigs
         self.name_contigs(settings,os.path.join(settings["--output"],"cluster","contigs_meta",\
                                                 "metacontigs.BED"))
 
-        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                              "metacontigs.BED")) as f_in:
-            for line in f_in:
-                print("f",line)
-                
         #create fasta for metacontigs
         fasta_command = (
             settings["bedtools_call"], "getfasta",
@@ -753,12 +734,6 @@ class cluster():
                               "metacontigs.fasta")
             )
         os.system(" ".join(fasta_command))
-
-        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                              "metacontigs.fasta")) as f_in:
-            for line in f_in:
-                print("d",line)
-
 
         self.rename_fasta(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                        "metacontigs.fasta"),\
