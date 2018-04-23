@@ -94,7 +94,12 @@ class quantify():
                 strand = "-"
             pp_list[strand] = self.genes_from_BED(os.path.join(settings["--output"],\
                                                                     "quantify",\
-                                              "pp_metacontig"+"_"+strand_name+".BED"))      
+                                              "pp_metacontig"+"_"+strand_name+".BED"))
+            with open("pp_metacontig"+"_"+strand_name+".BED") as f_in:
+                print("pp_metacontig"+"_"+strand_name+".BED")
+                for line in f_in:
+                    print("AA",line)
+                    
         #Version 4 -creates lists with start and end positions of genes, and names of the genes
         #at those positions
         pp_pos_list = {}
@@ -108,8 +113,12 @@ class quantify():
                                       self.genes_to_positions4(pp_list[strand])
             for pp_test in pp_list[strand]:
                 print("B",pp_test)
+                for pp_test2 in pp_list[strand][pp_test2]:
+                   print("C",pp_test2) 
         for chrom in pp_pos_list:
             print("A",chrom)
+            for chrom2 in pp_pos_list[chrom]:
+                print("AB", chrom2)
 
 
         #GET DICTIONARY FOR PP-S
