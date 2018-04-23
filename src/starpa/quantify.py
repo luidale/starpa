@@ -106,6 +106,11 @@ class quantify():
                 strand = "-"
             pp_pos_list[strand], pp_name_list[strand] = \
                                       self.genes_to_positions4(pp_list[strand])
+            for pp_test in pp_list[strand]:
+                print("B",pp_test)
+        for chrom in pp_pos_list:
+            print("A",chrom)
+
 
         #GET DICTIONARY FOR PP-S
         print("\tMake pp dictionary")
