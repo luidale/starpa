@@ -779,7 +779,6 @@ class cluster():
             #-c - sequence identity threshold
             #-s - length difference cutoff
         os.system(" ".join(cluster_command))
-        sys.exit()
         
     def cluster_pps(self,settings):
         '''
