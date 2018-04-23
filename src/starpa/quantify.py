@@ -95,7 +95,8 @@ class quantify():
             pp_list[strand] = self.genes_from_BED(os.path.join(settings["--output"],\
                                                                     "quantify",\
                                               "pp_metacontig"+"_"+strand_name+".BED"))
-            with open("pp_metacontig"+"_"+strand_name+".BED") as f_in:
+            with open(os.path.join(settings["--output"],\
+                                        "quantify","pp_metacontig"+"_"+strand_name+".BED")) as f_in:
                 print("pp_metacontig"+"_"+strand_name+".BED")
                 for line in f_in:
                     print("AA",line)
