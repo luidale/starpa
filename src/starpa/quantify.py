@@ -114,7 +114,7 @@ class quantify():
                                       self.genes_to_positions4(pp_list[strand])
             for pp_test in pp_list[strand]:
                 print("B",pp_test)
-                for pp_test2 in pp_list[strand][pp_test2]:
+                for pp_test2 in pp_list[strand][pp_test]:
                    print("C",pp_test2) 
         for chrom in pp_pos_list:
             print("A",chrom)
