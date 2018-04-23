@@ -201,8 +201,8 @@ class pseudoSE():
                         qual1 = raw_qual1
                         qual2 = raw_qual2                    
                 else:
-                    if len(mapping) == 1:
-                        print(mapping)
+##                    if len(mapping) == 1:
+##                        print(mapping)
                     #print(mapping)
                     if int(mapping[0][1]) & 16: # orienting quality to reverse strand
                         qual1 = mapping[0][10][::-1]
@@ -541,8 +541,8 @@ class pseudoSE():
                         qual1 = raw_qual1
 #                            qual2 = raw_qual2                    
                 else:
-                    if len(mapping) == 1:
-                        print(mapping)
+##                    if len(mapping) == 1:
+##                        print(mapping)
                     #print(mapping)
                     if int(mapping[0][1]) & 16: # orienting quality to reverse strand
                         qual1 = mapping[0][10][::-1]
