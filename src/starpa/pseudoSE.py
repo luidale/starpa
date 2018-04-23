@@ -58,13 +58,13 @@ class pseudoSE():
         for r in results:
             r.get()
 
-    def make_pseudoSE_SE(self,settings,library,first_task):
+    def make_pseudoSE_SE(self,settings,first_task):
         '''
         Filter single-end reads suitable from furtehr tasks
         '''
         pool = mp.Pool(processes=settings["CPUs"])
         results = [pool.apply_async(self.make_pseudoSE_SE_library, \
-                          args = (settings,first_task)) \
+                          args = (settings,library,first_task)) \
                           for library in sorted(settings["libraries"])]
         pool.close()
         pool.join()
