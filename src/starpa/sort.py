@@ -380,7 +380,7 @@ class sam_sort():
                     seq_qual1 = mate1.split("\t")[10][::-1]
                 else:
                     seq_qual1 = mate1.split("\t")[10]
-                    
+                print(mate1)
                 mapping_quality = int(mate1.split("\t")[11].split(":")[-1].strip())
                 mappings.append([mate1,mapping_quality]) # adding first pair to the list
                 mate1_new = line
