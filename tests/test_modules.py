@@ -223,7 +223,7 @@ class TestStarpa(unittest.TestCase):
         if '__pypy__' in sys.builtin_module_names:
             #in pypy the cutadapt does not work, prepared input is used
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","trim_output")))
+                           os.path.join("data","trim_SE_output")))
             start_task = "align"
         else:
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -240,7 +240,7 @@ class TestStarpa(unittest.TestCase):
         if '__pypy__' in sys.builtin_module_names:
             #in pypy the cutadapt does not work, prepared input is used
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","trim_output")))
+                           os.path.join("data","trim_SE_output")))
             start_task = "align"
         else:
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
