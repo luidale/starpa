@@ -738,6 +738,11 @@ class cluster():
         self.name_contigs(settings,os.path.join(settings["--output"],"cluster","contigs_meta",\
                                                 "metacontigs.BED"))
 
+        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                              "metacontigs.BED")) as f_in:
+            for line in f_in:
+                print("f",line)
+                
         #create fasta for metacontigs
         fasta_command = (
             settings["bedtools_call"], "getfasta",
@@ -748,6 +753,12 @@ class cluster():
                               "metacontigs.fasta")
             )
         os.system(" ".join(fasta_command))
+
+        with open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                              "metacontigs.fasta")) as f_in:
+            for line in f_in:
+                print("d",line)
+
 
         self.rename_fasta(os.path.join(settings["--output"],"cluster","contigs_meta",\
                                        "metacontigs.fasta"),\
@@ -768,7 +779,8 @@ class cluster():
             #-c - sequence identity threshold
             #-s - length difference cutoff
         os.system(" ".join(cluster_command))
-
+        sys.exit()
+        
     def cluster_pps(self,settings):
         '''
         Clusters pp-s according to the metacontigs
@@ -1005,7 +1017,7 @@ class cluster():
         #parsing input and writing fasta of metacontig
         print("\tName metacontigs")
         for line in f_in:
-            print(line)
+            print("e",line)
             chrom = line.strip().split("\t")[0]
             start = int(line.strip().split("\t")[1])
             end = int(line.strip().split("\t")[2])
