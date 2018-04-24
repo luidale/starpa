@@ -154,7 +154,7 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file_sens,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-        shutil.rmtree(output_folder)
+        #shutil.rmtree(output_folder)
 
     def test_09_SE_trim(self):
         if '__pypy__' in sys.builtin_module_names:
