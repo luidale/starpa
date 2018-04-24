@@ -61,7 +61,7 @@ class TestStarpa(unittest.TestCase):
     def test_02sens_align(self):
 
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_sens")))
         if '__pypy__' in sys.builtin_module_names:
             #in pypy the cutadapt does not work, prepared input is used
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -74,7 +74,7 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s","align","-e","align","-c",config_file_sens,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-
+        shutil.rmtree(output_folder)
 
     def test_03_sort(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -137,7 +137,7 @@ class TestStarpa(unittest.TestCase):
         args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-        shutil.rmtree(output_folder)
+        #shutil.rmtree(output_folder)
 
     def test_08sens_full(self):
         if '__pypy__' in sys.builtin_module_names:
@@ -150,7 +150,7 @@ class TestStarpa(unittest.TestCase):
                            os.path.join("data","fq")))
             start_task = "trim"
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_sens")))
         args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file_sens,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
@@ -162,7 +162,7 @@ class TestStarpa(unittest.TestCase):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            os.path.join("data","fq")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE")))
         args = docopt(doc, ["-s","trim","-e","trim","-c",config_file_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
@@ -170,7 +170,7 @@ class TestStarpa(unittest.TestCase):
     def test_10_SE_align(self):
 
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE")))
         if '__pypy__' in sys.builtin_module_names:
             #in pypy the cutadapt does not work, prepared input is used
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -178,7 +178,7 @@ class TestStarpa(unittest.TestCase):
 
         else:
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","trim")))
+                           os.path.join("data","output_SE","trim")))
             
         args = docopt(doc, ["-s","align","-e","align","-c",config_file_SE,\
                             "-i",input_folder,"-o",output_folder])
@@ -187,7 +187,7 @@ class TestStarpa(unittest.TestCase):
     def test_10sens_SE_align(self):
 
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE_sens")))
         if '__pypy__' in sys.builtin_module_names:
             #in pypy the cutadapt does not work, prepared input is used
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -195,26 +195,27 @@ class TestStarpa(unittest.TestCase):
 
         else:
             input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","trim")))
+                           os.path.join("data","output_SE","trim")))
             
         args = docopt(doc, ["-s","align","-e","align","-c",config_file_sens_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-        
+        shutil.rmtree(output_folder)
+
     def test_11_SE_sort(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","align")))
+                           os.path.join("data","output_SE","align")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE")))
         args = docopt(doc, ["-s","sam_sort","-e","sam_sort","-c",config_file_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
 
     def test_12_SE_pseudoSE(self):
         input_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output","sam_sort")))
+                           os.path.join("data","output_SE","sam_sort")))
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE")))
         args = docopt(doc, ["-s","pseudoSE","-e","pseudoSE","-c",config_file_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
@@ -230,11 +231,11 @@ class TestStarpa(unittest.TestCase):
                            os.path.join("data","fq")))
             start_task = "trim"
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE")))
         args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-        shutil.rmtree(output_folder)
+        #shutil.rmtree(output_folder)
 
     def test_13sens_SE_full(self):
         if '__pypy__' in sys.builtin_module_names:
@@ -247,11 +248,11 @@ class TestStarpa(unittest.TestCase):
                            os.path.join("data","fq")))
             start_task = "trim"
         output_folder = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           os.path.join("data","output")))
+                           os.path.join("data","output_SE_sens")))
         args = docopt(doc, ["-s",start_task,"-e","quantify", "-c", config_file_sens_SE,\
                             "-i",input_folder,"-o",output_folder])
         starpa.main(args)
-        shutil.rmtree(output_folder)
+        #shutil.rmtree(output_folder)
 
     def test_01a(self):
         args = docopt(doc, ["--version"])
