@@ -13,6 +13,7 @@ To do:
 
 import os
 import sys
+import copy
 from itertools import groupby
 import multiprocessing as mp
 
@@ -471,9 +472,8 @@ class pseudoSE():
             
         mapping_distribution = {}
 
-        #pars input_file
+        ##parse and write header
         mate1_new = f_input.readline()
-        ##pars and write header
         while mate1_new[0] == "@":
             f_pseudoSE.write(mate1_new)
             f_mismatch.write(mate1_new)
@@ -485,17 +485,13 @@ class pseudoSE():
             if mate1_new == "": #end of the file
                 break
 
+
         ## pars rest of the input file
-        for line in f_input:
-                
+        for mate1_next in f_input:
+    
             #skip unmapped reads (just in case)
-            if int(mate1_new.split("\t")[1]) & 4: #unmapped read 
-                mate1_new = f_input.readline()
-                continue
-            
-            #if mate unmapped skip pair (just in case)
-            if int(line.split("\t")[1]) & 4: #unmapped mate
-                mate1_new = f_input.readline()                    
+            if int(mate1_new.split("\t")[1]) & 4: #unmapped read
+                mate1_new = copy.deepcopy(mate1_next)
                 continue
             
             #getting all mappings of single read
@@ -507,13 +503,13 @@ class pseudoSE():
             mappings.append([mate1])
 #                mappings.append([mate1,mate2]) 
             ##adding next pairs to the list
-            mate1_new = f_input.readline()
-            while mate1_new.split("\t")[0] == read_id:
+            while mate1_next.split("\t")[0] == read_id:
 #                    mate2_new = f_input.readline()
 #                    mappings.append([mate1_new.strip().split("\t"),mate2_new.strip().split("\t")])
-                mappings.append([mate1_new.strip().split("\t")])
-                mate1_new = f_input.readline()
-
+                mappings.append([mate1_next.strip().split("\t")])
+                mate1_next = f_input.readline()
+            mate1_new = copy.deepcopy(mate1_next)
+            
             total_reads += 1
             total_mappings += len(mappings)
 
