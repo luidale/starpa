@@ -508,47 +508,77 @@ class pseudoSE():
 #                    mappings.append([mate1_new.strip().split("\t"),mate2_new.strip().split("\t")])
                 mappings.append([mate1_next.strip().split("\t")])
                 mate1_next = f_input.readline()
-            mate1_new = copy.deepcopy(mate1_next)
-            
-            total_reads += 1
-            total_mappings += len(mappings)
-
-            #Convert PE to SE
-            ##set raw quality from mapping which has quality by scanning all mappings
-            for mapping in mappings:
-                if mapping[0][10] != "*":
-                    if int(mappings[0][0][1]) & 16: # orienting quality to forward strand
-                        raw_qual1 = mappings[0][0][10][::-1]
-#                            raw_qual2 = mappings[0][1][10][::-1]
-                    else:
-                        raw_qual1 = mappings[0][0][10]
-#                            raw_qual2 = mappings[0][1][10]
+                if mate1_next == "":
                     break
-            for mapping in mappings:
+            mate1_new = copy.deepcopy(mate1_next)
 
-                ##get quality mapping
-                ##secondary mappings which do not have seq quality are provided quality
-                ##from primary mapping
-                if mapping[0][10] == "*": #
-                    if int(mapping[0][1]) & 16: # orienting quality to reverse strand
-                        qual1 = raw_qual1[::-1]
-#                            qual2 = raw_qual2[::-1]
-                    else:
-                        qual1 = raw_qual1
-#                            qual2 = raw_qual2                    
+            self.process_mappings_SE(mappings)
+
+        #process last single mapping
+        if mate1_new != "":
+            mappings = [mate1_next.strip().split("\t")]
+            self.process_mappings_SE(mappings)
+
+
+        self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
+                              mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
+                              mismatched_mappings,many_match_mappings,mappings_counter,
+                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution)                                
+
+        f_input.close()
+        f_pseudoSE.close()
+        f_mismatch.close()
+        f_many_match.close()
+        f_info.close()
+        if settings["pseudoSE"]["pseudoSE_oligoA"]:
+            f_oligoA.close()
+            #oligoA matches which would not have passed when oligoA would not be allowed:
+            f_oligoA_mismatch.close() 
+
+
+    def process_mappings_SE(self,mappings):
+        '''
+        Processing mappings
+        '''
+        total_reads += 1
+        total_mappings += len(mappings)
+
+        #Convert PE to SE
+        ##set raw quality from mapping which has quality by scanning all mappings
+        for mapping in mappings:
+            if mapping[0][10] != "*":
+                if int(mappings[0][0][1]) & 16: # orienting quality to forward strand
+                    raw_qual1 = mappings[0][0][10][::-1]
+#                            raw_qual2 = mappings[0][1][10][::-1]
                 else:
+                    raw_qual1 = mappings[0][0][10]
+#                            raw_qual2 = mappings[0][1][10]
+                break
+        for mapping in mappings:
+
+            ##get quality mapping
+            ##secondary mappings which do not have seq quality are provided quality
+            ##from primary mapping
+            if mapping[0][10] == "*": #
+                if int(mapping[0][1]) & 16: # orienting quality to reverse strand
+                    qual1 = raw_qual1[::-1]
+#                            qual2 = raw_qual2[::-1]
+                else:
+                    qual1 = raw_qual1
+#                            qual2 = raw_qual2                    
+            else:
 ##                    if len(mapping) == 1:
 ##                        print(mapping)
-                    #print(mapping)
-                    if int(mapping[0][1]) & 16: # orienting quality to reverse strand
-                        qual1 = mapping[0][10][::-1]
+                #print(mapping)
+                if int(mapping[0][1]) & 16: # orienting quality to reverse strand
+                    qual1 = mapping[0][10][::-1]
 #                            qual2 = mapping[1][10][::-1]
-                    else:
-                        qual1 = mapping[0][10]
+                else:
+                    qual1 = mapping[0][10]
 #                            qual2 = mapping[1][10]
-                ##if needed convert seq quality to phred+33
-                if settings["pseudoSE"]["pseudoSE_quality_base"] == 64:
-                    qual1 = self.convert_to_phred33(qual1)
+            ##if needed convert seq quality to phred+33
+            if settings["pseudoSE"]["pseudoSE_quality_base"] == 64:
+                qual1 = self.convert_to_phred33(qual1)
 #                        qual2 = self.convert_to_phred33(qual2)
 
 ##                    ##combine sequence and quality
@@ -558,7 +588,7 @@ class pseudoSE():
 ##                    seq1pos2 = int(mapping[0][3]) + int(mapping[0][5][:-1])
 ##                    seq2pos1 = int(mapping[1][3])
 ##                    seq2pos2 = int(mapping[1][3]) + int(mapping[1][5][:-1])
-                chrom = str(mapping[0][2])
+            chrom = str(mapping[0][2])
 ##                    if seq1pos1 > seq2pos2: #no overlap
 ##                        #full sequence:
 ##                        mapping[0][9] = seq2+genome[chrom][seq2pos2-1:seq1pos1-1]+seq1 
@@ -579,169 +609,155 @@ class pseudoSE():
 ##                    mapping[0][6],mapping[0][7],mapping[0][8] = "*",str(0),str(0)    
 ##                    #create new CIGAR string
 ##                    mapping[0][5] = str(len(mapping[0][9]))+"M"
-                
-            #Check mismatches
-            good_mappings = []
-            oligoA_passed_mismatches = 0
-            for mapping in mappings:
-                seq = mapping[0][9]
-                ref = genome[chrom][int(mapping[0][3])-1:\
-                                    int(mapping[0][3])+len(mapping[0][9])-1].seq
-                #creating alignement, and counting matches and mismatches
-                alignment,tot_mismatch = self.counting_mismatches(seq,ref)
+            
+        #Check mismatches
+        good_mappings = []
+        oligoA_passed_mismatches = 0
+        for mapping in mappings:
+            seq = mapping[0][9]
+            ref = genome[chrom][int(mapping[0][3])-1:\
+                                int(mapping[0][3])+len(mapping[0][9])-1].seq
+            #creating alignement, and counting matches and mismatches
+            alignment,tot_mismatch = self.counting_mismatches(seq,ref)
 
-                #adding tag with mismatching position
-                mapping[0] = self.change_add_extra_tag("MD:Z:",alignment,mapping[0])
+            #adding tag with mismatching position
+            mapping[0] = self.change_add_extra_tag("MD:Z:",alignment,mapping[0])
 
-                #setting allowed mismatched to be depenent from the length of the sequence
-                #and given number
-                mismatch_limit = max(settings["pseudoSE"]["pseudoSE_allowed_mismatch"],\
+            #setting allowed mismatched to be depenent from the length of the sequence
+            #and given number
+            mismatch_limit = max(settings["pseudoSE"]["pseudoSE_allowed_mismatch"],\
 #                            ##take minimum from the two:
 #                            ###set precentage for the maximum sequenced are
 #                            min(settings["pseudoSE"]["pseudoSE_max_read_length"]*2*\
 #                                settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100,\
-                            ###precentage from the full length SE sequence
-                            len(seq)*settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100)
-                
-                #Testing mismatch levels   
-                if tot_mismatch > mismatch_limit:
-                    i = 1
-                    if int(mapping[0][1]) & 16: #mapped to the negative strand
-                        #if oligoA reads are included
-                        if settings["pseudoSE"]["pseudoSE_oligoA"]:
-                            #testing mismatches without oligoA
-                            #and mapping is preserved if mismatches are below threshold
-                            while seq[i-1] in {"T","N"}:
-                                alignement,tot_mismatch = \
-                                                self.counting_mismatches(seq[i+1:],ref[i+1:])
-                                i +=1
-                                #read considered as not haveing too many mismatches
-                                if tot_mismatch <= mismatch_limit:
-                                    #changing flag just to indicate strand and primary/secondary
-                                    mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
-                                    f_oligoA_mismatch.write("\t".join(mapping[0])+"\n")
-                                    oligoA_mismatch_mappings += 1
-                                    oligoA_passed_mismatches += 1
-                                    good_mappings.append(mapping[0])
-                                    break
-                            else: #too many mismatches
-                                f_mismatch.write("\t".join(mapping[0])+"\n")
-                                mismatched_mappings += 1
-                             
-                        else: #read considered with too many mismatches
+                        ###precentage from the full length SE sequence
+                        len(seq)*settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100)
+            
+            #Testing mismatch levels   
+            if tot_mismatch > mismatch_limit:
+                i = 1
+                if int(mapping[0][1]) & 16: #mapped to the negative strand
+                    #if oligoA reads are included
+                    if settings["pseudoSE"]["pseudoSE_oligoA"]:
+                        #testing mismatches without oligoA
+                        #and mapping is preserved if mismatches are below threshold
+                        while seq[i-1] in {"T","N"}:
+                            alignement,tot_mismatch = \
+                                            self.counting_mismatches(seq[i+1:],ref[i+1:])
+                            i +=1
+                            #read considered as not haveing too many mismatches
+                            if tot_mismatch <= mismatch_limit:
+                                #changing flag just to indicate strand and primary/secondary
+                                mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
+                                f_oligoA_mismatch.write("\t".join(mapping[0])+"\n")
+                                oligoA_mismatch_mappings += 1
+                                oligoA_passed_mismatches += 1
+                                good_mappings.append(mapping[0])
+                                break
+                        else: #too many mismatches
                             f_mismatch.write("\t".join(mapping[0])+"\n")
                             mismatched_mappings += 1
+                         
+                    else: #read considered with too many mismatches
+                        f_mismatch.write("\t".join(mapping[0])+"\n")
+                        mismatched_mappings += 1
 
-                    else: # mapped on positive strand
-                         #if oligoA reads are included
-                        if settings["pseudoSE"]["pseudoSE_oligoA"]:
-                            #testing mismatches without oligoA
-                            #and mapping is preserved if mismatches are below threshold
-                            while seq[-i] in {"A","N"}:
-                                alignement,tot_mismatch = \
-                                                    self.counting_mismatches(seq[:-i],ref[:-i])
-                                i +=1
-                                #read considered as not haveing too many mismatches
-                                if tot_mismatch <= mismatch_limit:
-                                    #changing flag just to indicate strand and primary/secondary
-                                    mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
-                                    f_oligoA_mismatch.write("\t".join(mapping[0])+"\n")
-                                    oligoA_mismatch_mappings += 1
-                                    oligoA_passed_mismatches += 1
-                                    good_mappings.append(mapping[0])
-                                    break
-                            else: #too many mismatches
-                                f_mismatch.write("\t".join(mapping[0])+"\n")
-                                mismatched_mappings += 1
-                             
-                        else: #read considered with too many mismatches
+                else: # mapped on positive strand
+                     #if oligoA reads are included
+                    if settings["pseudoSE"]["pseudoSE_oligoA"]:
+                        #testing mismatches without oligoA
+                        #and mapping is preserved if mismatches are below threshold
+                        while seq[-i] in {"A","N"}:
+                            alignement,tot_mismatch = \
+                                                self.counting_mismatches(seq[:-i],ref[:-i])
+                            i +=1
+                            #read considered as not haveing too many mismatches
+                            if tot_mismatch <= mismatch_limit:
+                                #changing flag just to indicate strand and primary/secondary
+                                mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
+                                f_oligoA_mismatch.write("\t".join(mapping[0])+"\n")
+                                oligoA_mismatch_mappings += 1
+                                oligoA_passed_mismatches += 1
+                                good_mappings.append(mapping[0])
+                                break
+                        else: #too many mismatches
                             f_mismatch.write("\t".join(mapping[0])+"\n")
                             mismatched_mappings += 1
+                         
+                    else: #read considered with too many mismatches
+                        f_mismatch.write("\t".join(mapping[0])+"\n")
+                        mismatched_mappings += 1
 
-                else: #mismatches below threshold
-                    #changing flag just to indicate strand and primary/secondary
-                    mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
-                    good_mappings.append(mapping[0])
+            else: #mismatches below threshold
+                #changing flag just to indicate strand and primary/secondary
+                mapping[0] = self.change_sam_flag(mapping[0],good_mappings)
+                good_mappings.append(mapping[0])
 
+        
+        #if all reads are mismatched
+        if len(good_mappings) == 0:
+            mismatched_reads += 1
+            continue
+        
+        #cound oligoA mismatch reads (reads which would fail in oligoA is not considered
+        if oligoA_passed_mismatches == len(good_mappings):
+            oligoA_mismatch_reads += 1
             
-            #if all reads are mismatched
-            if len(good_mappings) == 0:
-                mismatched_reads += 1
-                continue
-            
-            #cound oligoA mismatch reads (reads which would fail in oligoA is not considered
-            if oligoA_passed_mismatches == len(good_mappings):
-                oligoA_mismatch_reads += 1
-                
-            #Check number of mappings
-            ##add tag on match number
+        #Check number of mappings
+        ##add tag on match number
+        for mapping in good_mappings:
+            mapping = self.change_add_extra_tag("NH:i:",len(good_mappings),mapping)
+
+        ##skip read with many mapping and write rest to the file
+        if len(good_mappings) > settings["pseudoSE"]["pseudoSE_max_mappings"]:
             for mapping in good_mappings:
-                mapping = self.change_add_extra_tag("NH:i:",len(good_mappings),mapping)
-
-            ##skip read with many mapping and write rest to the file
-            if len(good_mappings) > settings["pseudoSE"]["pseudoSE_max_mappings"]:
-                for mapping in good_mappings:
-                    f_many_match.write("\t".join(mapping)+"\n")
-                many_match_reads += 1
-                many_match_mappings += len(good_mappings)
-                continue
+                f_many_match.write("\t".join(mapping)+"\n")
+            many_match_reads += 1
+            many_match_mappings += len(good_mappings)
+            continue
+        else:
+            for mapping in good_mappings:
+                f_pseudoSE.write("\t".join(mapping)+"\n")
+            mapped_reads += 1
+            #if len(good_mappings) > 1:
+                #print(good_mappings)
+            mappings_counter += len(good_mappings)                    
+            if len(good_mappings) not in mapping_distribution:
+                mapping_distribution[len(good_mappings)] = 1
             else:
+                mapping_distribution[len(good_mappings)] += 1
+
+            #saving reads separately which have mismatch A at 3'
+            if settings["pseudoSE"]["pseudoSE_oligoA"]:
+                oligoA = 0
                 for mapping in good_mappings:
-                    f_pseudoSE.write("\t".join(mapping)+"\n")
-                mapped_reads += 1
-                #if len(good_mappings) > 1:
-                    #print(good_mappings)
-                mappings_counter += len(good_mappings)                    
-                if len(good_mappings) not in mapping_distribution:
-                    mapping_distribution[len(good_mappings)] = 1
-                else:
-                    mapping_distribution[len(good_mappings)] += 1
+                    ref = genome[mapping[2]][int(mapping[3])-1:\
+                                             int(mapping[3])-1+\
+                                             int(mapping[5].strip("M"))].seq
+                    #all reads which do have A-s or N-s in the 3' end and
+                    #a single mismatch in this region are considered as
+                    #reads with oligoA tail
+                    i = 1
+                    if int(mapping[1]) & 16:
+                        while mapping[9][i-1] in {"T","N"}:
+                            if ref[i-1] != "T":
+                                f_oligoA.write("\t".join(mapping)+"\n")
+                                oligoA_mappings += 1
+                                oligoA +=1
+                                break
+                            i +=1
+                    else:
+                        while mapping[9][-i] in {"A","N"}:
+                            if ref[-i] != "A":
+                                f_oligoA.write("\t".join(mapping)+"\n")
+                                oligoA_mappings += 1
+                                oligoA +=1
+                                break
+                            i +=1
+                #count oligoA reads
+                if oligoA == len(good_mappings):
+                    oligoA_reads += 1
 
-                #saving reads separately which have mismatch A at 3'
-                if settings["pseudoSE"]["pseudoSE_oligoA"]:
-                    oligoA = 0
-                    for mapping in good_mappings:
-                        ref = genome[mapping[2]][int(mapping[3])-1:\
-                                                 int(mapping[3])-1+\
-                                                 int(mapping[5].strip("M"))].seq
-                        #all reads which do have A-s or N-s in the 3' end and
-                        #a single mismatch in this region are considered as
-                        #reads with oligoA tail
-                        i = 1
-                        if int(mapping[1]) & 16:
-                            while mapping[9][i-1] in {"T","N"}:
-                                if ref[i-1] != "T":
-                                    f_oligoA.write("\t".join(mapping)+"\n")
-                                    oligoA_mappings += 1
-                                    oligoA +=1
-                                    break
-                                i +=1
-                        else:
-                            while mapping[9][-i] in {"A","N"}:
-                                if ref[-i] != "A":
-                                    f_oligoA.write("\t".join(mapping)+"\n")
-                                    oligoA_mappings += 1
-                                    oligoA +=1
-                                    break
-                                i +=1
-                    #count oligoA reads
-                    if oligoA == len(good_mappings):
-                        oligoA_reads += 1
-
-        self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
-                              mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
-                              mismatched_mappings,many_match_mappings,mappings_counter,
-                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution)                                
-
-        f_input.close()
-        f_pseudoSE.close()
-        f_mismatch.close()
-        f_many_match.close()
-        f_info.close()
-        if settings["pseudoSE"]["pseudoSE_oligoA"]:
-            f_oligoA.close()
-            #oligoA matches which would not have passed when oligoA would not be allowed:
-            f_oligoA_mismatch.close() 
 
     def convert_to_phred33(self,phred_string):
         '''
