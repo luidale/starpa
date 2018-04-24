@@ -697,7 +697,7 @@ class pseudoSE():
         #if all reads are mismatched
         if len(good_mappings) == 0:
             mismatched_reads += 1
-            continue
+            return
         
         #cound oligoA mismatch reads (reads which would fail in oligoA is not considered
         if oligoA_passed_mismatches == len(good_mappings):
@@ -714,7 +714,7 @@ class pseudoSE():
                 f_many_match.write("\t".join(mapping)+"\n")
             many_match_reads += 1
             many_match_mappings += len(good_mappings)
-            continue
+            return
         else:
             for mapping in good_mappings:
                 f_pseudoSE.write("\t".join(mapping)+"\n")
