@@ -528,7 +528,7 @@ class pseudoSE():
                                         many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
                                         oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
                                         mapping_distribution)
-
+            print("C",mapping_distribution)
         #process last single mapping
         if mate1_new != "":
             mappings = [mate1_next.strip().split("\t")]
@@ -764,6 +764,7 @@ class pseudoSE():
                 mapping_distribution[len(good_mappings)] = 1
             else:
                 mapping_distribution[len(good_mappings)] += 1
+            print("BB",mapping_distribution)
 
             #saving reads separately which have mismatch A at 3'
             if settings["pseudoSE"]["pseudoSE_oligoA"]:
