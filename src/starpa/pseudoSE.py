@@ -523,7 +523,7 @@ class pseudoSE():
             f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
-            mapping_distribution = self.process_mappings_SE(mappings,genome,input_file,
+            mapping_distribution = self.process_mappings_SE(settings,mappings,genome,input_file,
                                         pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
                                         oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
                                         f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
@@ -539,7 +539,7 @@ class pseudoSE():
             f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
-            mapping_distribution = self.process_mappings_SE(mappings,genome,input_file,
+            mapping_distribution = self.process_mappings_SE(settings,mappings,genome,input_file,
                                         pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
                                         oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
                                         f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
@@ -564,7 +564,7 @@ class pseudoSE():
             f_oligoA_mismatch.close() 
 
 
-    def process_mappings_SE(self,mappings,genome,input_file,
+    def process_mappings_SE(self,settings,mappings,genome,input_file,
                                         pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
                                         oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
                                         f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
