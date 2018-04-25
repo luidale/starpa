@@ -530,7 +530,7 @@ class pseudoSE():
             print("C",mapping_distribution)
         #process last single mapping
         if mate1_new != "":
-            mappings = [mate1_next.strip().split("\t")]
+            mappings = [[mate1_next.strip().split("\t")]]
             total_reads,total_mappings,mapped_reads,mappings_counter,\
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
