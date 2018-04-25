@@ -518,9 +518,7 @@ class pseudoSE():
                     break
             mate1_new = copy.deepcopy(mate1_next)
 
-            genome,input_file,pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
-            oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
-            f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+            total_reads,total_mappings,mapped_reads,mappings_counter,
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
             mapping_distribution = self.process_mappings_SE(settings,mappings,genome,input_file,
@@ -534,9 +532,7 @@ class pseudoSE():
         #process last single mapping
         if mate1_new != "":
             mappings = [mate1_next.strip().split("\t")]
-            genome,input_file,pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
-            oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
-            f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+            total_reads,total_mappings,mapped_reads,mappings_counter,
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
             mapping_distribution = self.process_mappings_SE(settings,mappings,genome,input_file,
@@ -731,10 +727,7 @@ class pseudoSE():
         #if all reads are mismatched
         if len(good_mappings) == 0:
             mismatched_reads += 1
-            return genome,input_file,\
-                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
-                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
-                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+            return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
                 mapping_distribution
@@ -754,10 +747,7 @@ class pseudoSE():
                 f_many_match.write("\t".join(mapping)+"\n")
             many_match_reads += 1
             many_match_mappings += len(good_mappings)
-            return genome,input_file,\
-                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
-                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
-                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+            return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
                 mapping_distribution
@@ -769,6 +759,7 @@ class pseudoSE():
                 #print(good_mappings)
             mappings_counter += len(good_mappings)
             print("A",good_mappings)
+            print("B",mapping_distribution)
             if len(good_mappings) not in mapping_distribution:
                 mapping_distribution[len(good_mappings)] = 1
             else:
@@ -804,10 +795,7 @@ class pseudoSE():
                 #count oligoA reads
                 if oligoA == len(good_mappings):
                     oligoA_reads += 1
-        return genome,input_file,\
-                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
-                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
-                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+        return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
                 mapping_distribution
