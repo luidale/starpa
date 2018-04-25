@@ -440,6 +440,9 @@ class pseudoSE():
             #but not without oligoA:
             oligoA_mismatch_file = os.path.join(settings["--output"],"pseudoSE","oligoA",\
                                               library+"-oligoA-mm_pseudoSE.sam")
+        else:
+            oligoA_file = ""
+            oligoA_mismatch_file = ""
 
         #open files
         f_input = open(input_file)
@@ -450,7 +453,10 @@ class pseudoSE():
         if settings["pseudoSE"]["pseudoSE_oligoA"]:
             f_oligoA = open(oligoA_file,"w") #all oligoA matches
             #oligoA matches which would not have passed when oligoA would not be allowed:
-            f_oligoA_mismatch = open(oligoA_mismatch_file,"w") 
+            f_oligoA_mismatch = open(oligoA_mismatch_file,"w")
+        else:
+            f_oligoA = ""
+            f_oligoA_mismatch = ""
 
         #statistics
         total_reads = 0
@@ -512,12 +518,34 @@ class pseudoSE():
                     break
             mate1_new = copy.deepcopy(mate1_next)
 
-            self.process_mappings_SE(mappings)
+            genome,input_file,pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
+            oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
+            f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+            many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
+            oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
+            mapping_distribution = self.process_mappings_SE(mappings,genome,input_file,
+                                        pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
+                                        oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
+                                        f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+                                        many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
+                                        oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
+                                        mapping_distribution)
 
         #process last single mapping
         if mate1_new != "":
             mappings = [mate1_next.strip().split("\t")]
-            self.process_mappings_SE(mappings)
+            genome,input_file,pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
+            oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
+            f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+            many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
+            oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
+            mapping_distribution = self.process_mappings_SE(mappings,genome,input_file,
+                                        pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
+                                        oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
+                                        f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+                                        many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
+                                        oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
+                                        mapping_distribution)
 
 
         self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
@@ -536,7 +564,13 @@ class pseudoSE():
             f_oligoA_mismatch.close() 
 
 
-    def process_mappings_SE(self,mappings):
+    def process_mappings_SE(self,mappings,genome,input_file,
+                                        pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,
+                                        oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
+                                        f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
+                                        many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
+                                        oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
+                                        mapping_distribution):
         '''
         Processing mappings
         '''
@@ -697,7 +731,13 @@ class pseudoSE():
         #if all reads are mismatched
         if len(good_mappings) == 0:
             mismatched_reads += 1
-            return
+            return genome,input_file,\
+                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
+                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
+                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+                many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
+                oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
+                mapping_distribution
         
         #cound oligoA mismatch reads (reads which would fail in oligoA is not considered
         if oligoA_passed_mismatches == len(good_mappings):
@@ -714,7 +754,13 @@ class pseudoSE():
                 f_many_match.write("\t".join(mapping)+"\n")
             many_match_reads += 1
             many_match_mappings += len(good_mappings)
-            return
+            return genome,input_file,\
+                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
+                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
+                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+                many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
+                oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
+                mapping_distribution
         else:
             for mapping in good_mappings:
                 f_pseudoSE.write("\t".join(mapping)+"\n")
@@ -757,7 +803,13 @@ class pseudoSE():
                 #count oligoA reads
                 if oligoA == len(good_mappings):
                     oligoA_reads += 1
-
+        return genome,input_file,\
+                pseudoSE_file,mismatch_file,many_match_file,info_file,oligoA_file,\
+                oligoA_mismatch_file,f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,\
+                f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,\
+                many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
+                oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
+                mapping_distribution
 
     def convert_to_phred33(self,phred_string):
         '''
