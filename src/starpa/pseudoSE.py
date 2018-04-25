@@ -767,7 +767,8 @@ class pseudoSE():
             mapped_reads += 1
             #if len(good_mappings) > 1:
                 #print(good_mappings)
-            mappings_counter += len(good_mappings)                    
+            mappings_counter += len(good_mappings)
+            print("A",good_mappings)
             if len(good_mappings) not in mapping_distribution:
                 mapping_distribution[len(good_mappings)] = 1
             else:
