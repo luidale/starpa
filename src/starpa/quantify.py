@@ -699,8 +699,8 @@ class quantify():
             pps_on_mapping = set.union(*map(set,pp_name_list[chrom][index1:index2]))
         #get pp-s which have required overlap with reads
         for pp in pps_on_mapping:
-            max_length = max(end-start+1,pp_list[chrom][pp][1]-pp_list[chrom][pp][0]+1)
-            overlap = min(end,pp_list[chrom][pp][1])-max(start,pp_list[chrom][pp][0])+1
+            max_length = max(end-start+1,pp_list[chrom][pp][1]-pp_list[chrom][pp][0])
+            overlap = min(end+1,pp_list[chrom][pp][1])-max(start,pp_list[chrom][pp][0])
             pp_name = pp_list[chrom][pp][3]
             #collects total coverage of the pp
             pp_data[pp_name]["total_cov"] += overlap
@@ -713,7 +713,7 @@ class quantify():
 
                 pp_data[pp_name]["count"]["total"][0] += 1 #count
                 #collect sequence data
-                read_offset = start-pp_list[chrom][pp][0]+settings["non_overlap"]
+                #read_offset = start-pp_list[chrom][pp][0]+settings["non_overlap"]
                 print(start,end,pp_list[chrom][pp][1],pp_list[chrom][pp][0],overlap,max_length,pp_name,read_offset)
                 for i, pos in enumerate(range(len(mapping[9]))):
                     pp_data[pp_name]["sequencies"][i+read_offset]["ACGTN".find(mapping[9][i])] += 1
