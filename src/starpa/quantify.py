@@ -107,7 +107,7 @@ class quantify():
                 strand = "-"
             pp_pos_list[strand], pp_name_list[strand] = \
                                       self.genes_to_positions4(pp_list[strand])
-        print(pp_pos_list)
+            
         #GET DICTIONARY FOR PP-S
         print("\tMake pp dictionary")
         pp_data = self.make_pp_dictionary(settings,first_task)
@@ -699,7 +699,7 @@ class quantify():
             pps_on_mapping = set.union(*map(set,pp_name_list[chrom][index1:index2]))
         #get pp-s which have required overlap with reads
         for pp in pps_on_mapping:
-            max_length = max(end-start,pp_list[chrom][pp][1]-pp_list[chrom][pp][0])
+            max_length = max(end-start+1,pp_list[chrom][pp][1]-pp_list[chrom][pp][0])
             overlap = min(end,pp_list[chrom][pp][1])-max(start,pp_list[chrom][pp][0])
             pp_name = pp_list[chrom][pp][3]
             #collects total coverage of the pp
