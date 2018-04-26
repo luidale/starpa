@@ -281,6 +281,18 @@ def get_range(min_length,max_length,non_overlap):
     Calculates length and overlap ranges for bedtools intersect.
     Overlap value for given range will fullfill non-overlap for
     given number of nucleotides
+
+    
+    min_length = 18
+    max_length = 300
+    non_overlap = 2
+    size_range, overlap = get_range(min_length,max_length,non_overlap)
+    size_range
+    >[24, 33, 47, 68, 99, 146, 216]
+    
+    overlap
+    >[0.88888, 0.91666, 0.93939, 0.95744, 0.97058, 0.97979, 0.9863, 0.99074]
+    
     '''
     size_range = []
     overlap = []
