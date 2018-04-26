@@ -710,7 +710,7 @@ class quantify():
 ##            print("C",mapping)
 ##            print("D",start,pp_list[chrom][pp][1],end,pp_list[chrom][pp][1])
             if max_length-settings["non_overlap"] <= overlap <= max_length+settings["non_overlap"]:
-
+                print(start,end,overlap,max_length,pp_name)
                 pp_data[pp_name]["count"]["total"][0] += 1 #count
                 #collect sequence data
                 read_offset = start-pp_list[chrom][pp][0]+settings["non_overlap"]
