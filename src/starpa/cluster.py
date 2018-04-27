@@ -994,7 +994,7 @@ class cluster():
             chrom = line.strip().split("\t")[0]
             start = int(line.strip().split("\t")[1])
             end = int(line.strip().split("\t")[2])
-            strand = line.strip().split("\t")[3]
+            strand = line.strip().split("\t")[4]
             name = "MC_"+strand+chrom+"_"+\
                     (len(str(len(genome[chrom])))-len(str(start)))*"0"+\
                     str(start)+"_"+str(end-start+1)

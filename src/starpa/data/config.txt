@@ -1,12 +1,12 @@
 #Configuration file
 
 #general
-library_file = data/libraries.txt		#Relative loaction of file with library names (each name on separate line)
-genome = ../starpa/tests/data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
+library_file = src/starpa/data/libraries.txt		#Relative loaction of file with library names (each name on separate line)
+genome = tests/data/genome/NC_000913.2.fna		#Relative location of the genome file (in fasta format)
 samtools_call = samtools		#Call for samtools command [eg. samtools]
 samtools_threads = 1		#Thread (cores) used by samtools [integer, eg. 1]
-bedtools_call = ~/bin/bedtools2.26/bin/bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
-cd_hit_est_call = ~/bin/cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
+bedtools_call = bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
+cd_hit_est_call = cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
 CPUs = 2		#Number of libraries to be analysed in parallel manner [integer, eg. 2]
 min_length = 18		#Minimum length of reads, shorter reads will be discarded [integer, eg. 18]
 max_length = 300		#Maximum length of reads,shorter reads will be discarded [integer, eg. 300]
@@ -20,12 +20,12 @@ paired = True		#Are reads in paired-end format [True or False]
 #trim
 #Trims reads using cutadapt
 ##Name format of input_file: "library" + "suffix" (eg. "_1.fq") -> library_1.fq
-trim_call = ~/.local/bin/cutadapt		#Call for cutadapt (eg. ~/.local/bin/cutadapt)
+trim_call = cutadapt		#Call for cutadapt (eg. ~/.local/bin/cutadapt)
 trim_min_qual = 30		#3' end trimming quality threshold [integer, eg. 30]
 trim_overlap = 1	#Mininum match between adapter and read's 3' end. In case of paired end read it can be set to 1 as paired match will
 					#cover short trimmings happeinging by chance.
-trim_adapter_for = data/adapters/adapter1.fasta		#Relative path of the 5' adapter file (in fasta format)
-trim_adapter_rev = data/adapters/adapter2.fasta		#Relative path of the 3' adapter file (in fasta format)
+trim_adapter_for = tests/data/adapters/adapter1.fasta		#Relative path of the 5' adapter file (in fasta format)
+trim_adapter_rev = tests/data/adapters/adapter2.fasta		#Relative path of the 3' adapter file (in fasta format)
 trim_threads = 1		#Thread (cores) used by cutadapt, currently works only with 1 [integer, eg. 1]
 trim_quality_base = 64		#Phred quality encoding of input data of task "trim" [64 if Phred+64 or 33 if Phred+33]
 trim_input_file_suffix_for = _1.fq		#Suffix for forward input file names as name format above [eg. _1.fq]
@@ -39,8 +39,8 @@ trim_input_file_suffix_SE = _1.fq		#Suffix for input file names as name format a
 #align
 #Aligns reads using bowtie2
 ##Name format of input_file: "library" + "suffix" (eg. "_1_trim.fq") -> library_1_trim.fq
-align_call = ~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2		#Call for bowtie2 command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2]
-align_index_call = ~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build		#Call for bowtie2-build command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build]
+align_call = bowtie2		#Call for bowtie2 command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2]
+align_index_call = bowtie2-build		#Call for bowtie2-build command [~/bin/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build]
 align_threads = 1		#Threads(cores) used by bowtie2 [integer, eg. 1]
 align_quality_base = 64		#Phred quality encoding of input data of task "align" [64 if Phred+64 or 33 if Phred+33]
 align_sensitive = False		#Alignment in sensitive mode (two step process) [True or False]
@@ -81,9 +81,9 @@ pseudoSE_input_file_suffix = _sort.sam		#Suffix for input file names as name for
 #Identifies processing products via Flaimapper2 which are filtered by read number estimated by flaimapper (50% of min_pp_reads)
 #Then reads are quantified by BEDtools intersect.
 ##Name format of input_file: "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
-identify_flaimapper_parameters = data/flaimapper_parameters/parameters.dev-2-100-2.txt		#Relative location of Flaimapper2 parameter file
+identify_flaimapper_parameters = tests/data/flaimapper_parameters/parameters.dev-2-100-2.txt		#Relative location of Flaimapper2 parameter file
 #identify_overlap = 30		#
-identify_flaimapper_call = ~/.local/bin/flaimapper		#Call for Flaimapper2 command
+identify_flaimapper_call = flaimapper		#Call for Flaimapper2 command
 identify_input_file_suffix = _pseudoSE.sam		#Suffix for input file names as name format above [eg. _pseudoSE.sam]
 												#It should be "_pseudoSE.sam" if input data is coming from STARPA pipeline
 identify_split_step = 10		#Read length intervals for sam file fragmentation which will be analysed separately by Flaimapper2.
@@ -137,7 +137,7 @@ quantify_sam_file_location = ../pseudoSE		#Location of a folder (relative to inp
 												#- output of task "pseudoSE" 
 												#(Reads require NH tag to describe the number of reported alignments.)
 quantify_sam_file_suffix = _pseudoSE.sam		#Suffixs for sam file; "library" + "suffix" (eg. "_pseudoSE.sam") -> library_pseudoSE.sam 
-quantify_annotation_file = data/annotation/sequence.gff3		#Annotation file in GFF, GFF3 format.
+quantify_annotation_file = tests/data/annotation/sequence.gff3		#Annotation file in GFF, GFF3 format.
 
 ##parameters for annotation:
 quantify_keys_to_skip = [Src, mobile_element, misc_feature, STS]		#Annotation elements which are skipped
