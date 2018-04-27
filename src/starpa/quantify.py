@@ -107,7 +107,7 @@ class quantify():
                 strand = "-"
             pp_pos_list[strand], pp_name_list[strand] = \
                                       self.genes_to_positions4(pp_list[strand])
-
+            
         #GET DICTIONARY FOR PP-S
         print("\tMake pp dictionary")
         pp_data = self.make_pp_dictionary(settings,first_task)
@@ -186,7 +186,8 @@ class quantify():
 
     def genes_from_BED(self,annotation_file):
         '''
-        Creats dictionary for chromosomes containing lists with gene information
+        Creats dictionary for chromosomes containing lists with gene information. Info comes
+        from BED so it is 0 based end exclusiv.
         '''
         #print("\tCreate gene list")
         gene_list = {}
@@ -207,12 +208,17 @@ class quantify():
 
     def genes_to_positions4(self,gene_list):
         '''
-        Creates dictionary with positions of the genes refering to the name of the genes
+        Creates dictionary with positions of the genes refering to the name of the genes.
+        Input: 0-based end exclusive
+        Output: 0-based and end inclusive
         '''
         #print("\tAdding genes to positions")
         gene_dict = {}
         single_pos_element = set()
         for chrom in gene_list:
+            '''creates dictionary with start and end positions of the elements
+            {1:{1}, 10:{1}, 15:{2}, 20:{2}, 8:{3}, 12:{3}}
+            '''    
             for gene in gene_list[chrom][1:]:
                 if chrom not in gene_dict:
                     gene_dict[chrom] = {}
@@ -229,7 +235,11 @@ class quantify():
                 else:
                     gene_dict[chrom][int(gene[1])-1].add(gene[8]) 
 
-            #correct overlaping elements
+            '''correct overlaping elements
+            #if elements overlap and the one elements starts in the middle of the other
+            #then the elements get cross labeled in the positions
+            {1:{1}, 8:{1,3}, 10:{1,3}, 12:{3}, 15:{2}, 20:{2}}
+            '''
             genes_started = set()
             for x in sorted(gene_dict[chrom]):
                 #if no started elements
@@ -473,9 +483,9 @@ class quantify():
                     strand = "-"
                 else:
                     strand = "+"
-                #SAM coordination system (1-based, end iclusive) converted to 0-based end exclusive
+                #SAM coordination system (1-based) converted to 0-based end inclusive
                 start = int(line_split[3])-1
-                end = start + abs(int(line_split[5].strip("M")))
+                end = start + abs(int(line_split[5].strip("M")))-1
                 chrom = line_split[2]
                 #matching reads to genes
                 gene_list_lib = self.reads_to_genes4(line,gene_list_lib,gene_pos_list,\
@@ -689,8 +699,8 @@ class quantify():
             pps_on_mapping = set.union(*map(set,pp_name_list[chrom][index1:index2]))
         #get pp-s which have required overlap with reads
         for pp in pps_on_mapping:
-            max_length = max(end-start,pp_list[chrom][pp][1]-pp_list[chrom][pp][0])
-            overlap = min(end,pp_list[chrom][pp][1])-max(start,pp_list[chrom][pp][0])
+            max_length = max(end-start+1,pp_list[chrom][pp][1]-pp_list[chrom][pp][0])
+            overlap = min(end+1,pp_list[chrom][pp][1])-max(start,pp_list[chrom][pp][0])
             pp_name = pp_list[chrom][pp][3]
             #collects total coverage of the pp
             pp_data[pp_name]["total_cov"] += overlap
@@ -704,7 +714,7 @@ class quantify():
                 pp_data[pp_name]["count"]["total"][0] += 1 #count
                 #collect sequence data
                 read_offset = start-pp_list[chrom][pp][0]+settings["non_overlap"]
-
+                #print(start,end,pp_list[chrom][pp][1],pp_list[chrom][pp][0],overlap,max_length,pp_name,read_offset)
                 for i, pos in enumerate(range(len(mapping[9]))):
                     pp_data[pp_name]["sequencies"][i+read_offset]["ACGTN".find(mapping[9][i])] += 1
                 #uniqness)
