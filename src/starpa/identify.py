@@ -246,11 +246,11 @@ class identify():
             os.system(" ".join(samtools_sam_to_bam))
 
             #sort bam
-            length_split_bam = os.path.join(settings["--output"],"identify","bam",\
+            strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
                                          library+"_"+strand_name+".bam")
             samtools_sort_command = (
                 settings["samtools_call"], "sort",
-                "-o", length_split_bam,
+                "-o", strand_split_bam,
                 os.path.join(settings["--output"],"identify","bam",\
                                          library+"_"+strand_name+"_unsorted.bam")
                 )
