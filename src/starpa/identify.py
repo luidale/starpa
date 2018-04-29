@@ -174,26 +174,26 @@ class identify():
         f_out_full_files_for.close()
 
         #sam to bam
-        for strand in strand_list:
+        for strand_name in strand_list:
             for i in range(len(length_range_upper)):    
                 #sam to bam
                 samtools_sam_to_bam = (
                     settings["samtools_call"], "view",
                     "-h", "-Sb", os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+"_unsorted.sam"),
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.sam"),
                     "-o",os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+"_unsorted.bam")
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam")
                     )
                 os.system(" ".join(samtools_sam_to_bam))
 
                 #sort bam
                 length_split_bam = os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+".bam")
+                                             library+"_"+strand_name+"_"+str(i)+".bam")
                 samtools_sort_command = (
                     settings["samtools_call"], "sort",
                     "-o", length_split_bam,
                     os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+"_unsorted.bam")
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam")
                     )
 
                 os.system("\t".join(samtools_sort_command))
@@ -208,9 +208,9 @@ class identify():
 
                 #remove unsorted bam
                 os.remove(os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+"_unsorted.sam"))
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.sam"))
                 os.remove(os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand+"_"+str(i)+"_unsorted.bam"))
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam"))
                 
                 #flaimapper
                 flaimapper_output = os.path.join(settings["--output"],"identify","flaimapper",\
@@ -239,20 +239,20 @@ class identify():
             samtools_sam_to_bam = (
                 settings["samtools_call"], "view",
                 "-h", "-Sb", os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+"_unsorted.sam"),
+                                         library+"_"+strand_name+"_unsorted.sam"),
                 "-o",os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+"_unsorted.bam")
+                                         library+"_"+strand_name+"_unsorted.bam")
                 )
             os.system(" ".join(samtools_sam_to_bam))
 
             #sort bam
             length_split_bam = os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+".bam")
+                                         library+"_"+strand_name+".bam")
             samtools_sort_command = (
                 settings["samtools_call"], "sort",
                 "-o", length_split_bam,
                 os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+"_unsorted.bam")
+                                         library+"_"+strand_name+"_unsorted.bam")
                 )
 
             os.system("\t".join(samtools_sort_command))
@@ -267,9 +267,9 @@ class identify():
 
             #remove unsorted bam
             os.remove(os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+"_unsorted.sam"))
+                                         library+"_"+strand_name+"_unsorted.sam"))
             os.remove(os.path.join(settings["--output"],"identify","bam",\
-                                         library+"_"+strand+"_unsorted.bam"))
+                                         library+"_"+strand_name+"_unsorted.bam"))
 
 
         
