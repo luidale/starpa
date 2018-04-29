@@ -134,8 +134,6 @@ class identify():
         f_out_files_for = []
         f_out_files_rev = []
         for i in range(len(length_range_upper)):
-            os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand_name+".bam")
             f_out_files_for.append(open(os.path.join(settings["--output"],"identify","bam",\
                                              library+"_"+"For"+"_"+str(i)+"_unsorted.sam"),"w"))
             f_out_full_files_for = open(os.path.join(settings["--output"],"identify","bam",\
