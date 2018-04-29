@@ -133,7 +133,7 @@ class identify():
         ##create files
         f_out_files_for = []
         f_out_files_rev = []
-        for i in range(len(upper_range)):
+        for i in range(len(length_upper_range)):
             os.path.join(settings["--output"],"identify","bam",\
                                              library+"_"+strand_name+".bam")
             f_out_files_for.append(open(os.path.join(settings["--output"],"identify","bam",\
@@ -149,7 +149,7 @@ class identify():
             for line in f_in:
                 #write header
                 while line[0] == "@":
-                    for i in range(len(upper_range)):
+                    for i in range(len(length_upper_range)):
                         f_out_files_rev[i].write(line)
                         f_out_files_for[i].write(line)
                     f_out_full_files_for.write(line)
@@ -169,7 +169,7 @@ class identify():
                         f_out_files_for[i].write(line)
                     f_out_full_files_for.write(line)
                         
-        for i in range(len(upper_range)):
+        for i in range(len(length_upper_range)):
             f_out_files_rev[i].close()
             f_out_files_for[i].close()
         f_out_full_files_rev.close()
