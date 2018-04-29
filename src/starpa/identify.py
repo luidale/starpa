@@ -133,7 +133,7 @@ class identify():
         ##create files
         f_out_files_for = []
         f_out_files_rev = []
-        for i in range(len(length_upper_range)):
+        for i in range(len(length_range_upper)):
             os.path.join(settings["--output"],"identify","bam",\
                                              library+"_"+strand_name+".bam")
             f_out_files_for.append(open(os.path.join(settings["--output"],"identify","bam",\
@@ -149,7 +149,7 @@ class identify():
             for line in f_in:
                 #write header
                 while line[0] == "@":
-                    for i in range(len(length_upper_range)):
+                    for i in range(len(length_range_upper)):
                         f_out_files_rev[i].write(line)
                         f_out_files_for[i].write(line)
                     f_out_full_files_for.write(line)
@@ -169,7 +169,7 @@ class identify():
                         f_out_files_for[i].write(line)
                     f_out_full_files_for.write(line)
                         
-        for i in range(len(length_upper_range)):
+        for i in range(len(length_range_upper)):
             f_out_files_rev[i].close()
             f_out_files_for[i].close()
         f_out_full_files_rev.close()
@@ -177,7 +177,7 @@ class identify():
 
         #sam to bam
         for strand in strand_list:
-            for i in range(len(length_upper_range)):    
+            for i in range(len(length_range_upper)):    
                 #sam to bam
                 samtools_sam_to_bam = (
                     settings["samtools_call"], "view",
