@@ -127,81 +127,73 @@ class identify():
                                 settings["identify"]["identify_split_step"]))
         length_range_lower = list(range(min_lower_range_limit,
                                         max_lower_range_limit,\
-                                settings["identify"]["identify_split_step"]))        
-        #process by strand
-        strand_split_parameter = ["-F","-f"] #needed for spliting by strand
-        for j,strand_name in enumerate(strand_list):
-            print("\t"+" ".join([library,strand_name,"Flaimapper"]))
-            
-            #split by strand
-            strand_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
-                                             "bam",library+"_"+strand_name+"_unsorted.bam")
-            samtools_split_by_strand_command = (
-                        settings["samtools_call"], "view",
-			"-@", str(settings["samtools_threads"]),
-                        strand_split_parameter[j], "0x10 -Sb",
-                        input_file, ">",
-                        strand_split_unsorted_bam
-                        )
-            os.system("\t".join(samtools_split_by_strand_command))
-            
-            #sort stranded bam
-            strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
-                                             library+"_"+strand_name+".bam")
-            samtools_sort_command = (
-                settings["samtools_call"], "sort",
-#				"-@", str(settings["samtools_threads"]),
-                "-o", strand_split_bam, strand_split_unsorted_bam
-                )
-            os.system("\t".join(samtools_sort_command))
+                                settings["identify"]["identify_split_step"]))
 
-            #index bam
-            samtools_index_command = (
-                settings["samtools_call"], "index",
-				"-@", str(settings["samtools_threads"]),
-                strand_split_bam
-                )
+        #split sam by parsing
+        ##create files
+        f_out_files_for = []
+        f_out_files_rev = []
+        for i in range(len(length_range_upper)):
+            f_out_files_for.append(open(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+"For"+"_"+str(i)+"_unsorted.sam"),"w"))
+            f_out_full_files_for = open(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+"For"+"_unsorted.sam"),"w")
+            f_out_files_rev.append(open(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+"Rev"+"_"+str(i)+"_unsorted.sam"),"w"))
+            f_out_full_files_rev = open(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+"Rev"+"_unsorted.sam"),"w")
+            
+        with open(input_file) as f_in:
+            for line in f_in:
+                #write header
+                while line[0] == "@":
+                    for i in range(len(length_range_upper)):
+                        f_out_files_rev[i].write(line)
+                        f_out_files_for[i].write(line)
+                    f_out_full_files_for.write(line)
+                    f_out_full_files_rev.write(line)
+                    line = f_in.readline()
 
-            os.system(" ".join(samtools_index_command))
-            
-            #sorted bam to sam
-            samtools_bam_to_sam_command = (
-                settings["samtools_call"], "view", "-h",
-				"-@", str(settings["samtools_threads"]),
-                "-o", strand_split_bam[:-3]+"sam", strand_split_bam
-                )
-            os.system("\t".join(samtools_bam_to_sam_command))              
-            #remove unsorted stranded bam
-            os.remove(strand_split_unsorted_bam)
-            
-            #split bam by length
-            for i in range(len(length_range_upper)):
-                length_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
-                                                 "bam",library+\
-                                               "_"+strand_name+"_"+str(i)+"_unsorted.bam")
-                samtools_split_by_length_command = (
+                length = int(line.split("\t")[5].strip("M"))
+                index1 = bisect.bisect_left(length_range_lower,length)
+                index2 = bisect.bisect_left(length_range_upper,length)
+                
+                if int(line.split("\t")[1]) & 16: #reverse
+                    for i in range(index2,index1):
+                        f_out_files_rev[i].write(line)
+                    f_out_full_files_rev.write(line)
+                else:
+                    for i in range(index2,index1):
+                        f_out_files_for[i].write(line)
+                    f_out_full_files_for.write(line)
+                        
+        for i in range(len(length_range_upper)):
+            f_out_files_rev[i].close()
+            f_out_files_for[i].close()
+        f_out_full_files_rev.close()
+        f_out_full_files_for.close()
+
+        #sam to bam
+        for strand_name in strand_list:
+            for i in range(len(length_range_upper)):    
+                #sam to bam
+                samtools_sam_to_bam = (
                     settings["samtools_call"], "view",
-					"-@", str(settings["samtools_threads"]),
-                    "-h", strand_split_bam,
-                    "| awk 'length($10) >",
-                    str(length_range_lower[i]),
-                    "&& length($10) <=",
-                    str(length_range_upper[i]),
-                    "|| $1 ~ /^@/' |",
-                    settings["samtools_call"], "view",
-                    "-bS - >", length_split_unsorted_bam
+                    "-h", "-Sb", os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.sam"),
+                    "-o",os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam")
                     )
-                #print(" ".join(samtools_split_by_length_command))
-                os.system(" ".join(samtools_split_by_length_command))
-
+                os.system(" ".join(samtools_sam_to_bam))
 
                 #sort bam
                 length_split_bam = os.path.join(settings["--output"],"identify","bam",\
-                                                 library+"_"+strand_name+"_"+str(i)+".bam")
+                                             library+"_"+strand_name+"_"+str(i)+".bam")
                 samtools_sort_command = (
                     settings["samtools_call"], "sort",
-					"-@", str(settings["samtools_threads"]),
-                    "-o", length_split_bam, length_split_unsorted_bam
+                    "-o", length_split_bam,
+                    os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam")
                     )
 
                 os.system("\t".join(samtools_sort_command))
@@ -209,14 +201,16 @@ class identify():
                 #index bam
                 samtools_index_command = (
                     settings["samtools_call"], "index",
-					"-@", str(settings["samtools_threads"]),
                     length_split_bam
                     )
 
                 os.system(" ".join(samtools_index_command))
 
                 #remove unsorted bam
-                os.remove(length_split_unsorted_bam)
+                os.remove(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.sam"))
+                os.remove(os.path.join(settings["--output"],"identify","bam",\
+                                             library+"_"+strand_name+"_"+str(i)+"_unsorted.bam"))
                 
                 #flaimapper
                 flaimapper_output = os.path.join(settings["--output"],"identify","flaimapper",\
@@ -239,6 +233,157 @@ class identify():
                 #remove length filtered bam and its indexes
                 os.remove(length_split_bam)
                 os.remove(length_split_bam+".bai")
+
+            #format full strand files
+            #sam to bam
+            samtools_sam_to_bam = (
+                settings["samtools_call"], "view",
+                "-h", "-Sb", os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+"_unsorted.sam"),
+                "-o",os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+"_unsorted.bam")
+                )
+            os.system(" ".join(samtools_sam_to_bam))
+
+            #sort bam
+            strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+".bam")
+            samtools_sort_command = (
+                settings["samtools_call"], "sort",
+                "-o", strand_split_bam,
+                os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+"_unsorted.bam")
+                )
+
+            os.system("\t".join(samtools_sort_command))
+                              
+            #index bam
+            samtools_index_command = (
+                settings["samtools_call"], "index",
+                strand_split_bam
+                )
+
+            os.system(" ".join(samtools_index_command))
+
+            #remove unsorted bam
+            os.remove(os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+"_unsorted.sam"))
+            os.remove(os.path.join(settings["--output"],"identify","bam",\
+                                         library+"_"+strand_name+"_unsorted.bam"))
+
+
+        
+##        #process by strand
+##        strand_split_parameter = ["-F","-f"] #needed for spliting by strand
+##        for j,strand_name in enumerate(strand_list):
+##            print("\t"+" ".join([library,strand_name,"Flaimapper"]))
+##            
+##            #split by strand
+##            strand_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
+##                                             "bam",library+"_"+strand_name+"_unsorted.bam")
+##            samtools_split_by_strand_command = (
+##                        settings["samtools_call"], "view",
+##			"-@", str(settings["samtools_threads"]),
+##                        strand_split_parameter[j], "0x10 -Sb",
+##                        input_file, ">",
+##                        strand_split_unsorted_bam
+##                        )
+##            os.system("\t".join(samtools_split_by_strand_command))
+##            
+##            #sort stranded bam
+##            strand_split_bam = os.path.join(settings["--output"],"identify","bam",\
+##                                             library+"_"+strand_name+".bam")
+##            samtools_sort_command = (
+##                settings["samtools_call"], "sort",
+###				"-@", str(settings["samtools_threads"]),
+##                "-o", strand_split_bam, strand_split_unsorted_bam
+##                )
+##            os.system("\t".join(samtools_sort_command))
+##
+##            #index bam
+##            samtools_index_command = (
+##                settings["samtools_call"], "index",
+##				"-@", str(settings["samtools_threads"]),
+##                strand_split_bam
+##                )
+##
+##            os.system(" ".join(samtools_index_command))
+##            
+##            #sorted bam to sam
+##            samtools_bam_to_sam_command = (
+##                settings["samtools_call"], "view", "-h",
+##				"-@", str(settings["samtools_threads"]),
+##                "-o", strand_split_bam[:-3]+"sam", strand_split_bam
+##                )
+##            os.system("\t".join(samtools_bam_to_sam_command))              
+##            #remove unsorted stranded bam
+##            os.remove(strand_split_unsorted_bam)
+##            
+##            #split bam by length
+##            for i in range(len(length_range_upper)):
+##                length_split_unsorted_bam = os.path.join(settings["--output"],"identify",\
+##                                                 "bam",library+\
+##                                               "_"+strand_name+"_"+str(i)+"_unsorted.bam")
+##                samtools_split_by_length_command = (
+##                    settings["samtools_call"], "view",
+##					"-@", str(settings["samtools_threads"]),
+##                    "-h", strand_split_bam,
+##                    "| awk 'length($10) >",
+##                    str(length_range_lower[i]),
+##                    "&& length($10) <",
+##                    str(length_range_upper[i]),
+##                    "|| $1 ~ /^@/' |",
+##                    settings["samtools_call"], "view",
+##                    "-bS - >", length_split_unsorted_bam
+##                    )
+##                #print(" ".join(samtools_split_by_length_command))
+##                os.system(" ".join(samtools_split_by_length_command))
+##
+##
+##                #sort bam
+##                length_split_bam = os.path.join(settings["--output"],"identify","bam",\
+##                                                 library+"_"+strand_name+"_"+str(i)+".bam")
+##                samtools_sort_command = (
+##                    settings["samtools_call"], "sort",
+##					"-@", str(settings["samtools_threads"]),
+##                    "-o", length_split_bam, length_split_unsorted_bam
+##                    )
+##
+##                os.system("\t".join(samtools_sort_command))
+##                                  
+##                #index bam
+##                samtools_index_command = (
+##                    settings["samtools_call"], "index",
+##					"-@", str(settings["samtools_threads"]),
+##                    length_split_bam
+##                    )
+##
+##                os.system(" ".join(samtools_index_command))
+##
+##                #remove unsorted bam
+##                os.remove(length_split_unsorted_bam)
+##                
+##                #flaimapper
+##                flaimapper_output = os.path.join(settings["--output"],"identify","flaimapper",\
+##                                                 "flaimapper_temp",library,\
+##                                               library+"_"+strand_name+"_"+str(i)+"_flaimapper.tab")
+##                flaimapper_info = os.path.join(settings["--output"],"identify","flaimapper",\
+##                                               "flaimapper_info",library,\
+##                                               library+"_"+strand_name+"_"+str(i)+"_flaimapper.info")
+##                
+##                flaimapper_command = (
+##                    settings["identify"]["identify_flaimapper_call"],"-q", "-f 1",
+##                    "-o", flaimapper_output, "-q",
+##                    "-r", settings["genome"],
+##                    "-p", settings["identify"]["identify_flaimapper_parameters"],
+##                    length_split_bam, "2>" ,flaimapper_info
+##                    )
+##                #print(" ".join(flaimapper_command))
+##                os.system(" ".join(flaimapper_command))
+##                                  
+##                #remove length filtered bam and its indexes
+##                os.remove(length_split_bam)
+##                os.remove(length_split_bam+".bai")
 
             #COMBINE FLAIMAPPER OUTPUT
             ##READ IN DATA
