@@ -185,7 +185,7 @@ class identify():
                     "-h", strand_split_bam,
                     "| awk 'length($10) >",
                     str(length_range_lower[i]),
-                    "&& length($10) <",
+                    "&& length($10) <=",
                     str(length_range_upper[i]),
                     "|| $1 ~ /^@/' |",
                     settings["samtools_call"], "view",
