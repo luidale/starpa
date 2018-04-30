@@ -260,7 +260,7 @@ class identify():
             #index bam
             samtools_index_command = (
                 settings["samtools_call"], "index",
-                length_split_bam
+                strand_split_bam
                 )
 
             os.system(" ".join(samtools_index_command))
