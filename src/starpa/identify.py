@@ -47,8 +47,8 @@ class identify():
             os.makedirs(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_temp"))
         if not os.path.exists(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_info")):
             os.makedirs(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_info"))
-#        if not os.path.exists(os.path.join(settings["--output"],"identify","featurecounts")):
-#            os.makedirs(os.path.join(settings["--output"],"identify","featurecounts"))
+        if not os.path.exists(os.path.join(settings["--output"],"identify","featurecounts")):
+            os.makedirs(os.path.join(settings["--output"],"identify","featurecounts"))
 
     def flaimapper(self,settings,first_task):
         '''
@@ -398,7 +398,7 @@ class identify():
                                     "identify_info",\
                                      library+"_"+strand_name+"_identifyinfo.log")
             self.write_BED(file_name+".BED",list_pp,genome_lengths)
-            #self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
+            self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
             self.write_statistics(infofile_name,list_pp,stat_pp)
             
             #COUNT READS PER PP
@@ -411,6 +411,8 @@ class identify():
             #self.fragment_SAF(file_name+".SAF",overlap,size_range)
             #self.count_reads_fragmented_SAF_featurecounts(\
             #    settings,file_name+".SAF",strand_split_bam,library,overlap,strand_name)
+            self.count_reads_featurecounts(\
+                settings,file_name+".SAF",strand_split_bam,library,overlap,strand_name)
             #self.remove_fragmented_SAF(file_name+".SAF",overlap)
         
     def read_in_flaimapper_data(self,settings,input_file_range,strand_name,library):
@@ -667,6 +669,51 @@ class identify():
         #for i in range(len(overlap)):
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
         #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file         
+
+    def count_reads_featurecounts(self,settings,input_SAF,input_bam,library,overlap,strand_name):
+        '''
+        Count reads input_SAF file by featureCounts
+        '''
+        #count reads in different files
+        feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
+                           library+"_"+strand_name++"_featurecounts.info")
+        file_name = os.path.join(settings["--output"],"identify",\
+                        library+"_"+strand_name+"_pp") 
+        featureCounts_command =(
+                        settings["featureCounts_call"],
+                        #"-T", str(settings["CPUs"]),
+                        #"-G", settings["genome"],
+                        "-M", "-O", "-s 1", "-F SAF", "-R SAM",
+                        "--nonOverlap", str(settings["non_overlap"]),
+                        "--nonOverlapFeature", str(settings["non_overlap"]),
+##                        "--fracOverlap", str(overlap[i]),
+##                        "--fracOverlapFeature", str(overlap[i]),                                             
+                        "-a", input_SAF,
+                        "-o", file_name+"_counted.SAF",
+                        input_bam, "2>", feturecounts_info
+                        )       
+        os.system(" ".join(featureCounts_command))
+         
+##        #combine fragmented_pp_counted_files 
+##        with open(input_SAF[:-4]+"_counted_unsorted.SAF",'wb') as wfd:
+##            for i in range(len(overlap)):
+##                if os.stat(input_SAF[:-4]+"_"+str(i)+".SAF").st_size != 0:
+##                    with open(input_SAF[:-4]+"_"+str(i)+"_counted.SAF",'rb') as fd:
+##                        shutil.copyfileobj(fd, wfd, 1024*1024*10)
+                        
+        #sort combined counted pp-s 
+        sort_command = (
+                settings["bedtools_call"], "sort",\
+                "-i",input_SAF[:-4]+"_counted_unsorted.SAF",\
+                ">",input_SAF[:-4]+"_counted.SAF"
+                )
+        os.system(" ".join(sort_command))
+            
+        #delete temporary count files         
+        #for i in range(len(overlap)):
+        #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file         
+
 
     def remove_fragmented_SAF(self,input_SAF,overlap):
         '''

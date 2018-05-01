@@ -43,6 +43,11 @@ install:
   - make
   - PATH=$(pwd):$PATH
   - cd ../..
+  - wget https://sourceforge.net/projects/subread/files/subread-1.6.1/subread-1.6.1-Linux-x86_64.tar.gz
+  - tar zxvf subread-1.6.1-Linux-x86_64.tar.gz
+  - cd subread-1.6.1-Linux-x86_64/bin
+  - PATH=$(pwd):$PATH
+  - cd ../..
   - python setup.py install
 #  - pip install -e .
 # command to run tests

@@ -121,7 +121,8 @@ Starpa is depending on following tools which have to be installed in your system
 `samtools <http://www.htslib.org/doc/samtools.html>`_,
 `Flaimapper-2 <hhttps://github.com/yhoogstrate/flaimapper>`_,
 `bedtools <http://bedtools.readthedocs.io/en/latest/#>`_,
-`CDI-HIT-EST <http://weizhongli-lab.org/cd-hit/>`_.
+`CDI-HIT-EST <http://weizhongli-lab.org/cd-hit/>`_,
+`featureCounts <http://bioinf.wehi.edu.au/featureCounts/>`_ (Release 1.6.1+).
 
 Python3 requires following packages which will be installed (if missing) during 
 the installation of starpa:

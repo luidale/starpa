@@ -6,6 +6,7 @@ genome = tests/data/genome/NC_000913.2.fna		#Relative location of the genome fil
 samtools_call = samtools		#Call for samtools command [eg. samtools]
 samtools_threads = 1		#Thread (cores) used by samtools [integer, eg. 1]
 bedtools_call = bedtools		#Call for bedtools command [eg. ~/bin/bedtools2.26/bin/bedtools]
+featureCounts_call = featureCounts		#Call for featureCounts command (Release 1.6.1+) [eg. featureCounts]
 cd_hit_est_call = cd-hit-est		#Call for CDI-HIT-EST command [eg. ~/bin/cd-hit-est]
 CPUs = 1		#Number of libraries to be analysed in parallel manner [integer, eg. 2]
 min_length = 18		#Minimum length of reads, shorter reads will be discarded [integer, eg. 18]

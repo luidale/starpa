@@ -85,7 +85,7 @@ def check_arguments(args, tasks):
                                    error="'paired' should be Boolean (True or False)"),
         "samtools_call": And(Use(str), error="'samtools_call' should be string"),
         "bedtools_call": And(Use(str), error="'bedtools_call' should be string"),
-##        "featureCounts_call": And(Use(str), error="'featureCounts_call' should be string"),
+        "featureCounts_call": And(Use(str), error="'featureCounts_call' should be string"),
         "cd_hit_est_call": And(Use(str), error="'cd_hit_est_call' should be string"),
         "CPUs": And(Use(int), (lambda s: s > 0), error="'CPUs' should be integer"),
         "min_length": And(Use(int),(lambda s: s > 0),\
