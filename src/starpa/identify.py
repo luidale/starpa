@@ -676,7 +676,7 @@ class identify():
         '''
         #count reads in different files
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
-                           library+"_"+strand_name++"_featurecounts.info")
+                           library+"_"+strand_name+"_featurecounts.info")
         file_name = os.path.join(settings["--output"],"identify",\
                         library+"_"+strand_name+"_pp") 
         featureCounts_command =(
