@@ -694,13 +694,16 @@ class identify():
                         input_bam, "2>", feturecounts_info
                         )
         print(" ".join(featureCounts_command))
+        print("A")
         os.system(" ".join(featureCounts_command))
+        print("B")
         os.system("\t".join(featureCounts_command))
         command = "featureCounts -M -O -s 1 -F SAF --nonOverlap 2 --nonOverlapFeature 2 \
     -a ../starpa_analysis/fq2_identify_featureCounts/identify/HLRPI2_Rev_pp.SAF \
     -o ../starpa_analysis/fq2_identify_featureCounts/identify/HLRPI2_Rev_pp_counted.SAF \
     ../starpa_analysis/fq2_identify_featureCounts/identify/bam/HLRPI2_Rev.bam \
     2> ../starpa_analysis/fq2_identify_featureCounts/identify/featurecounts/HLRPI2_Rev_featurecounts.info"
+        print("C")
         os.system(command)
          
 ##        #combine fragmented_pp_counted_files 
