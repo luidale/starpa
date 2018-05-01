@@ -678,7 +678,7 @@ class identify():
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
         file_name = os.path.join(settings["--output"],"identify",\
-                        library+"_"+strand_name+"_pp") 
+                        library+"_"+strand_name+"_pp"+"_counted.SAF") 
         featureCounts_command =(
                         settings["featureCounts_call"],
                         #"-T", str(settings["CPUs"]),
@@ -689,7 +689,7 @@ class identify():
 ##                        "--fracOverlap", str(overlap[i]),
 ##                        "--fracOverlapFeature", str(overlap[i]),                                             
                         "-a", input_SAF,
-                        "-o", file_name+"_counted.SAF",
+                        "-o", file_name,
                         input_bam, "2>", feturecounts_info
                         )       
         os.system(" ".join(featureCounts_command))
