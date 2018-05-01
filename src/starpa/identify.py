@@ -678,14 +678,14 @@ class identify():
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
         file_name = os.path.join(settings["--output"],"identify",\
-                        library+"_"+strand_name+"_pp"+"_counted.SAF")
+                        library+"_"+strand_name+"_pp_counted.SAF")
         with open(file_name,"w") as f_out:
             pass
         featureCounts_command =(
                         settings["featureCounts_call"],
                         #"-T", str(settings["CPUs"]),
                         #"-G", settings["genome"],
-                        "-M", "-O", "-s 1", "-F SAF", "-R SAM",
+                        "-M", "-O", "-s 1", "-F SAF",
                         "--nonOverlap", str(settings["non_overlap"]),
                         "--nonOverlapFeature", str(settings["non_overlap"]),
 ##                        "--fracOverlap", str(overlap[i]),
@@ -693,7 +693,8 @@ class identify():
                         "-a", input_SAF,
                         "-o", file_name,
                         input_bam, "2>", feturecounts_info
-                        )       
+                        )
+        print(" ".join(featureCounts_command))
         os.system(" ".join(featureCounts_command))
          
 ##        #combine fragmented_pp_counted_files 
