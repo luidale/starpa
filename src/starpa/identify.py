@@ -678,7 +678,9 @@ class identify():
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
         file_name = os.path.join(settings["--output"],"identify",\
-                        library+"_"+strand_name+"_pp"+"_counted.SAF") 
+                        library+"_"+strand_name+"_pp"+"_counted.SAF")
+        with open(file_name,"w") as f_out:
+            pass
         featureCounts_command =(
                         settings["featureCounts_call"],
                         #"-T", str(settings["CPUs"]),
