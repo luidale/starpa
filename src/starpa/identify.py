@@ -693,7 +693,7 @@ class identify():
                         input_bam
 #                        input_bam, "2>", featurecounts_info
                         )
-        with open(output_SAF) as f_out:
+        with open(input_SAF) as f_out:
             for line in f_out:
                 print(line)
                 
