@@ -495,7 +495,7 @@ class identify():
         #The first base in a chromosome is numbered 1 (1-based)
         #end inclusive
         f_out_pp = open(output_SAF,"w")
-        f_out_pp.write("#GeneID\tChr\tStart\tEnd\tStrand\n")
+        #f_out_pp.write("#GeneID\tChr\tStart\tEnd\tStrand\n")
         if len(list_pp) > 0:
             last_pp_start = list_pp[-1][1]
             for pp in list_pp:
@@ -679,6 +679,7 @@ class identify():
                            library+"_"+strand_name+"_featurecounts.info")
         output_SAF =input_SAF[:-4]+"_counted.SAF"
         if os.stat(input_SAF).st_size != 0:
+            print("BB")
             featureCounts_command =(
                             settings["featureCounts_call"],
                             #"-T", str(settings["CPUs"]),
@@ -702,6 +703,7 @@ class identify():
         #decrease number of file formats used
             self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
         else:
+            print("AA")
             self.SAF_to_BED(input_SAF,input_SAF[:-4]+"_counted.BED")
 
              
