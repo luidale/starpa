@@ -690,8 +690,7 @@ class identify():
     ##                        "--fracOverlapFeature", str(overlap[i]),                                             
                             "-a", input_SAF,
                             "-o", output_SAF,
-                            input_bam
-    #                        input_bam, "2>", featurecounts_info
+                            input_bam, "2>", featurecounts_info
                             )
 
             os.system(" ".join(featureCounts_command))
@@ -701,8 +700,9 @@ class identify():
         #convert SAF to BED
         #this is done in historical reasons just not to change cluster.py and
         #decrease number of file formats used
-        self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
-
+            self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
+        else:
+            self.SAF_to_BED(input_SAF,input_SAF[:-4]+"_counted.BED")
 
              
 ##        #sort combined counted pp-s
