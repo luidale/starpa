@@ -679,7 +679,6 @@ class identify():
                            library+"_"+strand_name+"_featurecounts.info")
         output_SAF =input_SAF[:-4]+"_counted.SAF"
         if os.stat(input_SAF).st_size != 0:
-            print("BB")
             featureCounts_command =(
                             settings["featureCounts_call"],
                             #"-T", str(settings["CPUs"]),
@@ -698,30 +697,15 @@ class identify():
         
 
         
-        #convert SAF to BED
-        #this is done in historical reasons just not to change cluster.py and
-        #decrease number of file formats used
+            #convert SAF to BED
+            #this is done in historical reasons just not to change cluster.py and
+            #decrease number of file formats used
             self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
             os.remove(output_SAF) #remove counted SAF file
             os.remove(input_SAF) #remove SAF file
         else:
-            print("AA")
             self.SAF_to_BED(input_SAF,input_SAF[:-4]+"_counted.BED")
             os.remove(input_SAF) #remove SAF file
-             
-##        #sort combined counted pp-s
-##        sort_command = (
-##                settings["bedtools_call"], "sort",\
-##                "-i",input_SAF[:-4]+"_counted_unsorted.BED",\
-##                ">",input_SAF[:-4]+"_counted.SAF"
-##                )
-####        sort_command = (
-####            "sort", "-k2,2", "-k3n,3", "-k4n,4",
-####            "-t", "\t",
-####            input_SAF[:-4]+"_counted_unsorted.SAF",
-####            ">",input_SAF[:-4]+"_counted.SAF"
-####            )
-##        os.system(" ".join(sort_command))
             
         #delete temporary count files         
         #for i in range(len(overlap)):
@@ -736,12 +720,7 @@ class identify():
         '''
         Converts SAF to BED.
         '''
-        if os.path.isfile(SAF_file):
-            print("A",SAF_file)
-        else:
-            print("B",SAF_file)
         f_out = open(BED_file,"w")
-        print(sorted(os.listdir(os.path.dirname(SAF_file))))
         with open(SAF_file) as f_in:
             #skip featureCounts command and header lines
             f_in.readline()
