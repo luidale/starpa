@@ -245,12 +245,14 @@ Each task has different requirements for the input data:
 | FastQ files can be compressed as ".gz", ".bz2" or ".xz".
 
 
+
 - *align*
 
 | Trimmed and cleaned reads in `FastQ format <https://en.wikipedia.org/wiki/FASTQ_format>`_.
 | Can be in PE or SE format which has to be indicated in 
  `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 | FastQ files can be compressed as ".gz" (requires bowtie2.3.1+)
+
 
 
 - *sam_sort*
@@ -260,6 +262,7 @@ Each task has different requirements for the input data:
  `configuration file <https://raw.githubusercontent.com/luidale/starpa/master/src/starpa/data/config.txt>`_ .
 
 | BAM format is not currently supported.
+
 
 
 - *pseudoSE*
@@ -272,12 +275,14 @@ Each task has different requirements for the input data:
 | BAM format is not currently supported.
 
 
+
 - *identify*
 
 | Aligned SE or pseudoSE reads in SAM format. 
 | Reads require NH tag to describe the number of reported alignments.
 
 | BAM format currently not supported.
+
 
 
 - *cluster*
@@ -296,6 +301,7 @@ Each task has different requirements for the input data:
 | 		Reads require NH tag to describe the number of reported alignments.
 
 
+
 - *quantify*
 
 | Predicted processing products in BED format (preferentially representatives form clustering).
@@ -303,6 +309,7 @@ Each task has different requirements for the input data:
 | Additional input folder (given by parameter "quantify_sam_file_location"):
 |	Aligned SE or pseudoSE reads in SAM format (BAM format currently not supported).
 |	Reads require NH tag to describe the number of reported alignments.
+
 
 
 **Output folder**
@@ -413,10 +420,12 @@ of the task.
 	XXX_strand.bam						-	strand-wise sorted reads 
 									from input
 	XXX_strand.bam.bai					-	index of of bam file
-	XXX_strand.sam 						-	NOT NEEDED
 	
  identify_info/
 	 XXX_strand_identifyinfo.log				-	log of task
+
+featureounts/
+	 XXX_strand_featurecount.info				- 	log of featureCounts
 	 
  XXX_strand_pp.BED						-	NOT NEEDED
  XXX_strand_pp_counted.BED					-	predicted processing 

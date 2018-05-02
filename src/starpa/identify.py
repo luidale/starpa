@@ -724,8 +724,8 @@ class identify():
         #for i in range(len(overlap)):
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
         #remove SAF files
-        os.remove(output_SAF) #remove counted SAF file
-        os.remove(input_SAF) #remove SAF file
+        #os.remove(output_SAF) #remove counted SAF file
+        #os.remove(input_SAF) #remove SAF file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF.summary") #remove unsorted combined file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.BED") #remove unsorted combined file 
 
