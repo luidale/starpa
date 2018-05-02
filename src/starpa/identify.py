@@ -677,8 +677,7 @@ class identify():
         #count reads in different files
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
-        file_name = os.path.join(settings["--output"],"identify",\
-                        library+"_"+strand_name+"_pp_counted.SAF")
+        file_name =input_SAF[:-4]+"_counted_unsorted.SAF"
 
         featureCounts_command =(
                         settings["featureCounts_call"],
@@ -693,19 +692,8 @@ class identify():
                         "-o", file_name,
                         input_bam, "2>", feturecounts_info
                         )
-        print(" ".join(featureCounts_command))
-        print("A")
         os.system(" ".join(featureCounts_command))
-        print("B")
-        os.system("\t".join(featureCounts_command))
-        command = "featureCounts -M -O -s 1 -F SAF --nonOverlap 2 --nonOverlapFeature 2 \
-    -a ../starpa_analysis/fq2_identify_featureCounts/identify/HLRPI2_Rev_pp.SAF \
-    -o ../starpa_analysis/fq2_identify_featureCounts/identify/HLRPI2_Rev_pp_counted.SAF \
-    ../starpa_analysis/fq2_identify_featureCounts/identify/bam/HLRPI2_Rev.bam \
-    2> ../starpa_analysis/fq2_identify_featureCounts/identify/featurecounts/HLRPI2_Rev_featurecounts.info"
-        print("C")
-        os.system(command)
-         
+
 ##        #combine fragmented_pp_counted_files 
 ##        with open(input_SAF[:-4]+"_counted_unsorted.SAF",'wb') as wfd:
 ##            for i in range(len(overlap)):
