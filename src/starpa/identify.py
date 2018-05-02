@@ -397,7 +397,7 @@ class identify():
             infofile_name = os.path.join(settings["--output"],"identify",\
                                     "identify_info",\
                                      library+"_"+strand_name+"_identifyinfo.log")
-            self.write_BED(file_name+".BED",list_pp,genome_lengths)
+            #self.write_BED(file_name+".BED",list_pp,genome_lengths)
             self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
             self.write_statistics(infofile_name,list_pp,stat_pp)
             
@@ -675,7 +675,7 @@ class identify():
         Count reads input_SAF file by featureCounts
         '''
         #count reads in different files
-        feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
+        featurecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
         file_name =input_SAF[:-4]+"_counted.SAF"
 
@@ -690,7 +690,7 @@ class identify():
 ##                        "--fracOverlapFeature", str(overlap[i]),                                             
                         "-a", input_SAF,
                         "-o", file_name,
-                        input_bam, "2>", feturecounts_info
+                        input_bam, "2>", featurecounts_info
                         )
         os.system(" ".join(featureCounts_command))
 
@@ -731,6 +731,10 @@ class identify():
         '''
         Converts SAF to BED.
         '''
+        if os.path.isfile(input_SAF):
+            print("A",input_SAF)
+        else:
+            print("B",input_SAF)
         f_out = open(output_BED,"w")
         with open(input_SAF) as f_in:
             #skip featureCounts command and header lines
