@@ -701,12 +701,18 @@ class identify():
 ##                    with open(input_SAF[:-4]+"_"+str(i)+"_counted.SAF",'rb') as fd:
 ##                        shutil.copyfileobj(fd, wfd, 1024*1024*10)
                         
-        #sort combined counted pp-s 
+        #sort combined counted pp-s
+##        sort_command = (
+##                settings["bedtools_call"], "sort",\
+##                "-i",input_SAF[:-4]+"_counted_unsorted.SAF",\
+##                ">",input_SAF[:-4]+"_counted.SAF"
+##                )
         sort_command = (
-                settings["bedtools_call"], "sort",\
-                "-i",input_SAF[:-4]+"_counted_unsorted.SAF",\
-                ">",input_SAF[:-4]+"_counted.SAF"
-                )
+            "sort", "-k2,2", "-k3n,3", "-k4n,4",
+            "-t", "\t",
+            input_SAF[:-4]+"_counted_unsorted.SAF",
+            ">",input_SAF[:-4]+"_counted.SAF"
+            )
         os.system(" ".join(sort_command))
             
         #delete temporary count files         
