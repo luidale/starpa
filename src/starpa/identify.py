@@ -738,7 +738,7 @@ class identify():
         else:
             print("B",SAF_file)
         f_out = open(BED_file,"w")
-        print(os.listdir(os.path.dirname(SAF_file)))
+        print(sorted(os.listdir(os.path.dirname(SAF_file))))
         with open(SAF_file) as f_in:
             #skip featureCounts command and header lines
             f_in.readline()
