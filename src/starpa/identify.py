@@ -731,7 +731,7 @@ class identify():
         '''
         Converts SAF to BED.
         '''
-        f_out = open(input_BED,"w")
+        f_out = open(output_BED,"w")
         with open(input_SAF) as f_in:
             #skip featureCounts command and header lines
             f_in.readline()
