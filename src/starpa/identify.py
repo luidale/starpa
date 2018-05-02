@@ -700,27 +700,47 @@ class identify():
 ##                if os.stat(input_SAF[:-4]+"_"+str(i)+".SAF").st_size != 0:
 ##                    with open(input_SAF[:-4]+"_"+str(i)+"_counted.SAF",'rb') as fd:
 ##                        shutil.copyfileobj(fd, wfd, 1024*1024*10)
-                        
+        
+        #convert SAF to BED
+        #this is done in historical reasons just not to change cluster.py and
+        #decrease number of file formats used
+        self.SAF_to_BED(file_name,input_SAF[:-4]+"_counted_unsorted.BED")
+             
         #sort combined counted pp-s
-##        sort_command = (
-##                settings["bedtools_call"], "sort",\
-##                "-i",input_SAF[:-4]+"_counted_unsorted.SAF",\
-##                ">",input_SAF[:-4]+"_counted.SAF"
-##                )
         sort_command = (
-            "sort", "-k2,2", "-k3n,3", "-k4n,4",
-            "-t", "\t",
-            input_SAF[:-4]+"_counted_unsorted.SAF",
-            ">",input_SAF[:-4]+"_counted.SAF"
-            )
+                settings["bedtools_call"], "sort",\
+                "-i",input_SAF[:-4]+"_counted_unsorted.BED",\
+                ">",input_SAF[:-4]+"_counted.SAF"
+                )
+##        sort_command = (
+##            "sort", "-k2,2", "-k3n,3", "-k4n,4",
+##            "-t", "\t",
+##            input_SAF[:-4]+"_counted_unsorted.SAF",
+##            ">",input_SAF[:-4]+"_counted.SAF"
+##            )
         os.system(" ".join(sort_command))
             
         #delete temporary count files         
         #for i in range(len(overlap)):
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
-        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file         
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF.summary") #remove unsorted combined file
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.BED") #remove unsorted combined file 
 
-
+    def SAF_to_BED(self,input_SAF,output_BED):
+        '''
+        Converts SAF to BED.
+        '''
+        f_out = open(input_BED,"w")
+        with open(input_SAF) as f_in:
+            #skip featureCounts command and header lines
+            f_in.readline()
+            f_in.readline()
+            for line in f_in:
+                line = line.strip().split("\t")
+                f_out.write("\t".join([line[1],str(int(line[2])-1),line[3],line[0],"0",line[4],line[6]])+"\n")
+        f_out.close()
+        
     def remove_fragmented_SAF(self,input_SAF,overlap):
         '''
         Remove fragmented input_BED files
