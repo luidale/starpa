@@ -678,41 +678,32 @@ class identify():
         featurecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
         output_SAF =input_SAF[:-4]+"_counted.SAF"
+        if os.stat(input_SAF).st_size != 0:
+            featureCounts_command =(
+                            settings["featureCounts_call"],
+                            #"-T", str(settings["CPUs"]),
+                            #"-G", settings["genome"],
+                            "-M", "-O", "-s 1", "-F SAF",
+                            "--nonOverlap", str(settings["non_overlap"]),
+                            "--nonOverlapFeature", str(settings["non_overlap"]),
+    ##                        "--fracOverlap", str(overlap[i]),
+    ##                        "--fracOverlapFeature", str(overlap[i]),                                             
+                            "-a", input_SAF,
+                            "-o", output_SAF,
+                            input_bam
+    #                        input_bam, "2>", featurecounts_info
+                            )
 
-        featureCounts_command =(
-                        settings["featureCounts_call"],
-                        #"-T", str(settings["CPUs"]),
-                        #"-G", settings["genome"],
-                        "-M", "-O", "-s 1", "-F SAF",
-                        "--nonOverlap", str(settings["non_overlap"]),
-                        "--nonOverlapFeature", str(settings["non_overlap"]),
-##                        "--fracOverlap", str(overlap[i]),
-##                        "--fracOverlapFeature", str(overlap[i]),                                             
-                        "-a", input_SAF,
-                        "-o", output_SAF,
-                        input_bam
-#                        input_bam, "2>", featurecounts_info
-                        )
-        with open(input_SAF) as f_out:
-            for line in f_out:
-                print(line)
-                
-        os.system(" ".join(featureCounts_command))
-        if os.path.isfile(output_SAF):
-            print("AA",output_SAF)
-        else:
-            print("BB",output_SAF)        
-##        #combine fragmented_pp_counted_files 
-##        with open(input_SAF[:-4]+"_counted_unsorted.SAF",'wb') as wfd:
-##            for i in range(len(overlap)):
-##                if os.stat(input_SAF[:-4]+"_"+str(i)+".SAF").st_size != 0:
-##                    with open(input_SAF[:-4]+"_"+str(i)+"_counted.SAF",'rb') as fd:
-##                        shutil.copyfileobj(fd, wfd, 1024*1024*10)
+            os.system(" ".join(featureCounts_command))
+        
+
         
         #convert SAF to BED
         #this is done in historical reasons just not to change cluster.py and
         #decrease number of file formats used
         self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
+
+
              
 ##        #sort combined counted pp-s
 ##        sort_command = (
@@ -732,8 +723,8 @@ class identify():
         #for i in range(len(overlap)):
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
         #remove SAF files
-        #os.remove(output_SAF) #remove counted SAF file
-        #os.remove(input_SAF) #remove SAF file
+        os.remove(output_SAF) #remove counted SAF file
+        os.remove(input_SAF) #remove SAF file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF.summary") #remove unsorted combined file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.BED") #remove unsorted combined file 
 
