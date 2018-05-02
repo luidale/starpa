@@ -693,7 +693,10 @@ class identify():
                         input_bam, "2>", featurecounts_info
                         )
         os.system(" ".join(featureCounts_command))
-
+        if os.path.isfile(SAF_file):
+            print("AA",output_SAF)
+        else:
+            print("BB",output_SAF)        
 ##        #combine fragmented_pp_counted_files 
 ##        with open(input_SAF[:-4]+"_counted_unsorted.SAF",'wb') as wfd:
 ##            for i in range(len(overlap)):
