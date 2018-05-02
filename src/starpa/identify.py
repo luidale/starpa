@@ -693,7 +693,7 @@ class identify():
                         input_bam, "2>", featurecounts_info
                         )
         os.system(" ".join(featureCounts_command))
-        if os.path.isfile(SAF_file):
+        if os.path.isfile(output_SAF):
             print("AA",output_SAF)
         else:
             print("BB",output_SAF)        
