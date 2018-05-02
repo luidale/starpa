@@ -690,7 +690,8 @@ class identify():
 ##                        "--fracOverlapFeature", str(overlap[i]),                                             
                         "-a", input_SAF,
                         "-o", output_SAF,
-                        input_bam, "2>", featurecounts_info
+                        input_bam
+#                        input_bam, "2>", featurecounts_info
                         )
         os.system(" ".join(featureCounts_command))
         if os.path.isfile(output_SAF):
