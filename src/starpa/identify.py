@@ -397,7 +397,7 @@ class identify():
             infofile_name = os.path.join(settings["--output"],"identify",\
                                     "identify_info",\
                                      library+"_"+strand_name+"_identifyinfo.log")
-            #self.write_BED(file_name+".BED",list_pp,genome_lengths)
+            self.write_BED(file_name+".BED",list_pp,genome_lengths)
             self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
             self.write_statistics(infofile_name,list_pp,stat_pp)
             
@@ -677,7 +677,7 @@ class identify():
         #count reads in different files
         featurecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
-        file_name =input_SAF[:-4]+"_counted.SAF"
+        output_SAF =input_SAF[:-4]+"_counted.SAF"
 
         featureCounts_command =(
                         settings["featureCounts_call"],
@@ -689,7 +689,7 @@ class identify():
 ##                        "--fracOverlap", str(overlap[i]),
 ##                        "--fracOverlapFeature", str(overlap[i]),                                             
                         "-a", input_SAF,
-                        "-o", file_name,
+                        "-o", output_SAF,
                         input_bam, "2>", featurecounts_info
                         )
         os.system(" ".join(featureCounts_command))
@@ -704,7 +704,7 @@ class identify():
         #convert SAF to BED
         #this is done in historical reasons just not to change cluster.py and
         #decrease number of file formats used
-        self.SAF_to_BED(file_name,input_SAF[:-4]+"_counted.BED")
+        self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
              
 ##        #sort combined counted pp-s
 ##        sort_command = (
@@ -723,20 +723,22 @@ class identify():
         #delete temporary count files         
         #for i in range(len(overlap)):
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
-        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file
+        #remove SAF files
+        os.remove(output_SAF) #remove counted SAF file
+        os.remove(input_SAF) #remove SAF file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF.summary") #remove unsorted combined file
         #os.remove(input_SAF[:-4]+"_counted_unsorted.BED") #remove unsorted combined file 
 
-    def SAF_to_BED(self,input_SAF,output_BED):
+    def SAF_to_BED(self,SAF_file,BED_file):
         '''
         Converts SAF to BED.
         '''
-        if os.path.isfile(input_SAF):
-            print("A",input_SAF)
+        if os.path.isfile(SAF_file):
+            print("A",SAF_file)
         else:
-            print("B",input_SAF)
-        f_out = open(output_BED,"w")
-        with open(input_SAF) as f_in:
+            print("B",SAF_file)
+        f_out = open(BED_file,"w")
+        with open(SAF_file) as f_in:
             #skip featureCounts command and header lines
             f_in.readline()
             f_in.readline()
