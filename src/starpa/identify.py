@@ -403,10 +403,10 @@ class identify():
             
             #COUNT READS PER PP
             print("\t"+" ".join([library,"Count reads"]))
-            self.fragment_BED(file_name+".BED",overlap,size_range)
-            self.count_reads_fragmented_BED_bedtoools(\
-                settings,file_name+".BED",strand_split_bam,library,overlap,strand_name)
-            self.remove_fragmented_BED(file_name+".BED",overlap)
+##            self.fragment_BED(file_name+".BED",overlap,size_range)
+##            self.count_reads_fragmented_BED_bedtoools(\
+##                settings,file_name+".BED",strand_split_bam,library,overlap,strand_name)
+##            self.remove_fragmented_BED(file_name+".BED",overlap)
             ##count reads by featurecounts
             #self.fragment_SAF(file_name+".SAF",overlap,size_range)
             #self.count_reads_fragmented_SAF_featurecounts(\
@@ -677,7 +677,7 @@ class identify():
         #count reads in different files
         feturecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
                            library+"_"+strand_name+"_featurecounts.info")
-        file_name =input_SAF[:-4]+"_counted_unsorted.SAF"
+        file_name =input_SAF[:-4]+"_counted.SAF"
 
         featureCounts_command =(
                         settings["featureCounts_call"],
@@ -704,21 +704,21 @@ class identify():
         #convert SAF to BED
         #this is done in historical reasons just not to change cluster.py and
         #decrease number of file formats used
-        self.SAF_to_BED(file_name,input_SAF[:-4]+"_counted_unsorted.BED")
+        self.SAF_to_BED(file_name,input_SAF[:-4]+"_counted.BED")
              
-        #sort combined counted pp-s
-        sort_command = (
-                settings["bedtools_call"], "sort",\
-                "-i",input_SAF[:-4]+"_counted_unsorted.BED",\
-                ">",input_SAF[:-4]+"_counted.SAF"
-                )
+##        #sort combined counted pp-s
 ##        sort_command = (
-##            "sort", "-k2,2", "-k3n,3", "-k4n,4",
-##            "-t", "\t",
-##            input_SAF[:-4]+"_counted_unsorted.SAF",
-##            ">",input_SAF[:-4]+"_counted.SAF"
-##            )
-        os.system(" ".join(sort_command))
+##                settings["bedtools_call"], "sort",\
+##                "-i",input_SAF[:-4]+"_counted_unsorted.BED",\
+##                ">",input_SAF[:-4]+"_counted.SAF"
+##                )
+####        sort_command = (
+####            "sort", "-k2,2", "-k3n,3", "-k4n,4",
+####            "-t", "\t",
+####            input_SAF[:-4]+"_counted_unsorted.SAF",
+####            ">",input_SAF[:-4]+"_counted.SAF"
+####            )
+##        os.system(" ".join(sort_command))
             
         #delete temporary count files         
         #for i in range(len(overlap)):
