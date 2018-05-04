@@ -47,8 +47,8 @@ class identify():
             os.makedirs(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_temp"))
         if not os.path.exists(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_info")):
             os.makedirs(os.path.join(settings["--output"],"identify","flaimapper","flaimapper_info"))
-#        if not os.path.exists(os.path.join(settings["--output"],"identify","featurecounts")):
-#            os.makedirs(os.path.join(settings["--output"],"identify","featurecounts"))
+        if not os.path.exists(os.path.join(settings["--output"],"identify","featurecounts")):
+            os.makedirs(os.path.join(settings["--output"],"identify","featurecounts"))
 
     def flaimapper(self,settings,first_task):
         '''
@@ -398,19 +398,21 @@ class identify():
                                     "identify_info",\
                                      library+"_"+strand_name+"_identifyinfo.log")
             self.write_BED(file_name+".BED",list_pp,genome_lengths)
-            #self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
+            self.write_SAF(file_name+".SAF",list_pp,genome_lengths)
             self.write_statistics(infofile_name,list_pp,stat_pp)
             
             #COUNT READS PER PP
             print("\t"+" ".join([library,"Count reads"]))
-            self.fragment_BED(file_name+".BED",overlap,size_range)
-            self.count_reads_fragmented_BED_bedtoools(\
-                settings,file_name+".BED",strand_split_bam,library,overlap,strand_name)
-            self.remove_fragmented_BED(file_name+".BED",overlap)
+##            self.fragment_BED(file_name+".BED",overlap,size_range)
+##            self.count_reads_fragmented_BED_bedtoools(\
+##                settings,file_name+".BED",strand_split_bam,library,overlap,strand_name)
+##            self.remove_fragmented_BED(file_name+".BED",overlap)
             ##count reads by featurecounts
             #self.fragment_SAF(file_name+".SAF",overlap,size_range)
             #self.count_reads_fragmented_SAF_featurecounts(\
             #    settings,file_name+".SAF",strand_split_bam,library,overlap,strand_name)
+            self.count_reads_featurecounts(\
+                settings,file_name+".SAF",strand_split_bam,library,overlap,strand_name)
             #self.remove_fragmented_SAF(file_name+".SAF",overlap)
         
     def read_in_flaimapper_data(self,settings,input_file_range,strand_name,library):
@@ -493,7 +495,7 @@ class identify():
         #The first base in a chromosome is numbered 1 (1-based)
         #end inclusive
         f_out_pp = open(output_SAF,"w")
-        f_out_pp.write("#GeneID\tChr\tStart\tEnd\tStrand\n")
+        #f_out_pp.write("#GeneID\tChr\tStart\tEnd\tStrand\n")
         if len(list_pp) > 0:
             last_pp_start = list_pp[-1][1]
             for pp in list_pp:
@@ -668,6 +670,66 @@ class identify():
         #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
         #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF") #remove unsorted combined file         
 
+    def count_reads_featurecounts(self,settings,input_SAF,input_bam,library,overlap,strand_name):
+        '''
+        Count reads input_SAF file by featureCounts
+        '''
+        #count reads in different files
+        featurecounts_info = os.path.join(settings["--output"],"identify","featurecounts",\
+                           library+"_"+strand_name+"_featurecounts.info")
+        output_SAF =input_SAF[:-4]+"_counted.SAF"
+        if os.stat(input_SAF).st_size != 0:
+            featureCounts_command =(
+                            settings["featureCounts_call"],
+                            #"-T", str(settings["CPUs"]),
+                            #"-G", settings["genome"],
+                            "-M", "-O", "-s 1", "-F SAF",
+                            "--nonOverlap", str(settings["non_overlap"]),
+                            "--nonOverlapFeature", str(settings["non_overlap"]),
+    ##                        "--fracOverlap", str(overlap[i]),
+    ##                        "--fracOverlapFeature", str(overlap[i]),                                             
+                            "-a", input_SAF,
+                            "-o", output_SAF,
+                            input_bam, "2>", featurecounts_info
+                            )
+
+            os.system(" ".join(featureCounts_command))
+        
+
+        
+            #convert SAF to BED
+            #this is done in historical reasons just not to change cluster.py and
+            #decrease number of file formats used
+            self.SAF_to_BED(output_SAF,input_SAF[:-4]+"_counted.BED")
+            os.remove(output_SAF) #remove counted SAF file
+            os.remove(input_SAF) #remove SAF file
+        else:
+            self.SAF_to_BED(input_SAF,input_SAF[:-4]+"_counted.BED")
+            os.remove(input_SAF) #remove SAF file
+            
+        #delete temporary count files         
+        #for i in range(len(overlap)):
+        #    os.remove(input_SAF[:-4]+"_"+str(i)+"_counted.SAF") #remove fragmented_pp_counted_files
+        #remove SAF files
+        #os.remove(output_SAF) #remove counted SAF file
+        #os.remove(input_SAF) #remove SAF file
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.SAF.summary") #remove unsorted combined file
+        #os.remove(input_SAF[:-4]+"_counted_unsorted.BED") #remove unsorted combined file 
+
+    def SAF_to_BED(self,SAF_file,BED_file):
+        '''
+        Converts SAF to BED.
+        '''
+        f_out = open(BED_file,"w")
+        with open(SAF_file) as f_in:
+            #skip featureCounts command and header lines
+            f_in.readline()
+            f_in.readline()
+            for line in f_in:
+                line = line.strip().split("\t")
+                f_out.write("\t".join([line[1],str(int(line[2])-1),line[3],line[0],"0",line[4],line[6]])+"\n")
+        f_out.close()
+        
     def remove_fragmented_SAF(self,input_SAF,overlap):
         '''
         Remove fragmented input_BED files
