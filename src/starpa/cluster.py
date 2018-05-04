@@ -6,7 +6,8 @@ Makes contigs.
 Makes contigs for metacontigs.
 Makes wig files.
 Combines pp-s from different libraries.
-Creates metacontigs and clusters pp-s
+Creates metacontigs and clusters pp-s.
+Reads are parsed by contigs -avoiding reading too much data to memory
 
 To do:
 1)How to set min_cov_meta. It too high then some similar contigs are not
@@ -19,10 +20,6 @@ as long the contig requirements are not fulfilled. Then reads are saved into fas
 New reads are added until contig ends.
 Before coverage pp-s have to be read in. When contig overlaping pp is finished,
 then relative coverage of pp is checked and it pp is passed as qualified if rel cov is good enough.
-
-BE CAREFUL!!
-1)Coverage is read in for the whole genome.
- Big genomes (eukaryotic) can use too much memory.
 
 '''
 
@@ -37,6 +34,8 @@ from itertools import groupby
 import multiprocessing as mp
 
 from pyfaidx import Fasta
+
+import pybam_p3 as pybam #Python3 converted pybam
 
 class cluster():
     def __init__(self,settings,first_task):
@@ -73,12 +72,14 @@ class cluster():
         f_represent = open(os.path.join(settings["--output"],"cluster","pp_combined.cluster"),"w")
         f_info = open(os.path.join(settings["--output"],"cluster","pp_clusterinfo.log"),"w")
 
-
+        #GET CHROM LENGTHS
+        chrom_lengths = self.get_chrom_lengths(settings)
+        
         #PROCESS READS
         print("\tProcess reads")
         pool = mp.Pool(processes=settings["CPUs"])
         results = {library:pool.apply_async(self.process_reads, \
-                          args = (settings,library,strand_list,first_task)) \
+                          args = (settings,library,strand_list,first_task,chrom_lengths)) \
                           for library in sorted(settings["libraries"])}
         pp_dict = {library:p.get() for library,p in results.items()}
         pool.close()
@@ -110,7 +111,7 @@ class cluster():
             settings["--output"],"cluster","pp_combined.library_info"),combined_pp_dict)
 
         #COMBINE CONTIGS FOR METACONTIGS
-        self.metacontigs(settings)
+        self.metacontigs(settings,chrom_lengths)
 
         #CLUSTER PP-s BY SEQUENCE AND METACONTIGS
         pp_representatives = self.cluster_pps(settings)
@@ -159,8 +160,20 @@ class cluster():
 
         f_represent.close()
         f_info.close()
+
+    def get_chrom_lengths(self,settings):
+        chrom_lengths = {}
+        #test existence of indexed genome file
+        if not os.path.isfile(settings["genome"]+".fai"):
+            #creates index
+            Fasta(settings["genome"])
+        with open(settings["genome"]+".fai") as f_in:
+            for line in f_in:
+                line = line.split().strip("\t")
+                chrom_lengths[line[0]] = line[1]
+        return chrom_lengths
         
-    def process_reads(self,settings,library,strand_list,first_task):
+    def process_reads(self,settings,library,strand_list,first_task,chrom_lengths):
         '''
         Processing all read of a library into to a coverage dictionary.
         Cverage is used to create contigs, wig-files and select pp-s.
@@ -168,95 +181,209 @@ class cluster():
         #MAKE FOLDERS if needed
         if not os.path.exists(os.path.join(settings["--output"],"cluster","contigs",library)):
             os.makedirs(os.path.join(settings["--output"],"cluster","contigs",library))
-        
-        #CREATE DICTIONARY WITH COVERAGE
-        coverage_dic = {}
+
+        #READ IN PROCESSING PRODUCTS
+        pp_list =  self.read_in_pps(settings,library,strand_list,first_task)   
+        pp_list_select = {}
+        pp_pos_list = {}
+        pp_name_list = {}
         for strand_name in strand_list:
-            print("\t\t"+ library,strand_name,"Read in coverage")
             if strand_name == "For":
                 strand = "+"
             else:
                 strand = "-"
-            coverage_dic[strand] = self.mpileup_to_dic(settings,library,strand_name,first_task)
-            
-        #GET TOTAL READ NUMBER
+            pp_pos_list[strand], pp_name_list[strand] = \
+                                      self.genes_to_positions4(pp_list[strand])
+        
+        #PARSE BAM
         total_reads = self.get_total_reads(settings,library,first_task)
-               
-        ##CREATE CONTIGS
-        self.get_contigs(settings,coverage_dic,"contigs",library)
-        self.create_contig_data_files(settings,library,"contigs",coverage_dic[strand],\
-                                      first_task)
-        ##CREATE CONTIGS FOR METACONTIGS
-        self.get_contigs(settings,coverage_dic,"contigs_meta",library)
-        ##CREATE WIG FILES
-        self.get_wig_file(settings,coverage_dic["+"],library,"For",total_reads)
-        self.get_wig_file(settings,coverage_dic["-"],library,"Rev",total_reads)
-        
-        #READ IN PROCECCING PRODUCTS
-        pp_dict_lib = self.read_in_pps(settings,library,coverage_dic,strand_list,first_task)
+        f_contigs = open(os.path.join(settings["--output"],"cluster","contigs",\
+                                        library+"_"+filename_pref+".BED"),"w")
+        f_contigs_meta = open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+                                        library+"_"+filename_pref+".BED"),"w")
+        f_contigs.write("track name=\""+settings["libraries"][library][0]+\
+                  "-"+settings["libraries"][library][1]+\
+                  " ["+library+"]\""+\
+                  " description=\""+settings["libraries"][library][0]+\
+                  "-"+settings["libraries"][library][1]+\
+                  " ["+library+"]\""+\
+                  " useScore=1 visibility=pack color=100,50,0\n")
+        for strand_name in strand_list:
+            pp_list_select[strand_name]
+            if first_task == "cluster":
+                input_bam = os.path.join(settings["--input"],"bam",library+"_"+strand_name+".bam")
+            else:
+                input_bam = os.path.join(settings["--output"],"identify",\
+                                          "bam",library+"_"+strand_name+".bam")
+            #create wig file
+            if settings["cluster"]["wig"]:
+                wig,wig_rpm = self.create_wig(settings,library,strand_name)
+            else:
+                wig,wig_rpm = "",""
 
-        return pp_dict_lib
+            #parse bam
+            my_bam = pybam.read(input_bam)
+            contig_cov = {}
+            for alignment in my_bam:
+                #positions are 0-based
+                chrom = alignment.sam_rname
+                start = alignment.sam_pos0
+                end = alignment.sam_cigar_string.strip("M")+end-1
 
-    def mpileup_to_dic(self,settings,library,strand_name,first_task):
+                #new contig
+                if contig_cov = {}:
+                    contig_cov[chrom] = {}
+                    reads = 1
+                    for pos in range(start,end):
+                        contig_cov[chrom][pos] = [1,1] #[coverage,starting_reads]
+
+                #next contig as new chrom or gap between reads
+                elif chrom not in contig_cov or start not in contig_cov[chrom]:
+                    pp_list_select = self.process_contig(settings,library,strand_name,contig_cov,reads,
+                                        f_contigs,f_contigs_meta,input_bam,wig,wig_rpm,total_reads,
+                                        pp_pos_list[strand], pp_name_list[strand],
+                                        pp_list[strand],pp_list_select,chrom_lengths)
+                    contig_cov = {}
+                    reads = 1
+                    for pos in range(start,end):
+                        contig_cov[chrom][pos] = [1,1]
+
+                #ongoing contig    
+                else:
+                    reads += 1
+                    for pos in range(start,end):
+                        if pos not in contig_cov:
+                            contig_cov[chrom][pos][0] = [1,0]
+                        else:
+                            contig_cov[chrom][pos][0] += 1
+                    contig_cov[chrom][start][1] += 1
+
+            #last contig
+            pp_list_select = self.process_contig(settings,library,strand_name,contig_cov,reads,
+                                        f_contigs,f_contigs_meta,input_bam,wig,wig_rpm,total_reads,
+                                        pp_pos_list[strand], pp_name_list[strand],
+                                        pp_list[strand],pp_list_select,chrom_lengths)
+        f_contigs.close()
+        f_contigs_meta.close()
+        return pp_list_select
+
+    def read_in_pps(self,settings,library,coverage_dic,strand_list,first_task):
         '''
-        Fills dictionary with positions in coverage in 1-based cordination system
+        Reads in pp-s from file and selects them according to the read number
+        and relative coverage.
         '''
-        #gets coverage of the whole library in 1-based coordination system
-        if first_task == "cluster":
-            input_file = os.path.join(settings["--input"],"bam",library+"_"+strand_name+".bam")
-        else:
-            input_file = os.path.join(settings["--output"],"identify",\
-                                      "bam",library+"_"+strand_name+".bam")
+        print("\t\t"+library,"Read in processing products")
+        pp_list = {}
+        for strand_name in strand_list:
+            if strand_name == "For":
+                strand = "+"
+            else:
+                strand = "-"
+            pp_list[strand] = {}
+            if first_task == "cluster":
+                input_BED = open(os.path.join(settings["--input"],\
+                                            library+"_"+strand_name+\
+                                            settings["cluster"]["cluster_input_file_suffix"]))
+            else:
+                input_BED = open(os.path.join(settings["--output"],"identify",\
+                                            library+"_"+strand_name+"_pp_counted.BED"))
+            pp_index = {}
+            for line in input_BED:
+                while line[0] == "#": #remove header
+                    line = input_BED.readline()
+                line = line.strip().split("\t")
+                #CONSIDER PP-S ONLY WITH ENOUGH READS
+                if int(line[6]) < settings["min_pp_reads"]:
+                    continue
+                chrom = line[0]
+                start = int(line[1])
+                end = int(line[2])
+                name = line[3]
+                strand = line[5]
+                if chrom not in pp_list:
+                    pp_list[strand][chrom] = []
+                    pp_index[chrom] = 0
+                else:
+                    pp_index[chrom] += 1
+                pp_list[strand][chrom].append([start,end,strand,name,"",0,0,0,pp_index[chrom]])
+                #pp_list[strand].append((chrom,start,end,strand,name))
+            input_BED.close()
+        return pp_list
+    
+    def genes_to_positions4(self,gene_list):
+        '''
+        Creates dictionary with positions of the genes refering to the name of the genes.
+        Input: 0-based end exclusive
+        Output: 0-based and end inclusive
+        '''
+        #print("\tAdding genes to positions")
+        gene_dict = {}
+        single_pos_element = set()
+        for chrom in gene_list:
+            '''creates dictionary with start and end positions of the elements
+            {1:{1}, 10:{1}, 15:{2}, 20:{2}, 8:{3}, 12:{3}}
+            '''    
+            for gene in gene_list[chrom][1:]:
+                if chrom not in gene_dict:
+                    gene_dict[chrom] = {}
+                if int(gene[0]) not in gene_dict[chrom]:
+                    gene_dict[chrom][int(gene[0])] = {gene[8]}
+                else:
+                    gene_dict[chrom][int(gene[0])].add(gene[8])
+                #single position elements
+                if int(gene[1])-int(gene[0]) == 1:
+                    single_pos_element.add(gene[8])
+                    
+                if int(gene[1])-1 not in gene_dict[chrom]:
+                    gene_dict[chrom][int(gene[1])-1] = {gene[8]}
+                else:
+                    gene_dict[chrom][int(gene[1])-1].add(gene[8]) 
 
-        #index bam if index missing
-        if not os.path.isfile(input_file+".bai"):
-            samtools_index_command = (
-                settings["samtools_call"], "index",
-                "-@", str(settings["samtools_threads"]),
-                input_file
-                )
+            '''correct overlaping elements
+            #if elements overlap and the one elements starts in the middle of the other
+            #then the elements get cross labeled in the positions
+            {1:{1}, 8:{1,3}, 10:{1,3}, 12:{3}, 15:{2}, 20:{2}}
+            '''
+            genes_started = set()
+            for x in sorted(gene_dict[chrom]):
+                #if no started elements
+                if genes_started == set():
+                    genes_started = copy.deepcopy(gene_dict[chrom][x])
+                #if some started elements
+                else:
+                    #nothing ending - nothing common between started and ongoing
+                    if genes_started.intersection(gene_dict[chrom][x]) == set():
+                        #adding started
+                        genes_started = genes_started.union(gene_dict[chrom][x])
+                        gene_dict[chrom][x] = copy.deepcopy(genes_started)
+                    #something ending
+                    else:
+                        #for each ending
+                        old_genes_started = copy.deepcopy(genes_started)
+                        genes_started = genes_started.union(gene_dict[chrom][x])
+                        #removing from started list those which are common for position and started
+                        for z in old_genes_started.intersection(gene_dict[chrom][x]):
+                            #print(z)
+                            genes_started.remove(z)    
+                        gene_dict[chrom][x] = genes_started.union(gene_dict[chrom][x])
+                #single pos elements are removed from starting elements,
+                #otherwise their end are searched
+                if single_pos_element.intersection(genes_started) != set():
+                    for y in single_pos_element.intersection(genes_started):
+                        genes_started.remove(y)
 
-            os.system(" ".join(samtools_index_command))
+        #convert dictionary to lists
+        gene_pos_list = {}
+        gene_name_list = {}
+        for chrom in gene_dict:
+            gene_pos_list[chrom] = [0]
+            gene_name_list[chrom] = [set()]
+            for pos in sorted(gene_dict[chrom]):
+                gene_pos_list[chrom].append(pos)
+                gene_name_list[chrom].append(gene_dict[chrom][pos])
+            gene_name_list[chrom].append(set())
+        return gene_pos_list, gene_name_list
 
-        #getting chromosome names
-        idxstats_command = (
-                        settings["samtools_call"], "idxstats",
-                        input_file
-                        )
-        
-        idxstats_output = subprocess.Popen(idxstats_command, stdout=subprocess.PIPE,\
-                                    universal_newlines=True)
-        chromosomes = []
-        for line in idxstats_output.stdout:
-            if not line.strip().split("\t")[0] == "*":
-                chromosomes.append(line.strip().split("\t")[:2])
-
-        #run pileup
-        #counts coverage by 100 000 at once.
-        pos_dic = {}
-        for chrom in chromosomes:
-            pos_intervals = list(range(0,int(chrom[1]),100000))+[int(chrom[1])]
-            regions = [chrom[0]+":"+ str(x+1)+"-"+str(pos_intervals[i+1]) for i,x in enumerate(pos_intervals[:-1])]
-            pos_dic[chrom[0]] = {}
-            for region in regions:
-                pileup_command = (
-                                settings["samtools_call"], "mpileup",
-##                                "-@", str(settings["samtools_threads"]),
-                                "-d", "100000000", "-Bsf",
-                                settings["genome"], input_file,
-                                "--ff", "200", "-r", region
-                                )
-                proc = subprocess.Popen(pileup_command, stdout=subprocess.PIPE,stderr=open(os.path.join(\
-                                            settings["--output"],"cluster","mpileup",\
-                                            library+"_"+strand_name+"_mpileup.info"),"w"),\
-                                            universal_newlines=True)
-                
-                for line in proc.stdout:
-                    line = line.strip().split("\t")
-                    #adds list:[read number,newly starting reads]
-                    pos_dic[chrom[0]][int(line[1])]=[int(line[3]),int(line[4].count("^"))]
-        return pos_dic
-            
     def get_total_reads(self,settings,library,first_task):
         '''
         Gets total read number from pseudoSE info file
@@ -278,175 +405,527 @@ class cluster():
         
         except FileNotFoundError:
             sys.exit("No file for total reads file ("+total_reads_file+") for library "+library)
-        
-    def get_contigs(self,settings,coverage_dic,filename_pref,library):
+            
+    def create_wig(self,settings,library,strand_name):
         '''
-        Create contigs in BED format. Coordination system 0-based, end exclusive
+        Creates header for wig files
         '''
-        print("\t\t"+library,"Assamble",filename_pref)
-        
-        if filename_pref == "contigs":
+        wig = open(os.path.join(settings["--output"],"cluster","wig",\
+                    library+"_"+strand_name+".wig"),"w")
+        wig_rpm = open(os.path.join(settings["--output"],"cluster","wig",\
+                                    library+"_"+strand_name+"_RPM.wig"),"w")
+        ##ADD TRACK DEFINITION LINE
+        track_line =["track type=wiggle_0"]
+        track_line_rpm =["track type=wiggle_0"]
+        #add name
+        track_line.append("name=\""+settings["libraries"][library][0]+\
+                          "-"+settings["libraries"][library][1]+\
+                          " "+strand_name+" ["+library+"]\"")
+        track_line_rpm.append("name=\""+settings["libraries"][library][0]+\
+                              "-"+settings["libraries"][library][1]+\
+                              " "+strand_name+" ["+library+"] RPM\"")
+        #description
+        track_line.append("description=\""+settings["libraries"][library][0]+\
+                          "-"+settings["libraries"][library][1]+\
+                          " "+strand_name+" ["+library+"]\"")
+        track_line +=["visibility=full","autoScale=on","alwaysZero=on",\
+                      "maxHeightPixels=50:50:5"]
+        track_line_rpm.append("description=\""+settings["libraries"][library][0]+\
+                              "-"+settings["libraries"][library][1]+\
+                              " "+strand_name+" ["+library+"] RPM\"")
+        track_line_rpm +=["visibility=full","autoScale=on","alwaysZero=on",\
+                          "maxHeightPixels=50:50:5"]
+        #add color
+        if strand_name == "For":
+            track_line.append("color=0,120,0\n")
+            track_line_rpm.append("color=0,120,0\n")
+            orientation =""
+        else:
+            track_line.append("color=0,0,255\n")
+            track_line_rpm.append("color=0,0,255\n")
+            orientation ="-"
+        #print(track_line)
+        wig.write(" ".join(track_line))
+        wig_rpm.write(" ".join(track_line_rpm))
+        return wig, wig_rpm
+
+    def process_contig(self,settings,library,strand_name,contig_cov,reads,f_contigs,
+                       f_contigs_meta,input_bam,wig,wig_rpm,total_reads,
+                       pp_pos_list, pp_name_list,pp_list,pp_list_select,chrom_lengths):
+        '''
+        Process collected contig and create contig data files and wig if requested.
+        '''
+        if strand_name == "For":
+            strand = "+"
+        else:
+            strand = "-"
+         
+        chrom = list(contig_cov.keys())[0]
+        max_cov = max([contig_cov[chrom][pos][0] for pos in contig_cov[chrom]])
+        positions = sorted(list(contig_cov[chrom].keys()))
+        contig_start = positions[0]
+        contig_end = positions[-1]
+        #Testing suitability for contig
+        if max_cov >= settings["cluster"]["cluster_min_contig_cov"] and \
+           reads >= settings["cluster"]["cluster_min_contig_reads"] and \
+           contig_end-contig_start+1 >= settings["cluster"]["cluster_min_contig_length"]:
             min_contig_length = settings["cluster"]["cluster_min_contig_length"]
             min_contig_cov = settings["cluster"]["cluster_min_contig_cov"]
             min_contig_reads = settings["cluster"]["cluster_min_contig_reads"]
-            out_contigs = open(os.path.join(settings["--output"],"cluster","contigs",\
-                                        library+"_"+filename_pref+".BED"),"w")
-        else:
+            self.get_contig(settings,contig_cov,chrom,strand,positions,min_contig_length,
+                            min_contig_cov,min_contig_reads,library,input_bam,
+                            settings["cluster"]["contig_data"],f_contigs,chrom_lengths)
+                
+        #Testing suitability for contig_meta
+        if max_cov >= settings["cluster"]["cluster_min_contig_cov_meta"] and \
+           reads >= settings["cluster"]["cluster_min_contig_reads_meta"] and \
+           contig_end-contig_start+1 >= settings["cluster"]["cluster_min_contig_length_meta"]:
             min_contig_length = settings["cluster"]["cluster_min_contig_length_meta"]
             min_contig_cov = settings["cluster"]["cluster_min_contig_cov_meta"]
-            min_contig_reads = settings["cluster"]["cluster_min_contig_reads_meta"]           
-            out_contigs = open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                                        library+"_"+filename_pref+".BED"),"w")
+            min_contig_reads = settings["cluster"]["cluster_min_contig_reads_meta"]
+            self.get_contig(settings,contig_cov,chrom,strand,positions,min_contig_length,
+                            min_contig_cov,min_contig_reads,library,input_bam,False,
+                            f_contigs_meta,chrom_lengths)
+        #Write wig file
+        if settings["cluster"]["wig"]:
+            if strand_name == "For":
+                orientation = ""
+            else:
+                orientation = "-"
+            wig.write("variableStep chrom="+chrom+"\n")
+            wig_rpm.write("variableStep chrom="+chrom+"\n")            
+            for pos in sorted(contig_cov[chrom]):                    
+                wig.write("\t".join([str(pos),orientation+str(contig_cov[chrom][pos][0])+"\n"]))
+                wig_rpm.write("\t".join([str(pos),orientation+\
+                                         str(round(contig_cov[chrom][pos][0]/\
+                                                   float(total_reads)*1000000,5))+"\n"]))
+        #Get coverage of processing products
+        #getting pp-s overlapping with mapping
+        index1=bisect.bisect_left(pp_pos_list[chrom],contig_start)
+        index2=bisect.bisect(pp_pos_list[chrom],contig_end)
+        if index1 == index2:
+            pps_on_contig = pp_name_list[chrom][index1].intersection(pp_name_list[chrom][index1-1])
+        else:
+            pps_on_contig = set.union(*map(set,pp_name_list[chrom][index1:index2]))
+        #check coverage of pps
+        for pp_index in pps_on_contig:
+            pp = pp_list[chrom][pp_index]
+            pp_positions = list(range(pp[0]-1,pp[1]-1))
+            pp_coverage = sum([int(contig_cov[chrom][x][0]) \
+                               for x in pp_positions])/len(pp_positions)
+            ##gets index for relative coverage
+            ##in short: it will compares length of the pp with the size range
+            ##and gives index for that
+            index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
+            if count < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
+                continue
+            pp_list_select.append((chrom,pp[0],pp[1],strand,pp[3]))            
 
-        #writing header only to contig file, not to contigs for metacontigs
-        if filename_pref == "contigs":
-            out_contigs.write("track name=\""+settings["libraries"][library][0]+\
-                              "-"+settings["libraries"][library][1]+\
-                              " ["+library+"]\""+\
-                              " description=\""+settings["libraries"][library][0]+\
-                              "-"+settings["libraries"][library][1]+\
-                              " ["+library+"]\""+\
-                              " useScore=1 visibility=pack color=100,50,0\n")
-        for strand in sorted(coverage_dic):
-            for chrom in sorted(coverage_dic[strand]):
-                reads = 0
-                #find the beginning of first suitable processing product 
-                positions = list(sorted(coverage_dic[strand][chrom]))
-                i = 0
-                while i < len(positions):
-                    if coverage_dic[strand][chrom][positions[i]][0] >= min_contig_cov:
-                        start = positions[i]
-                        prev_pos = positions[i]
-                        reads = coverage_dic[strand][chrom][positions[i]][0]
-                        i += 1
-                        break                    
-                    else:
-                        i += 1
-                            
-                #continue processing positions
-                for pos in positions[i:]: 
-                    #contig starts when new chrom or position bigger than previous+1
-                    if pos != prev_pos+1:
-                        #testing minimum read number of the contig
-                        if reads >= min_contig_reads:
-                            #testing minimum contig length
-                            if (prev_pos-start+1) >= min_contig_length:
-                                #write contig to file
-                                name = chrom+strand+str(start-1)+"_"+str(prev_pos)+"_"+str(reads)
-                                out_contigs.write("\t".join(\
-                                    [chrom,str(start-1),str(prev_pos),name,"1",strand+"\n"]))
-                        #start new contig if minimum coverage at position is fulfilled
-                        if coverage_dic[strand][chrom][pos][0] >= min_contig_cov:
-                            prev_pos = pos
-                            start = pos
-                            reads = coverage_dic[strand][chrom][pos][0] #line[4].count("^")
-                        else:
-                            reads = 0
-                                      
-                    else:
-                        #continueing of existing contig
-                        #if minimum coverage at position is fulfilled
-                        if coverage_dic[strand][chrom][pos][0] >= min_contig_cov:
-                            prev_pos = pos
-                            #adds number of reads starting at this position
-                            reads += coverage_dic[strand][chrom][pos][1] 
+        return pp_list_select
+        
+    def get_contig(self,settings,contig_cov,chrom,strand,positions,
+                   min_contig_length,min_contig_cov,min_contig_reads,library,input_bam,contig_data,
+                   f_data,chrom_lengths)
+        '''
+        Identifies contigs with given parameters from the region
+        '''
 
-                #write last contig to the file
+        reads = 0
+        #find the beginning of first suitable contig 
+        positions = list(sorted(coverage_dic[strand][chrom]))
+        i = 0
+        while i < len(positions):
+            if contig_cov[chrom][positions[i]][0] >= min_contig_cov:
+                start = positions[i]
+                reads = coverage_dic[strand][chrom][positions[i]][0]
+                i += 1
+                break                    
+            else:
+                i += 1
+                    
+        #continue processing positions
+        for pos in positions[i:]:
+            #find end of contig
+            if contig_cov[chrom][pos][0] < min_contig_cov:
                 #testing minimum read number of the contig
                 if reads >= min_contig_reads:
                     #testing minimum contig length
-                    if (pos-start+1) >= min_contig_length:
+                    if (pos-start) >= min_contig_length:
                         #write contig to file
-                        name = chrom+strand+str(start-1)+"_"+str(prev_pos)+"_"+str(reads)
-                        out_contigs.write("\t".join([chrom,str(start-1),\
-                                                     str(prev_pos),name,"1",strand+"\n"]))
-        out_contigs.close()
+                        contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+
+                                                        str(start)+"_"+str(pos-1)+"_"+str(reads)
+                        f_data.write("\t".join(\
+                            [chrom,str(start),str(pos-1),contig_name,"1",strand+"\n"]))
+                        if contig_data:
+                            self.create_contig_data_file(settings,library,strand_name,contig_name,
+                                                     input_bam)
+                        
+                        start, read = "", 0
+                    else:
+                        start, read = "", 0
+                else:
+                    start, read = "", 0
 
-    def create_contig_data_files(self,settings,library,filename_pref,coverage_dic,\
-                                 first_task):
+                   
+            elif coverage_dic[chrom][pos][0] >= min_contig_cov:
+                #start new contig if minimum coverage at position is fulfilled
+                if start == "":
+                    reads = coverage_dic[chrom][pos][0]
+                          
+                else:
+                    #continueing of existing contig
+                    #if minimum coverage at position is fulfilled
+                    if coverage_dic[chrom][pos][0] >= min_contig_cov:
+
+                        #adds number of reads starting at this position
+                        reads += coverage_dic[chrom][pos][1] 
+
+        #write last contig to the file
+        #testing minimum read number of the contig
+        if reads >= min_contig_reads:
+            #testing minimum contig length
+            if (pos-start+1) >= min_contig_length:
+                #write contig to file
+                contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+
+                                                        str(start)+"_"+str(pos-1)+"_"+str(reads)
+                f_data.write("\t".join([chrom,str(start),\
+                                             str(pos),contig_name,"1",strand+"\n"]))
+                if contig_data:
+                    self.create_contig_data_file(settings,library,strand_name,contig_name,
+                                                     input_bam)
+        
+
+    def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam):
         '''
-        Make sam and fasta files for the contigs.
+        Creates SAM and FASTA file for contig.
         '''
-        #take contigs from BED file and creates sam, fasta
         contig_output_folder = os.path.join(settings["--output"],"cluster","contigs",library)
         if not os.path.exists(contig_output_folder):
             os.makedirs(contig_output_folder)
+                   
+        #create SAM file
+        contig_reads_command = (
+                settings["samtools_call"], "view",
+                "-@", str(settings["samtools_threads"]-1),
+                input_bam,
+                '"'+chrom+":"+str(start)+"-"+str(end)+'"',
+                "-o", os.path.join(contig_output_folder,contig_name+".sam")
+                )
+        os.system(" ".join(contig_reads_command))
 
-        #input folder
-        if first_task == "cluster":
-            input_folder = settings["--input"]
-        else:
-            input_folder = os.path.join(settings["--output"],"identify")
+        #create FASTA file
+        contig_fasta_command = (
+            settings["samtools_call"], "view",
+            "-@", str(settings["samtools_threads"]-1),
+            os.path.join(input_folder,"bam",\
+                             library+"_"+strand_name+".bam"),
+            chrom+":"+str(start)+"-"+str(end),"|",
+            "awk", '\'{OFS="\\t"; print ">"$1"\\n"$10}\'',
+            ">", os.path.join(contig_output_folder,contig_name+".fasta")
+            )
+        os.system(" ".join(contig_fasta_command))
 
-        #index bam if index missing
-        for strand_name in ["For","Rev"]:
-            bam_file = os.path.join(input_folder,"bam",\
-                                 library+"_"+strand_name+".bam")
-                
-            if not os.path.isfile(bam_file+".bai"):
-                samtools_index_command = (
-                    settings["samtools_call"], "index",
-                    "-@", str(settings["samtools_threads"]),
-                    bam_file
-                    )
+        ##if contig is in reverse strand,
+        ##the fasta sequence have to be reverse complemented
+        if strand_name == "Rev":
+            #create reverse complement file
+            f_out = open(os.path.join(contig_output_folder,contig_name+".fasta_temp"),"w")
+            with open(os.path.join(contig_output_folder,contig_name+".fasta")) as f_in:
+                for line in f_in:
+                    f_out.write(line)
+                    f_out.write(self.rev_comp4(f_in.readline().strip())+"\n")
+            f_out.close()
+            #delete original file and rename temporary file
+            os.remove(os.path.join(contig_output_folder,contig_name+".fasta"))
+            os.rename(os.path.join(contig_output_folder,contig_name+".fasta_temp"),\
+                      os.path.join(contig_output_folder,contig_name+".fasta"))
 
-                os.system(" ".join(samtools_index_command))
 
-        #read in contigs    
-        with open(os.path.join(settings["--output"],"cluster","contigs",\
-                               library+"_"+filename_pref+".BED")) as f_in:
+            
 
-            #remove header
-            f_in.readline()
-                        
-            for line in f_in:
-                line = line.strip().split("\t")
-                chrom,start,end,strand,name = line[0],line[1],line[2],line[5],line[3]
-                if strand == "-":
-                    strand_name = "Rev"
-                else:
-                    strand_name = "For"
-                    
-                #create SAM file
-                contig_reads_command = (
-                        settings["samtools_call"], "view",
-                        "-@", str(settings["samtools_threads"]-1),
-                        os.path.join(input_folder,"bam",\
-                                     library+"_"+strand_name+".bam"),
-                        '"'+chrom+":"+str(start)+"-"+str(end)+'"',
-                        "-o", os.path.join(contig_output_folder,name+".sam")
-                        )
-                os.system(" ".join(contig_reads_command))
+##        #WRITE WIG
+##        #CHECK COVERAGE FOR PP-S
+##
+##        
+##            
+##        #CREATE DICTIONARY WITH COVERAGE
+##        coverage_dic = {}
+##        for strand_name in strand_list:
+##            print("\t\t"+ library,strand_name,"Read in coverage")
+##            if strand_name == "For":
+##                strand = "+"
+##            else:
+##                strand = "-"
+##            coverage_dic[strand] = self.mpileup_to_dic(settings,library,strand_name,first_task)
+##            
+##        #GET TOTAL READ NUMBER
+##        total_reads = self.get_total_reads(settings,library,first_task)
+##               
+##        ##CREATE CONTIGS
+##        self.get_contigs(settings,coverage_dic,"contigs",library)
+##        self.create_contig_data_files(settings,library,"contigs",coverage_dic[strand],\
+##                                      first_task)
+##        ##CREATE CONTIGS FOR METACONTIGS
+##        self.get_contigs(settings,coverage_dic,"contigs_meta",library)
+##        ##CREATE WIG FILES
+##        self.get_wig_file(settings,coverage_dic["+"],library,"For",total_reads)
+##        self.get_wig_file(settings,coverage_dic["-"],library,"Rev",total_reads)
+##        
+##        #READ IN PROCECCING PRODUCTS
+##        pp_dict_lib = self.read_in_pps(settings,library,coverage_dic,strand_list,first_task)
+##
+##        return pp_dict_lib
 
-                #create FASTA file
-                contig_fasta_command = (
-                    settings["samtools_call"], "view",
-                    "-@", str(settings["samtools_threads"]-1),
-                    os.path.join(input_folder,"bam",\
-                                     library+"_"+strand_name+".bam"),
-                    chrom+":"+str(start)+"-"+str(end),"|",
-                    "awk", '\'{OFS="\\t"; print ">"$1"\\n"$10}\'',
-                    ">", os.path.join(contig_output_folder,name+".fasta")
-                    )
-                os.system(" ".join(contig_fasta_command))
-                        
-                ##if contig is in reverse strand,
-                ##the fasta sequence have to be reverse complemented
-                if strand == "-":
-                    #create reverse complement file
-                    f_out = open(os.path.join(contig_output_folder,name+".fasta_temp"),"w")
-                    with open(os.path.join(contig_output_folder,name+".fasta")) as f_in:
-                        for line in f_in:
-                            f_out.write(line)
-                            f_out.write(self.rev_comp4(f_in.readline().strip())+"\n")
-                    f_out.close()
-                    #delete original file and rename temporary file
-                    os.remove(os.path.join(contig_output_folder,name+".fasta"))
-                    os.rename(os.path.join(contig_output_folder,name+".fasta_temp"),\
-                              os.path.join(contig_output_folder,name+".fasta"))
-
-##                #create HTML file
-##                self.create_contig_html(settings,chrom,start,end,strand,name,coverage_dic,total_reads)       
+##    def mpileup_to_dic(self,settings,library,strand_name,first_task):
+##        '''
+##        Fills dictionary with positions in coverage in 1-based cordination system
+##        '''
+##        #gets coverage of the whole library in 1-based coordination system
+##        if first_task == "cluster":
+##            input_file = os.path.join(settings["--input"],"bam",library+"_"+strand_name+".bam")
+##        else:
+##            input_file = os.path.join(settings["--output"],"identify",\
+##                                      "bam",library+"_"+strand_name+".bam")
+##
+##        #index bam if index missing
+##        if not os.path.isfile(input_file+".bai"):
+##            samtools_index_command = (
+##                settings["samtools_call"], "index",
+##                "-@", str(settings["samtools_threads"]),
+##                input_file
+##                )
+##
+##            os.system(" ".join(samtools_index_command))
+##
+##        #getting chromosome names
+##        idxstats_command = (
+##                        settings["samtools_call"], "idxstats",
+##                        input_file
+##                        )
+##        
+##        idxstats_output = subprocess.Popen(idxstats_command, stdout=subprocess.PIPE,\
+##                                    universal_newlines=True)
+##        chromosomes = []
+##        for line in idxstats_output.stdout:
+##            if not line.strip().split("\t")[0] == "*":
+##                chromosomes.append(line.strip().split("\t")[:2])
+##
+##        #run pileup
+##        #counts coverage by 100 000 at once.
+##        pos_dic = {}
+##        for chrom in chromosomes:
+##            pos_intervals = list(range(0,int(chrom[1]),100000))+[int(chrom[1])]
+##            regions = [chrom[0]+":"+ str(x+1)+"-"+str(pos_intervals[i+1]) for i,x in enumerate(pos_intervals[:-1])]
+##            pos_dic[chrom[0]] = {}
+##            for region in regions:
+##                pileup_command = (
+##                                settings["samtools_call"], "mpileup",
+####                                "-@", str(settings["samtools_threads"]),
+##                                "-d", "100000000", "-Bsf",
+##                                settings["genome"], input_file,
+##                                "--ff", "200", "-r", region
+##                                )
+##                proc = subprocess.Popen(pileup_command, stdout=subprocess.PIPE,stderr=open(os.path.join(\
+##                                            settings["--output"],"cluster","mpileup",\
+##                                            library+"_"+strand_name+"_mpileup.info"),"w"),\
+##                                            universal_newlines=True)
+##                
+##                for line in proc.stdout:
+##                    line = line.strip().split("\t")
+##                    #adds list:[read number,newly starting reads]
+##                    pos_dic[chrom[0]][int(line[1])]=[int(line[3]),int(line[4].count("^"))]
+##        return pos_dic
+            
+##    def get_total_reads(self,settings,library,first_task):
+##        '''
+##        Gets total read number from pseudoSE info file
+##        '''
+##        if first_task in {"cluster", "identify"}:
+##            total_reads_file = os.path.normpath(os.path.join(settings["--input"],\
+##                                                settings["cluster"]["cluster_pseudoSE_location"],\
+##                                                library+"_pseudoSEinfo.log"))
+##        else:
+##            total_reads_file = os.path.join(settings["--output"],"pseudoSE","pseudoSE_info",\
+##                                  library+"_pseudoSEinfo.log")
+##        try:
+##            with open(total_reads_file) as f_in:
+##                for line in f_in:
+##                    if line.startswith("Passed reads:"):
+##                        total_reads = line.strip().split("\t")[1]
+##                        break
+##            return total_reads
+##        
+##        except FileNotFoundError:
+##            sys.exit("No file for total reads file ("+total_reads_file+") for library "+library)
+##        
+##    def get_contigs(self,settings,coverage_dic,filename_pref,library):
+##        '''
+##        Create contigs in BED format. Coordination system 0-based, end exclusive
+##        '''
+##        print("\t\t"+library,"Assamble",filename_pref)
+##        
+##        if filename_pref == "contigs":
+##            min_contig_length = settings["cluster"]["cluster_min_contig_length"]
+##            min_contig_cov = settings["cluster"]["cluster_min_contig_cov"]
+##            min_contig_reads = settings["cluster"]["cluster_min_contig_reads"]
+##            out_contigs = open(os.path.join(settings["--output"],"cluster","contigs",\
+##                                        library+"_"+filename_pref+".BED"),"w")
+##        else:
+##            min_contig_length = settings["cluster"]["cluster_min_contig_length_meta"]
+##            min_contig_cov = settings["cluster"]["cluster_min_contig_cov_meta"]
+##            min_contig_reads = settings["cluster"]["cluster_min_contig_reads_meta"]           
+##            out_contigs = open(os.path.join(settings["--output"],"cluster","contigs_meta",\
+##                                        library+"_"+filename_pref+".BED"),"w")
+##
+##        #writing header only to contig file, not to contigs for metacontigs
+##        if filename_pref == "contigs":
+##            out_contigs.write("track name=\""+settings["libraries"][library][0]+\
+##                              "-"+settings["libraries"][library][1]+\
+##                              " ["+library+"]\""+\
+##                              " description=\""+settings["libraries"][library][0]+\
+##                              "-"+settings["libraries"][library][1]+\
+##                              " ["+library+"]\""+\
+##                              " useScore=1 visibility=pack color=100,50,0\n")
+##        for strand in sorted(coverage_dic):
+##            for chrom in sorted(coverage_dic[strand]):
+##                reads = 0
+##                #find the beginning of first suitable processing product 
+##                positions = list(sorted(coverage_dic[strand][chrom]))
+##                i = 0
+##                while i < len(positions):
+##                    if coverage_dic[strand][chrom][positions[i]][0] >= min_contig_cov:
+##                        start = positions[i]
+##                        prev_pos = positions[i]
+##                        reads = coverage_dic[strand][chrom][positions[i]][0]
+##                        i += 1
+##                        break                    
+##                    else:
+##                        i += 1
+##                            
+##                #continue processing positions
+##                for pos in positions[i:]: 
+##                    #contig starts when new chrom or position bigger than previous+1
+##                    if pos != prev_pos+1:
+##                        #testing minimum read number of the contig
+##                        if reads >= min_contig_reads:
+##                            #testing minimum contig length
+##                            if (prev_pos-start+1) >= min_contig_length:
+##                                #write contig to file
+##                                name = chrom+strand+str(start-1)+"_"+str(prev_pos)+"_"+str(reads)
+##                                out_contigs.write("\t".join(\
+##                                    [chrom,str(start-1),str(prev_pos),name,"1",strand+"\n"]))
+##                        #start new contig if minimum coverage at position is fulfilled
+##                        if coverage_dic[strand][chrom][pos][0] >= min_contig_cov:
+##                            prev_pos = pos
+##                            start = pos
+##                            reads = coverage_dic[strand][chrom][pos][0] #line[4].count("^")
+##                        else:
+##                            reads = 0
+##                                      
+##                    else:
+##                        #continueing of existing contig
+##                        #if minimum coverage at position is fulfilled
+##                        if coverage_dic[strand][chrom][pos][0] >= min_contig_cov:
+##                            prev_pos = pos
+##                            #adds number of reads starting at this position
+##                            reads += coverage_dic[strand][chrom][pos][1] 
+##
+##                #write last contig to the file
+##                #testing minimum read number of the contig
+##                if reads >= min_contig_reads:
+##                    #testing minimum contig length
+##                    if (pos-start+1) >= min_contig_length:
+##                        #write contig to file
+##                        name = chrom+strand+str(start-1)+"_"+str(prev_pos)+"_"+str(reads)
+##                        out_contigs.write("\t".join([chrom,str(start-1),\
+##                                                     str(prev_pos),name,"1",strand+"\n"]))
+##        out_contigs.close()
+##
+##    def create_contig_data_files(self,settings,library,filename_pref,coverage_dic,\
+##                                 first_task):
+##        '''
+##        Make sam and fasta files for the contigs.
+##        '''
+##        #take contigs from BED file and creates sam, fasta
+##        contig_output_folder = os.path.join(settings["--output"],"cluster","contigs",library)
+##        if not os.path.exists(contig_output_folder):
+##            os.makedirs(contig_output_folder)
+##
+##        #input folder
+##        if first_task == "cluster":
+##            input_folder = settings["--input"]
+##        else:
+##            input_folder = os.path.join(settings["--output"],"identify")
+##
+##        #index bam if index missing
+##        for strand_name in ["For","Rev"]:
+##            bam_file = os.path.join(input_folder,"bam",\
+##                                 library+"_"+strand_name+".bam")
+##                
+##            if not os.path.isfile(bam_file+".bai"):
+##                samtools_index_command = (
+##                    settings["samtools_call"], "index",
+##                    "-@", str(settings["samtools_threads"]),
+##                    bam_file
+##                    )
+##
+##                os.system(" ".join(samtools_index_command))
+##
+##        #read in contigs    
+##        with open(os.path.join(settings["--output"],"cluster","contigs",\
+##                               library+"_"+filename_pref+".BED")) as f_in:
+##
+##            #remove header
+##            f_in.readline()
+##                        
+##            for line in f_in:
+##                line = line.strip().split("\t")
+##                chrom,start,end,strand,name = line[0],line[1],line[2],line[5],line[3]
+##                if strand == "-":
+##                    strand_name = "Rev"
+##                else:
+##                    strand_name = "For"
+##                    
+##                #create SAM file
+##                contig_reads_command = (
+##                        settings["samtools_call"], "view",
+##                        "-@", str(settings["samtools_threads"]-1),
+##                        os.path.join(input_folder,"bam",\
+##                                     library+"_"+strand_name+".bam"),
+##                        '"'+chrom+":"+str(start)+"-"+str(end)+'"',
+##                        "-o", os.path.join(contig_output_folder,name+".sam")
+##                        )
+##                os.system(" ".join(contig_reads_command))
+##
+##                #create FASTA file
+##                contig_fasta_command = (
+##                    settings["samtools_call"], "view",
+##                    "-@", str(settings["samtools_threads"]-1),
+##                    os.path.join(input_folder,"bam",\
+##                                     library+"_"+strand_name+".bam"),
+##                    chrom+":"+str(start)+"-"+str(end),"|",
+##                    "awk", '\'{OFS="\\t"; print ">"$1"\\n"$10}\'',
+##                    ">", os.path.join(contig_output_folder,name+".fasta")
+##                    )
+##                os.system(" ".join(contig_fasta_command))
+##                        
+##                ##if contig is in reverse strand,
+##                ##the fasta sequence have to be reverse complemented
+##                if strand == "-":
+##                    #create reverse complement file
+##                    f_out = open(os.path.join(contig_output_folder,name+".fasta_temp"),"w")
+##                    with open(os.path.join(contig_output_folder,name+".fasta")) as f_in:
+##                        for line in f_in:
+##                            f_out.write(line)
+##                            f_out.write(self.rev_comp4(f_in.readline().strip())+"\n")
+##                    f_out.close()
+##                    #delete original file and rename temporary file
+##                    os.remove(os.path.join(contig_output_folder,name+".fasta"))
+##                    os.rename(os.path.join(contig_output_folder,name+".fasta_temp"),\
+##                              os.path.join(contig_output_folder,name+".fasta"))
+##
+####                #create HTML file
+####                self.create_contig_html(settings,chrom,start,end,strand,name,coverage_dic,total_reads)       
 
     def rev_comp4(self,seq):
         '''
@@ -500,107 +979,107 @@ class cluster():
             #f_html.write("<P><A href=\""+os.path.join(settings["--output"],"cluster",library,name+".fasta")+"\">Download sequences of the reads</A>\n<P>")
             #f_html.write("<P><A href=\""+os.path.join(settings["--output"],"cluster",library,name+".sam")+"\">Download original alignment of the reads in SAM format</A>\n<P>")
 
-    def get_wig_file(self,settings,coverage_dic,library,strand_name,total_reads):
-        '''
-        Creates wig files
-        '''
-        print("\t\t"+library,strand_name,"Create wig files")
-        wig = open(os.path.join(settings["--output"],"cluster","wig",\
-                                library+"_"+strand_name+".wig"),"w")
-        wig_rpm = open(os.path.join(settings["--output"],"cluster","wig",\
-                                    library+"_"+strand_name+"_RPM.wig"),"w")
-        ##ADD TRACK DEFINITION LINE
-        track_line =["track type=wiggle_0"]
-        track_line_rpm =["track type=wiggle_0"]
-        #add name
-        track_line.append("name=\""+settings["libraries"][library][0]+\
-                          "-"+settings["libraries"][library][1]+\
-                          " "+strand_name+" ["+library+"]\"")
-        track_line_rpm.append("name=\""+settings["libraries"][library][0]+\
-                              "-"+settings["libraries"][library][1]+\
-                              " "+strand_name+" ["+library+"] RPM\"")
-        #description
-        track_line.append("description=\""+settings["libraries"][library][0]+\
-                          "-"+settings["libraries"][library][1]+\
-                          " "+strand_name+" ["+library+"]\"")
-        track_line +=["visibility=full","autoScale=on","alwaysZero=on",\
-                      "maxHeightPixels=50:50:5"]
-        track_line_rpm.append("description=\""+settings["libraries"][library][0]+\
-                              "-"+settings["libraries"][library][1]+\
-                              " "+strand_name+" ["+library+"] RPM\"")
-        track_line_rpm +=["visibility=full","autoScale=on","alwaysZero=on",\
-                          "maxHeightPixels=50:50:5"]
-        #add color
-        if strand_name == "For":
-            track_line.append("color=0,120,0\n")
-            track_line_rpm.append("color=0,120,0\n")
-            orientation =""
-        else:
-            track_line.append("color=0,0,255\n")
-            track_line_rpm.append("color=0,0,255\n")
-            orientation ="-"
-        #print(track_line)
-        wig.write(" ".join(track_line))
-        wig_rpm.write(" ".join(track_line_rpm))
-
-        #ADD COVERAGE DATA
-        for chrom in sorted(coverage_dic):
-            prev_pos = -1
-            for pos in sorted(coverage_dic[chrom]):
-                if pos > prev_pos +1:
-                    wig.write("variableStep chrom="+chrom+"\n")
-                    wig_rpm.write("variableStep chrom="+chrom+"\n")
-                wig.write("\t".join([str(pos),orientation+str(coverage_dic[chrom][pos][0])+"\n"]))
-                wig_rpm.write("\t".join([str(pos),orientation+\
-                                         str(round(coverage_dic[chrom][pos][0]/\
-                                                   float(total_reads)*1000000,5))+"\n"]))
-                prev_pos = pos
-        wig.close()
-        wig_rpm.close()
-
-    def read_in_pps(self,settings,library,coverage_dic,strand_list,first_task):
-        '''
-        Reads in pp-s from file and selects them according to the read number
-        and relative coverage.
-        '''
-        print("\t\t"+library,"Read in processing products")
-        pp_list = []
-        for strand_name in strand_list:
-            if first_task == "cluster":
-                input_BED = open(os.path.join(settings["--input"],\
-                                            library+"_"+strand_name+\
-                                            settings["cluster"]["cluster_input_file_suffix"]))
-            else:
-                input_BED = open(os.path.join(settings["--output"],"identify",\
-                                            library+"_"+strand_name+"_pp_counted.BED"))
-            for line in input_BED:
-                while line[0] == "#": #remove header
-                    line = input_BED.readline()
-                line = line.strip().split("\t")
-                #CONSIDER PP-S ONLY WITH ENOUGH READS
-                if int(line[6]) < settings["min_pp_reads"]:
-                    continue
-                chrom = line[0]
-                start = int(line[1])
-                end = int(line[2])
-                name = line[3]
-                strand = line[5]
-                count = int(line[6])
-                #CONDSIDER PP-S WITH REASONABLE RELATIVE COVERAGE
-                #pp_coverage is average over pp.
-                #Could use also otherthings (eg. coverage at ends).
-                pp_positions = list(range(start,end)) 
-                pp_coverage = sum([int(coverage_dic[strand][chrom][x+1][0]) \
-                                   for x in pp_positions])/len(pp_positions)
-                ##gets index for relative coverage
-                ##in short: it will compares length of the pp with the size range
-                ##and gives index for that
-                index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
-                if count < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
-                    continue
-                pp_list.append((chrom,start,end,strand,name))
-            input_BED.close()
-        return pp_list
+##    def get_wig_file(self,settings,coverage_dic,library,strand_name,total_reads):
+##        '''
+##        Creates wig files
+##        '''
+##        print("\t\t"+library,strand_name,"Create wig files")
+##        wig = open(os.path.join(settings["--output"],"cluster","wig",\
+##                                library+"_"+strand_name+".wig"),"w")
+##        wig_rpm = open(os.path.join(settings["--output"],"cluster","wig",\
+##                                    library+"_"+strand_name+"_RPM.wig"),"w")
+##        ##ADD TRACK DEFINITION LINE
+##        track_line =["track type=wiggle_0"]
+##        track_line_rpm =["track type=wiggle_0"]
+##        #add name
+##        track_line.append("name=\""+settings["libraries"][library][0]+\
+##                          "-"+settings["libraries"][library][1]+\
+##                          " "+strand_name+" ["+library+"]\"")
+##        track_line_rpm.append("name=\""+settings["libraries"][library][0]+\
+##                              "-"+settings["libraries"][library][1]+\
+##                              " "+strand_name+" ["+library+"] RPM\"")
+##        #description
+##        track_line.append("description=\""+settings["libraries"][library][0]+\
+##                          "-"+settings["libraries"][library][1]+\
+##                          " "+strand_name+" ["+library+"]\"")
+##        track_line +=["visibility=full","autoScale=on","alwaysZero=on",\
+##                      "maxHeightPixels=50:50:5"]
+##        track_line_rpm.append("description=\""+settings["libraries"][library][0]+\
+##                              "-"+settings["libraries"][library][1]+\
+##                              " "+strand_name+" ["+library+"] RPM\"")
+##        track_line_rpm +=["visibility=full","autoScale=on","alwaysZero=on",\
+##                          "maxHeightPixels=50:50:5"]
+##        #add color
+##        if strand_name == "For":
+##            track_line.append("color=0,120,0\n")
+##            track_line_rpm.append("color=0,120,0\n")
+##            orientation =""
+##        else:
+##            track_line.append("color=0,0,255\n")
+##            track_line_rpm.append("color=0,0,255\n")
+##            orientation ="-"
+##        #print(track_line)
+##        wig.write(" ".join(track_line))
+##        wig_rpm.write(" ".join(track_line_rpm))
+##
+##        #ADD COVERAGE DATA
+##        for chrom in sorted(coverage_dic):
+##            prev_pos = -1
+##            for pos in sorted(coverage_dic[chrom]):
+##                if pos > prev_pos +1:
+##                    wig.write("variableStep chrom="+chrom+"\n")
+##                    wig_rpm.write("variableStep chrom="+chrom+"\n")
+##                wig.write("\t".join([str(pos),orientation+str(coverage_dic[chrom][pos][0])+"\n"]))
+##                wig_rpm.write("\t".join([str(pos),orientation+\
+##                                         str(round(coverage_dic[chrom][pos][0]/\
+##                                                   float(total_reads)*1000000,5))+"\n"]))
+##                prev_pos = pos
+##        wig.close()
+##        wig_rpm.close()
+##
+##    def read_in_pps(self,settings,library,coverage_dic,strand_list,first_task):
+##        '''
+##        Reads in pp-s from file and selects them according to the read number
+##        and relative coverage.
+##        '''
+##        print("\t\t"+library,"Read in processing products")
+##        pp_list = []
+##        for strand_name in strand_list:
+##            if first_task == "cluster":
+##                input_BED = open(os.path.join(settings["--input"],\
+##                                            library+"_"+strand_name+\
+##                                            settings["cluster"]["cluster_input_file_suffix"]))
+##            else:
+##                input_BED = open(os.path.join(settings["--output"],"identify",\
+##                                            library+"_"+strand_name+"_pp_counted.BED"))
+##            for line in input_BED:
+##                while line[0] == "#": #remove header
+##                    line = input_BED.readline()
+##                line = line.strip().split("\t")
+##                #CONSIDER PP-S ONLY WITH ENOUGH READS
+##                if int(line[6]) < settings["min_pp_reads"]:
+##                    continue
+##                chrom = line[0]
+##                start = int(line[1])
+##                end = int(line[2])
+##                name = line[3]
+##                strand = line[5]
+##                count = int(line[6])
+##                #CONDSIDER PP-S WITH REASONABLE RELATIVE COVERAGE
+##                #pp_coverage is average over pp.
+##                #Could use also otherthings (eg. coverage at ends).
+##                pp_positions = list(range(start,end)) 
+##                pp_coverage = sum([int(coverage_dic[strand][chrom][x+1][0]) \
+##                                   for x in pp_positions])/len(pp_positions)
+##                ##gets index for relative coverage
+##                ##in short: it will compares length of the pp with the size range
+##                ##and gives index for that
+##                index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
+##                if count < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
+##                    continue
+##                pp_list.append((chrom,start,end,strand,name))
+##            input_BED.close()
+##        return pp_list
 
     def overlapping_pps(self,settings,combined_pp_dict):
         '''
@@ -685,7 +1164,7 @@ class cluster():
         pp_list_representatives = sorted(pp_list_representatives)
         return pp_list_representatives
 
-    def metacontigs(self,settings):
+    def metacontigs(self,settings,chrom_lengths):
         '''
         Creates metacontigs and clusters them
         '''
@@ -722,7 +1201,7 @@ class cluster():
                 
         #name metacontigs
         self.name_contigs(settings,os.path.join(settings["--output"],"cluster","contigs_meta",\
-                                                "metacontigs.BED"))
+                                                "metacontigs.BED"),chrom_lengths)
 
         #create fasta for metacontigs
         fasta_command = (
@@ -979,12 +1458,10 @@ class cluster():
                                       [";".join([library for library in combined_pp_dict[pp]])])+"\n")
         f_out_BED.close()
         
-    def name_contigs(self,settings,input_file):
+    def name_contigs(self,settings,input_file,chrom_lengths):
         '''
         Names contigs
         '''
-        #get genome
-        genome = Fasta(settings["genome"],one_based_attributes=False)
         #open input and output
         f_in = open(input_file)
         f_out = open(input_file+"2","w") #file with new name
@@ -996,7 +1473,7 @@ class cluster():
             end = int(line.strip().split("\t")[2])
             strand = line.strip().split("\t")[4]
             name = "MC_"+strand+chrom+"_"+\
-                    (len(str(len(genome[chrom])))-len(str(start)))*"0"+\
+                    (len(str(len(chrom_lengths[chrom])))-len(str(start)))*"0"+\
                     str(start)+"_"+str(end-start+1)
             f_out.write("\t".join([chrom,str(start),str(end),name,"1",strand])+"\n")
         f_in.close()
