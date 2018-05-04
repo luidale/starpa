@@ -424,7 +424,7 @@ of the task.
  identify_info/
 	 XXX_strand_identifyinfo.log				-	log of task
 
-featureounts/
+ featureounts/
 	 XXX_strand_featurecount.info				- 	log of featureCounts
 	 
  XXX_strand_pp.BED						-	NOT NEEDED
