@@ -7,7 +7,7 @@ setuptools.setup(
     name="starpa",
     version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
-	download_url="https://github.com/luidale/starpa/archive/v0.2.1.tar.gz",
+	download_url="https://github.com/luidale/starpa/archive/v0.3.0.tar.gz",
     author="Hannes Luidalepp",
     author_email="luidale@gmail.com",
 	license=src.starpa.__license__,
@@ -22,11 +22,12 @@ setuptools.setup(
     install_requires=["pyfaidx","schema","docopt","cutadapt"],
 
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
 		'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+		'Programming Language :: Python :: Implementation :: PyPy3',
 		'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

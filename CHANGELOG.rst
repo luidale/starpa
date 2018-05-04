@@ -2,6 +2,14 @@
 Changes
 =======
 
+v0.3.0 (2018-05-24)
+-----------------
+
+* Added tests
+* Identify - input sam is split fractionated by size by parsing
+* Quantify - updated
+* SE support checked
+
 v0.2.1 (2018-03-23)
 -----------------
 
