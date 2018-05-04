@@ -2,6 +2,11 @@
 Changes
 =======
 
+v0.3.1 (pre-release)
+-----------------
+
+* Identify - pp quantification via featureCounts
+
 v0.3.0 (2018-05-24)
 -----------------
 
