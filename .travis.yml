@@ -11,6 +11,7 @@ install:
 #  - curl -sSf -o python-2.7.tar.bz2 ${archive_url}
 #  - sudo tar xjf python-2.7.tar.bz2 --directory / 
 #  - which python
+  - pip install pysam
   - wget https://github.com/yhoogstrate/flaimapper/archive/v3.0.0.tar.gz
   - tar xvf v3.0.0.tar.gz --gunzip
   - cd flaimapper-3.0.0
