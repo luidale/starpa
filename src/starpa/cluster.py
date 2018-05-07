@@ -566,7 +566,7 @@ class cluster():
                             [chrom,str(start),str(pos-1),contig_name,"1",strand+"\n"]))
                         if contig_data:
                             self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam,chrom,start,pos)
+                                                     input_bam,chrom,start,pos-1)
                     
                         start, reads = "", 0
                     else:
@@ -596,10 +596,10 @@ class cluster():
                                              str(pos),contig_name,"1",strand+"\n"]))
                 if contig_data:
                     self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam,chrom,start,pos)
+                                                     input_bam,chrom,start,pos-1)
         
 
-    def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam,chrom):
+    def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam,chrom,start,end):
         '''
         Creates SAM and FASTA file for contig.
         '''
