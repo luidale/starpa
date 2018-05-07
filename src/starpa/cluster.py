@@ -35,7 +35,7 @@ import multiprocessing as mp
 
 from pyfaidx import Fasta
 
-import pybam_p3 as pybam #Python3 converted pybam
+import starpa.pybam_p3 as pybam #Python3 converted pybam
 
 class cluster():
     def __init__(self,settings,first_task):
@@ -50,8 +50,9 @@ class cluster():
         '''
         if not os.path.exists(os.path.join(settings["--output"],"cluster")):
             os.makedirs(os.path.join(settings["--output"],"cluster"))
-        if not os.path.exists(os.path.join(settings["--output"],"cluster","wig")):
-            os.makedirs(os.path.join(settings["--output"],"cluster","wig"))
+        if settings["cluster"]["cluster_wig"]:
+            if not os.path.exists(os.path.join(settings["--output"],"cluster","wig")):
+                os.makedirs(os.path.join(settings["--output"],"cluster","wig"))
         if not os.path.exists(os.path.join(settings["--output"],"cluster","contigs")):
             os.makedirs(os.path.join(settings["--output"],"cluster","contigs"))
         if not os.path.exists(os.path.join(settings["--output"],"cluster","contigs_meta")):
@@ -89,8 +90,9 @@ class cluster():
         print("\tCombine PP-s from different libraries")
         combined_pp_dict = {}
         for library in pp_dict:
-            for pp in pp_dict[library]:
-                combined_pp_dict.setdefault(pp,[]).append(library)
+            for strand_name in pp_dict[library]:
+                for pp in pp_dict[library][strand_name]:		
+                    combined_pp_dict.setdefault(pp,[]).append(library)
         #write pp library relations to file
         self.write_pp_library_info(sorted(list(combined_pp_dict.keys())),os.path.join(\
             settings["--output"],"cluster","pp_unique.library_info"),combined_pp_dict)
@@ -169,7 +171,7 @@ class cluster():
             Fasta(settings["genome"])
         with open(settings["genome"]+".fai") as f_in:
             for line in f_in:
-                line = line.split().strip("\t")
+                line = line.strip().split("\t")
                 chrom_lengths[line[0]] = line[1]
         return chrom_lengths
         
@@ -198,9 +200,9 @@ class cluster():
         #PARSE BAM
         total_reads = self.get_total_reads(settings,library,first_task)
         f_contigs = open(os.path.join(settings["--output"],"cluster","contigs",\
-                                        library+"_"+filename_pref+".BED"),"w")
+                                        library+"_contigs.BED"),"w")
         f_contigs_meta = open(os.path.join(settings["--output"],"cluster","contigs_meta",\
-                                        library+"_"+filename_pref+".BED"),"w")
+                                        library+"_contigs_meta.BED"),"w")
         f_contigs.write("track name=\""+settings["libraries"][library][0]+\
                   "-"+settings["libraries"][library][1]+\
                   " ["+library+"]\""+\
@@ -209,14 +211,18 @@ class cluster():
                   " ["+library+"]\""+\
                   " useScore=1 visibility=pack color=100,50,0\n")
         for strand_name in strand_list:
-            pp_list_select[strand_name]
+            if strand_name == "For":
+                strand = "+"
+            else:
+                strand = "-"
+            pp_list_select[strand_name] = []
             if first_task == "cluster":
                 input_bam = os.path.join(settings["--input"],"bam",library+"_"+strand_name+".bam")
             else:
                 input_bam = os.path.join(settings["--output"],"identify",\
                                           "bam",library+"_"+strand_name+".bam")
             #create wig file
-            if settings["cluster"]["wig"]:
+            if settings["cluster"]["cluster_wig"]:
                 wig,wig_rpm = self.create_wig(settings,library,strand_name)
             else:
                 wig,wig_rpm = "",""
@@ -228,10 +234,10 @@ class cluster():
                 #positions are 0-based
                 chrom = alignment.sam_rname
                 start = alignment.sam_pos0
-                end = alignment.sam_cigar_string.strip("M")+end-1
+                end = int(alignment.sam_cigar_string.strip("M"))+start-1
 
                 #new contig
-                if contig_cov = {}:
+                if contig_cov == {}:
                     contig_cov[chrom] = {}
                     reads = 1
                     for pos in range(start,end):
@@ -239,11 +245,13 @@ class cluster():
 
                 #next contig as new chrom or gap between reads
                 elif chrom not in contig_cov or start not in contig_cov[chrom]:
-                    pp_list_select = self.process_contig(settings,library,strand_name,contig_cov,reads,
+                    pp_list_select[strand_name] = self.process_contig(settings,library,strand_name,contig_cov,reads,
                                         f_contigs,f_contigs_meta,input_bam,wig,wig_rpm,total_reads,
                                         pp_pos_list[strand], pp_name_list[strand],
-                                        pp_list[strand],pp_list_select,chrom_lengths)
+                                        pp_list[strand],pp_list_select[strand_name],chrom_lengths)
                     contig_cov = {}
+                    contig_cov[chrom] = {}
+
                     reads = 1
                     for pos in range(start,end):
                         contig_cov[chrom][pos] = [1,1]
@@ -252,22 +260,22 @@ class cluster():
                 else:
                     reads += 1
                     for pos in range(start,end):
-                        if pos not in contig_cov:
-                            contig_cov[chrom][pos][0] = [1,0]
+                        if pos not in contig_cov[chrom]:
+                            contig_cov[chrom][pos] = [1,0]
                         else:
                             contig_cov[chrom][pos][0] += 1
                     contig_cov[chrom][start][1] += 1
 
             #last contig
-            pp_list_select = self.process_contig(settings,library,strand_name,contig_cov,reads,
+            pp_list_select[strand_name] = self.process_contig(settings,library,strand_name,contig_cov,reads,
                                         f_contigs,f_contigs_meta,input_bam,wig,wig_rpm,total_reads,
                                         pp_pos_list[strand], pp_name_list[strand],
-                                        pp_list[strand],pp_list_select,chrom_lengths)
+                                        pp_list[strand],pp_list_select[strand_name],chrom_lengths)
         f_contigs.close()
         f_contigs_meta.close()
         return pp_list_select
 
-    def read_in_pps(self,settings,library,coverage_dic,strand_list,first_task):
+    def read_in_pps(self,settings,library,strand_list,first_task):
         '''
         Reads in pp-s from file and selects them according to the read number
         and relative coverage.
@@ -300,12 +308,13 @@ class cluster():
                 end = int(line[2])
                 name = line[3]
                 strand = line[5]
-                if chrom not in pp_list:
+                count = line[6]
+                if chrom not in pp_list[strand]:
                     pp_list[strand][chrom] = []
                     pp_index[chrom] = 0
                 else:
                     pp_index[chrom] += 1
-                pp_list[strand][chrom].append([start,end,strand,name,"",0,0,0,pp_index[chrom]])
+                pp_list[strand][chrom].append([start,end,strand,name,count,0,0,0,pp_index[chrom]])
                 #pp_list[strand].append((chrom,start,end,strand,name))
             input_BED.close()
         return pp_list
@@ -322,10 +331,9 @@ class cluster():
         for chrom in gene_list:
             '''creates dictionary with start and end positions of the elements
             {1:{1}, 10:{1}, 15:{2}, 20:{2}, 8:{3}, 12:{3}}
-            '''    
+            '''  
+            gene_dict[chrom] = {}  
             for gene in gene_list[chrom][1:]:
-                if chrom not in gene_dict:
-                    gene_dict[chrom] = {}
                 if int(gene[0]) not in gene_dict[chrom]:
                     gene_dict[chrom][int(gene[0])] = {gene[8]}
                 else:
@@ -463,8 +471,8 @@ class cluster():
         chrom = list(contig_cov.keys())[0]
         max_cov = max([contig_cov[chrom][pos][0] for pos in contig_cov[chrom]])
         positions = sorted(list(contig_cov[chrom].keys()))
-        contig_start = positions[0]
-        contig_end = positions[-1]
+        contig_start = positions[0] #0-based
+        contig_end = positions[-1] #end-included
         #Testing suitability for contig
         if max_cov >= settings["cluster"]["cluster_min_contig_cov"] and \
            reads >= settings["cluster"]["cluster_min_contig_reads"] and \
@@ -474,7 +482,7 @@ class cluster():
             min_contig_reads = settings["cluster"]["cluster_min_contig_reads"]
             self.get_contig(settings,contig_cov,chrom,strand,positions,min_contig_length,
                             min_contig_cov,min_contig_reads,library,input_bam,
-                            settings["cluster"]["contig_data"],f_contigs,chrom_lengths)
+                            settings["cluster"]["cluster_contig_data"],f_contigs,chrom_lengths,strand_name)
                 
         #Testing suitability for contig_meta
         if max_cov >= settings["cluster"]["cluster_min_contig_cov_meta"] and \
@@ -485,9 +493,9 @@ class cluster():
             min_contig_reads = settings["cluster"]["cluster_min_contig_reads_meta"]
             self.get_contig(settings,contig_cov,chrom,strand,positions,min_contig_length,
                             min_contig_cov,min_contig_reads,library,input_bam,False,
-                            f_contigs_meta,chrom_lengths)
+                            f_contigs_meta,chrom_lengths,strand_name)
         #Write wig file
-        if settings["cluster"]["wig"]:
+        if settings["cluster"]["cluster_wig"]:
             if strand_name == "For":
                 orientation = ""
             else:
@@ -510,14 +518,14 @@ class cluster():
         #check coverage of pps
         for pp_index in pps_on_contig:
             pp = pp_list[chrom][pp_index]
-            pp_positions = list(range(pp[0]-1,pp[1]-1))
+            pp_positions = list(range(pp[0],pp[1]))
             pp_coverage = sum([int(contig_cov[chrom][x][0]) \
                                for x in pp_positions])/len(pp_positions)
             ##gets index for relative coverage
             ##in short: it will compares length of the pp with the size range
             ##and gives index for that
             index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
-            if count < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
+            if pp[4] < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
                 continue
             pp_list_select.append((chrom,pp[0],pp[1],strand,pp[3]))            
 
@@ -525,19 +533,19 @@ class cluster():
         
     def get_contig(self,settings,contig_cov,chrom,strand,positions,
                    min_contig_length,min_contig_cov,min_contig_reads,library,input_bam,contig_data,
-                   f_data,chrom_lengths)
+                   f_data,chrom_lengths,strand_name):
         '''
         Identifies contigs with given parameters from the region
         '''
 
         reads = 0
         #find the beginning of first suitable contig 
-        positions = list(sorted(coverage_dic[strand][chrom]))
+        positions = list(sorted(contig_cov[chrom]))
         i = 0
         while i < len(positions):
             if contig_cov[chrom][positions[i]][0] >= min_contig_cov:
                 start = positions[i]
-                reads = coverage_dic[strand][chrom][positions[i]][0]
+                reads = contig_cov[chrom][positions[i]][0]
                 i += 1
                 break                    
             else:
@@ -552,33 +560,29 @@ class cluster():
                     #testing minimum contig length
                     if (pos-start) >= min_contig_length:
                         #write contig to file
-                        contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+
+                        contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+\
                                                         str(start)+"_"+str(pos-1)+"_"+str(reads)
                         f_data.write("\t".join(\
                             [chrom,str(start),str(pos-1),contig_name,"1",strand+"\n"]))
                         if contig_data:
                             self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam)
-                        
-                        start, read = "", 0
+                                                     input_bam,chrom,start,pos)
+                    
+                        start, reads = "", 0
                     else:
-                        start, read = "", 0
+                        start, reads = "", 0
                 else:
-                    start, read = "", 0
+                    start, reads = "", 0
 
                    
-            elif coverage_dic[chrom][pos][0] >= min_contig_cov:
+            elif contig_cov[chrom][pos][0] >= min_contig_cov:
                 #start new contig if minimum coverage at position is fulfilled
                 if start == "":
-                    reads = coverage_dic[chrom][pos][0]
-                          
+                    reads = contig_cov[chrom][pos][0]
+                    start = pos      
                 else:
                     #continueing of existing contig
-                    #if minimum coverage at position is fulfilled
-                    if coverage_dic[chrom][pos][0] >= min_contig_cov:
-
-                        #adds number of reads starting at this position
-                        reads += coverage_dic[chrom][pos][1] 
+                    reads += contig_cov[chrom][pos][1] 
 
         #write last contig to the file
         #testing minimum read number of the contig
@@ -586,16 +590,16 @@ class cluster():
             #testing minimum contig length
             if (pos-start+1) >= min_contig_length:
                 #write contig to file
-                contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+
+                contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+\
                                                         str(start)+"_"+str(pos-1)+"_"+str(reads)
                 f_data.write("\t".join([chrom,str(start),\
                                              str(pos),contig_name,"1",strand+"\n"]))
                 if contig_data:
                     self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam)
+                                                     input_bam,chrom,start,pos)
         
 
-    def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam):
+    def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam,chrom):
         '''
         Creates SAM and FASTA file for contig.
         '''
@@ -617,8 +621,7 @@ class cluster():
         contig_fasta_command = (
             settings["samtools_call"], "view",
             "-@", str(settings["samtools_threads"]-1),
-            os.path.join(input_folder,"bam",\
-                             library+"_"+strand_name+".bam"),
+            input_bam,
             chrom+":"+str(start)+"-"+str(end),"|",
             "awk", '\'{OFS="\\t"; print ">"$1"\\n"$10}\'',
             ">", os.path.join(contig_output_folder,contig_name+".fasta")

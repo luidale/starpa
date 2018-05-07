@@ -219,6 +219,10 @@ def check_arguments(args, tasks):
                                             "[X] or [X,...,Y] containing integers bigger than 0"),
                 "cluster_input_file_suffix": And(str,\
                         error="'cluster_input_file_suffix' should be string"),
+                "cluster_wig": And(lambda s: s in {"True","False"},(Use(str_to_bool)),\
+                                   error="'cluster_wig' should be Boolean (True or False)"),
+                "cluster_contig_data": And(lambda s: s in {"True","False"},(Use(str_to_bool)),\
+                                   error="'cluster_contig_data' should be Boolean (True or False)"),
                 object: object
                 })
 

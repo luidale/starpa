@@ -126,6 +126,8 @@ cluster_rel_cov_size_range = [120]		#Size range for minimum relative coverage. I
 										#compared with cluster_rel_cov_size_range and numbers has to be in growing order. [eg. [120]]
 cluster_input_file_suffix = _pp_counted.BED		#Suffix for pp counted BED file: "library1" + "suffix" (eg. "_pp_counted.BED") -> library1_pp_counted.BED
 												#It should be "_pp_counted.BED" if input data is coming from STARPA pipeline
+cluster_wig = True		#Are wig files created [True or False]
+cluster_contig_data = True		#Are sam and fasta for contigs created [True or False]
 ##important when "cluster" is first task
 cluster_pseudoSE_location = ../pseudoSE/pseudoSE_info		#Location of folder with task "pseudoSE" info files relative to input folder
 
