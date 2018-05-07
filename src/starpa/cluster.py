@@ -231,10 +231,10 @@ class cluster():
             my_bam = pybam.read(input_bam)
             contig_cov = {}
             for alignment in my_bam:
-                #positions are 0-based
+                #positions are 0-based, end excluded
                 chrom = alignment.sam_rname
                 start = alignment.sam_pos0
-                end = int(alignment.sam_cigar_string.strip("M"))+start-1
+                end = int(alignment.sam_cigar_string.strip("M"))+start
 
                 #new contig
                 if contig_cov == {}:
@@ -331,9 +331,9 @@ class cluster():
         for chrom in gene_list:
             '''creates dictionary with start and end positions of the elements
             {1:{1}, 10:{1}, 15:{2}, 20:{2}, 8:{3}, 12:{3}}
-            '''  
-            gene_dict[chrom] = {}  
-            for gene in gene_list[chrom][1:]:
+            '''    
+            gene_dict[chrom] = {}
+            for gene in gene_list[chrom][0:]:
                 if int(gene[0]) not in gene_dict[chrom]:
                     gene_dict[chrom][int(gene[0])] = {gene[8]}
                 else:
@@ -518,6 +518,8 @@ class cluster():
         #check coverage of pps
         for pp_index in pps_on_contig:
             pp = pp_list[chrom][pp_index]
+            #print("A",library,strand_name,pp)
+            #print("B",library,contig_start,contig_end)
             pp_positions = list(range(pp[0],pp[1]))
             pp_coverage = sum([int(contig_cov[chrom][x][0]) \
                                for x in pp_positions])/len(pp_positions)
@@ -579,9 +581,11 @@ class cluster():
                 #start new contig if minimum coverage at position is fulfilled
                 if start == "":
                     reads = contig_cov[chrom][pos][0]
-                    start = pos      
+                    start = pos
+                          
                 else:
                     #continueing of existing contig
+                    #if minimum coverage at position is fulfilled
                     reads += contig_cov[chrom][pos][1] 
 
         #write last contig to the file
