@@ -525,7 +525,7 @@ class cluster():
             ##in short: it will compares length of the pp with the size range
             ##and gives index for that
             index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
-            if pp[4] < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
+            if int(pp[4]) < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
                 continue
             pp_list_select.append((chrom,pp[0],pp[1],strand,pp[3]))            
 
