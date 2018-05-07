@@ -467,7 +467,9 @@ class cluster():
             strand = "+"
         else:
             strand = "-"
-         
+        #if no coverage in strand
+        if contig_cov == {}:
+            return pp_list_select 
         chrom = list(contig_cov.keys())[0]
         max_cov = max([contig_cov[chrom][pos][0] for pos in contig_cov[chrom]])
         positions = sorted(list(contig_cov[chrom].keys()))
@@ -508,31 +510,31 @@ class cluster():
                                          str(round(contig_cov[chrom][pos][0]/\
                                                    float(total_reads)*1000000,5))+"\n"]))
         #Get coverage of processing products
-        #getting pp-s overlapping with mapping
-        index1=bisect.bisect_left(pp_pos_list[chrom],contig_start)
-        index2=bisect.bisect(pp_pos_list[chrom],contig_end)
-        if index1 == index2:
-            pps_on_contig = pp_name_list[chrom][index1].intersection(pp_name_list[chrom][index1-1])
-        else:
-            pps_on_contig = set.union(*map(set,pp_name_list[chrom][index1:index2]))
-        #check coverage of pps
-        for pp_index in pps_on_contig:
-            pp = pp_list[chrom][pp_index]
-            #print("A",library,strand_name,pp)
-            #print("B",library,contig_start,contig_end)
-            pp_positions = list(range(pp[0],pp[1]))
-            pp_coverage = sum([int(contig_cov[chrom][x][0]) \
-                               for x in pp_positions])/len(pp_positions)
-            ##gets index for relative coverage
-            ##in short: it will compares length of the pp with the size range
-            ##and gives index for that
-            index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
-            if int(pp[4]) < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
-                continue
-            pp_list_select.append((chrom,pp[0],pp[1],strand,pp[3]))            
+        #if pps-in the chrom
+        if chrom in pp_pos_list:
+            #getting pp-s overlapping with mapping
+            index1=bisect.bisect_left(pp_pos_list[chrom],contig_start)
+            index2=bisect.bisect(pp_pos_list[chrom],contig_end)
+            if index1 == index2:
+                pps_on_contig = pp_name_list[chrom][index1].intersection(pp_name_list[chrom][index1-1])
+            else:
+                pps_on_contig = set.union(*map(set,pp_name_list[chrom][index1:index2]))
+            #check coverage of pps
+            for pp_index in pps_on_contig:
+                pp = pp_list[chrom][pp_index]
+                pp_positions = list(range(pp[0],pp[1]))
+                pp_coverage = sum([int(contig_cov[chrom][x][0]) \
+                                   for x in pp_positions])/len(pp_positions)
+                ##gets index for relative coverage
+                ##in short: it will compares length of the pp with the size range
+                ##and gives index for that
+                index = bisect.bisect(settings["cluster"]["cluster_rel_cov_size_range"], len(pp_positions))
+                if int(pp[4]) < pp_coverage*settings["cluster"]["cluster_rel_cov_list"][index]:
+                    continue
+                pp_list_select.append((chrom,pp[0],pp[1],strand,pp[3]))            
 
-        return pp_list_select
-        
+        return pp_list_select        
+
     def get_contig(self,settings,contig_cov,chrom,strand,positions,
                    min_contig_length,min_contig_cov,min_contig_reads,library,input_bam,contig_data,
                    f_data,chrom_lengths,strand_name):
