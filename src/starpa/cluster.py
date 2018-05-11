@@ -59,8 +59,6 @@ class cluster():
             os.makedirs(os.path.join(settings["--output"],"cluster","contigs_meta"))
         if not os.path.exists(os.path.join(settings["--output"],"cluster","cd_hit_est")):
             os.makedirs(os.path.join(settings["--output"],"cluster","cd_hit_est"))
-        if not os.path.exists(os.path.join(settings["--output"],"cluster","mpileup")):
-            os.makedirs(os.path.join(settings["--output"],"cluster","mpileup")) 
             
     def cluster(self,settings,first_task):
         '''
