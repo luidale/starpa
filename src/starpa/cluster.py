@@ -503,8 +503,8 @@ class cluster():
             wig.write("variableStep chrom="+chrom+"\n")
             wig_rpm.write("variableStep chrom="+chrom+"\n")            
             for pos in sorted(contig_cov[chrom]):                    
-                wig.write("\t".join([str(pos),orientation+str(contig_cov[chrom][pos][0])+"\n"]))
-                wig_rpm.write("\t".join([str(pos),orientation+\
+                wig.write("\t".join([str(pos+1),orientation+str(contig_cov[chrom][pos][0])+"\n"]))
+                wig_rpm.write("\t".join([str(pos+1),orientation+\
                                          str(round(contig_cov[chrom][pos][0]/\
                                                    float(total_reads)*1000000,5))+"\n"]))
         #Get coverage of processing products
@@ -556,16 +556,17 @@ class cluster():
         #continue processing positions
         for pos in positions[i:]:
             #find end of contig
-            if contig_cov[chrom][pos][0] < min_contig_cov:
+            if contig_cov[chrom][pos][0] < min_contig_cov or pos != prev_pos+1:
                 #testing minimum read number of the contig
                 if reads >= min_contig_reads:
                     #testing minimum contig length
                     if (pos-start) >= min_contig_length:
                         #write contig to file
+                        #name in BED stile
                         contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+\
-                                                        str(start)+"_"+str(pos-1)+"_"+str(reads)
+                                                        str(start)+"_"+str(pos)+"_"+str(reads)
                         f_data.write("\t".join(\
-                            [chrom,str(start),str(pos-1),contig_name,"1",strand+"\n"]))
+                            [chrom,str(start),str(pos),contig_name,"1",strand+"\n"]))
                         if contig_data:
                             self.create_contig_data_file(settings,library,strand_name,contig_name,
                                                      input_bam,chrom,start,pos-1)
@@ -575,6 +576,7 @@ class cluster():
                         start, reads = "", 0
                 else:
                     start, reads = "", 0
+                prev_pos = pos
 
                    
             elif contig_cov[chrom][pos][0] >= min_contig_cov:
@@ -586,21 +588,22 @@ class cluster():
                 else:
                     #continueing of existing contig
                     #if minimum coverage at position is fulfilled
-                    reads += contig_cov[chrom][pos][1] 
+                    reads += contig_cov[chrom][pos][1]
+                prev_pos = pos
 
         #write last contig to the file
         #testing minimum read number of the contig
         if reads >= min_contig_reads:
             #testing minimum contig length
-            if (pos-start+1) >= min_contig_length:
+            if (pos-start) >= min_contig_length:
                 #write contig to file
                 contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+\
-                                                        str(start)+"_"+str(pos-1)+"_"+str(reads)
+                                                        str(start)+"_"+str(pos)+"_"+str(reads)
                 f_data.write("\t".join([chrom,str(start),\
                                              str(pos),contig_name,"1",strand+"\n"]))
                 if contig_data:
                     self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam,chrom,start,pos-1)
+                                                     input_bam,chrom,start+1,pos)
         
 
     def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam,chrom,start,end):
