@@ -576,8 +576,6 @@ class cluster():
                         start, reads = "", 0
                 else:
                     start, reads = "", 0
-                prev_pos = pos
-
                    
             elif contig_cov[chrom][pos][0] >= min_contig_cov:
                 #start new contig if minimum coverage at position is fulfilled
@@ -589,7 +587,6 @@ class cluster():
                     #continueing of existing contig
                     #if minimum coverage at position is fulfilled
                     reads += contig_cov[chrom][pos][1]
-                prev_pos = pos
 
         #write last contig to the file
         #testing minimum read number of the contig
