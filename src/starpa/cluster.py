@@ -556,7 +556,7 @@ class cluster():
         #continue processing positions
         for pos in positions[i:]:
             #find end of contig
-            if contig_cov[chrom][pos][0] < min_contig_cov or pos != prev_pos+1:
+            if contig_cov[chrom][pos][0] < min_contig_cov:
                 #testing minimum read number of the contig
                 if reads >= min_contig_reads:
                     #testing minimum contig length
