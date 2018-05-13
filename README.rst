@@ -61,11 +61,11 @@ processing products which share start or end positions, the reads are fractionat
 to their length. Subsequently, Flaimmper2 is run on each fraction of reads separately and 
 the predicted processing products are filtered by the read count (estimation by 
 Flaimapper-2) exceeding threshold set. The filtered predicted processing products are quantified 
-more precisely via bedtools intersect.
+more precisely via featureCounts.
 
 - *cluster*
 
-Quantified processing products are filtered once again by the read counts (bedtools intersect)
+Quantified processing products are filtered once again by the read counts (featureCounts)
 exceeding threshold and by relative coverage (average coverage of reads assigned to processing products 
 divided by average coverage of all reads aligned to the positions of processing products).
 Next, the processing products from all libraries analysed are combined (identifying unique species) 
@@ -116,7 +116,6 @@ Requirements
 Starpa is depending on following tools which have to be installed in your system:
 
 `Python3.4+ <https://www.python.org/>`_,
-`cutadapt <https://github.com/marcelm/cutadapt>`_,
 `bowtie2 <http://bowtie-bio.sourceforge.net/bowtie2/index.shtml>`_,
 `samtools <http://www.htslib.org/doc/samtools.html>`_,
 `Flaimapper-2 <hhttps://github.com/yhoogstrate/flaimapper>`_,
@@ -127,7 +126,7 @@ Starpa is depending on following tools which have to be installed in your system
 Python3 requires following packages which will be installed (if missing) during 
 the installation of starpa:
 
-pyfaidx, docopt, schema
+pyfaidx, docopt, schema, cutadapt
 
 Compatibility
 -------------
@@ -424,13 +423,15 @@ of the task.
  identify_info/
 	 XXX_strand_identifyinfo.log				-	log of task
 
- featureounts/
-	 XXX_strand_featurecount.info				- 	log of featureCounts
+ featurecounts/
+	 XXX_strand_featurecountc.info				- 	log of featureCounts
 	 
  XXX_strand_pp.BED						-	NOT NEEDED
  XXX_strand_pp_counted.BED					-	predicted processing 
 									products with 
 									quantification
+ XXX_strand_pp_counted.SAF.summary				-	featureCounts 
+									summary
 
 			
 - *cluster*
@@ -469,16 +470,15 @@ of the task.
 	pp_to_metacontig.BED		-	combined and overlap clustered predicted
 						processing product match with metacontigs
 						in BED-like format
-									
- mpileup/
-	XXX_strand_mpileup.info		-	log of bedtools mpileup
-	
+										
  wig/
 	XXX_strand.wig			-	strand specific absolute read coverage
 	XXX_strand_RPM.wig		-	strand specific relative read coverage
 						as read per million mapped reads (RPM)
 									
  pp_clusterinfo.log			-	log of task
+ pp_unique.BED				-	combined predicted processing 
+						products in BED formant
  pp_unique.library_info			-	combined predicted processing 
 						products and the origins of libraries
  pp_combined.BED			-	representatives of combined and overlap 

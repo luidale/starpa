@@ -92,6 +92,8 @@ class cluster():
                 for pp in pp_dict[library][strand_name]:		
                     combined_pp_dict.setdefault(pp,[]).append(library)
         #write pp library relations to file
+        self.write_pp_data(sorted(list(combined_pp_dict.keys())),os.path.join(\
+            settings["--output"],"cluster","pp_unique.BED"),combined_pp_dict)
         self.write_pp_library_info(sorted(list(combined_pp_dict.keys())),os.path.join(\
             settings["--output"],"cluster","pp_unique.library_info"),combined_pp_dict)
                 
@@ -239,7 +241,9 @@ class cluster():
                     contig_cov[chrom] = {}
                     reads = 1
                     for pos in range(start,end):
-                        contig_cov[chrom][pos] = [1,1] #[coverage,starting_reads]
+                        contig_cov[chrom][pos] = [1,0] #[coverage,starting_reads]
+                    contig_cov[chrom][start][1] += 1
+
 
                 #next contig as new chrom or gap between reads
                 elif chrom not in contig_cov or start not in contig_cov[chrom]:
@@ -252,7 +256,9 @@ class cluster():
 
                     reads = 1
                     for pos in range(start,end):
-                        contig_cov[chrom][pos] = [1,1]
+                        contig_cov[chrom][pos] = [1,0]
+                    contig_cov[chrom][start][1] += 1
+
 
                 #ongoing contig    
                 else:
@@ -569,7 +575,7 @@ class cluster():
                             [chrom,str(start),str(pos),contig_name,"1",strand+"\n"]))
                         if contig_data:
                             self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam,chrom,start,pos-1)
+                                                     input_bam,chrom,start,pos)
                     
                         start, reads = "", 0
                     else:
@@ -592,15 +598,16 @@ class cluster():
         #testing minimum read number of the contig
         if reads >= min_contig_reads:
             #testing minimum contig length
-            if (pos-start) >= min_contig_length:
+            if (pos-start+1) >= min_contig_length:
                 #write contig to file
+                #end position here has to be +1
                 contig_name = chrom+strand+(len(str(chrom_lengths[chrom]))-len(str(start)))*"0"+\
-                                                        str(start)+"_"+str(pos)+"_"+str(reads)
+                                                        str(start)+"_"+str(pos+1)+"_"+str(reads)
                 f_data.write("\t".join([chrom,str(start),\
-                                             str(pos),contig_name,"1",strand+"\n"]))
+                                             str(pos+1),contig_name,"1",strand+"\n"]))
                 if contig_data:
                     self.create_contig_data_file(settings,library,strand_name,contig_name,
-                                                     input_bam,chrom,start+1,pos)
+                                                     input_bam,chrom,start,pos+1)
         
 
     def create_contig_data_file(self,settings,library,strand_name,contig_name,input_bam,chrom,start,end):
