@@ -134,6 +134,15 @@ Compatibility
 
 Starpa is compatible with UNIX like operating systems.
 
+**Implementations:**
+
+Starpa in compatible with:
+
+CPython (Standard Python implementation)
+
+PyPy -  thanks to its Just-in-Time compiler, Python programs often run faster on PyPy.
+	(Starpa is not throughly tested to measure potential speed advantage in PyPy)
+
 **Input:**
 
 1) Colorspace reads are not supported.
