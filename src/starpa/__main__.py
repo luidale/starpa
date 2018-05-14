@@ -98,8 +98,12 @@ def check_arguments(args, tasks):
                                     error="'non_overlap' should be positive integer"),
         "min_pp_reads": And(Use(int),(lambda s: s > 0),\
                                     error="'min_pp_reads' should be positive integer"),
-		"samtools_threads": And(Use(int),(lambda s: s > 0),\
+	"samtools_threads": And(Use(int),(lambda s: s > 0),\
                                     error="'samtools_thread' should be positive integer"),
+        "allowed_mismatch": And(Use(int),\
+                                    error="'pseudoSE_allowed_mismatch' should be integer"),
+        "mismatch_precentage": And(Use(int),(lambda s: s in range(0,100+1)),\
+                                    error="'pseudoSE_mismatch_precentage' should be integer in range 0-100"),
         object: object
         })
     try:
@@ -150,7 +154,9 @@ def check_arguments(args, tasks):
                 "align_input_file_suffix_rev": And(str, \
                                     error="'align_input_file_suffix_rev' should be string"),
                 "align_input_file_suffix_SE": And(str, \
-                                    error="'align_input_extention_SE' should be string")
+                                    error="'align_input_extention_SE' should be string"),
+                "align_max_read_length": And(Use(int),\
+                                    error="'pseudoSE_max_read_length' should be integer")
                 })
 
         elif task == "pseudoSE":
@@ -163,13 +169,7 @@ def check_arguments(args, tasks):
                                        (Use(str_to_bool)),\
                         error="'pseudoSE_oligoA' should be Boolean (True or False)"),
                 "pseudoSE_quality_base": And(lambda s: s in {"33","64"},\
-                                    error="'pseudoSE_quality_base' should be 33 or 64"),
-                "pseudoSE_allowed_mismatch": And(Use(int),\
-                        error="'pseudoSE_allowed_mismatch' should be integer"),
-                "pseudoSE_mismatch_precentage": And(Use(int),(lambda s: s in range(0,100+1)),\
-                        error="'pseudoSE_mismatch_precentage' should be integer in range 0-100"),
-##               "pseudoSE_max_read_length": And(Use(int),\
-##                        error="'pseudoSE_max_read_length' should be integer")
+                                    error="'pseudoSE_quality_base' should be 33 or 64")
 ##                "pseudoSE_sorted_by_pos": And(lambda s: s in {"True","False",True,False},\
 ##                                       (Use(str_to_bool)),\
 ##                        error="'pseudoSE_sorted_by_pos' should be Boolean (True or False)")

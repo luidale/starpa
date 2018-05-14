@@ -12,6 +12,9 @@ import os
 import sys
 import multiprocessing as mp
 
+from sympy.solvers import solve
+from sympy.abc import x, y
+
 class align():
     def __init__(self,settings,mode,first_task):
         self.settings = settings
@@ -131,7 +134,10 @@ class align():
             seed_length = "14"
         else:
             seed_length = "22"
-            
+
+        #set bowtie scoring parameters
+        bowtie_score_paremeters = self.get_bowtie_score_parameters(settings)
+
         bowtie2_command = (
                     settings["align"]["align_call"],
                     "-x", ".".join(settings["genome"].split(".")[:-1]), #removes extention
@@ -146,7 +152,8 @@ class align():
                     "--no-mixed", "--no-discordant",
                     "-X", str(settings["max_length"]),
                     "-I", str(settings["min_length"]),
-                    "--score-min","L,0,-2", #alignments with more mismatches are allowed
+                    "--score-min","L,"+str(-bowtie_score_paremeters[y])+\
+                    ","+str(-bowtie_score_paremeters[x]),
                     "--rg-id", "N1_"+phred_type.strip("--")+"_gap100",
                     "-1", input_file1, "-2", input_file2,
                     ">", output_file, "2>", align_info_file
@@ -198,6 +205,10 @@ class align():
             seed_length = "14"
         else:
             seed_length = "22"
+
+        #set bowtie scoring parameters
+        bowtie_score_paremeters = self.get_bowtie_score_parameters(settings)
+            
         bowtie2_command = (
                     settings["align"]["align_call"],
                     "-x", ".".join(settings["genome"].split(".")[:-1]), #removes extention
@@ -209,13 +220,35 @@ class align():
                     "-N", "1", #increased sensitivity
                     "-a", #unlimited number of matches
                     "-L", seed_length,
-                    "--score-min","L,0,-2", #alignments with more mismatches are allowed
+                    "--score-min","L,"+str(-bowtie_score_paremeters[y])+\
+                    ","+str(-bowtie_score_paremeters[x]),
                     "--rg-id", "N1_phred64_gap100",
                     "-U", input_file,
                     ">", output_file, "2>", align_info_file
                     )
         #print("AA",bowtie2_command)
         os.system(" ".join(list(bowtie2_command)))
+
+    def get_bowtie_score_parameters(self,settings):
+        '''
+        Calculates most optimal scoring parameters for Bowtie2.
+        '''
+        bowtie_score_paremeters = solve((
+            settings["min_length"]*x+y - max(settings["min_length"]*
+                                            settings["mismatch_precentage"],
+                                            settings["allowed_mismatch"]),
+            settings["align"]["align_max_read_length"]*x +y -
+            max(settings["align"]["align_max_read_length"]*
+                settings["mismatch_precentage"],
+                settings["allowed_mismatch"])
+            ) , x,y)
+
+        #round up parameters
+        for parameter in bowtie_score_paremeters:
+            bowtie_score_paremeters[parameter] = (round(bowtie_score_paremeters[parameter],4)+0.0001)*6
+        return bowtie_score_paremeters
+
+    
 
     def combine_log_files(self,settings):
         '''

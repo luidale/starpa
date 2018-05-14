@@ -261,14 +261,14 @@ class pseudoSE():
 
                 #setting allowed mismatched to be depenent from the length of the sequence
                 #and given number
-                mismatch_limit = max(settings["pseudoSE"]["pseudoSE_allowed_mismatch"],\
+                mismatch_limit = max(settings["allowed_mismatch"],\
                         ##take minimum from the two:
                         ###set precentage for the maximum sequenced are
                         ##min(settings["pseudoSE"]["pseudoSE_max_read_length"]*2*\
                         min(sum(read_lengths[z])*\
-                            settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100,\
+                            settings["mismatch_precentage"]/100,\
                             ###precentage from the full length SE sequence
-                            len(seq)*settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100))
+                            len(seq)*settings["mismatch_precentage"]/100))
                 
                 #Testing mismatch levels   
                 if tot_mismatch > mismatch_limit:
@@ -651,13 +651,13 @@ class pseudoSE():
 
             #setting allowed mismatched to be depenent from the length of the sequence
             #and given number
-            mismatch_limit = max(settings["pseudoSE"]["pseudoSE_allowed_mismatch"],\
+            mismatch_limit = max(settings["allowed_mismatch"],\
 #                            ##take minimum from the two:
 #                            ###set precentage for the maximum sequenced are
 #                            min(settings["pseudoSE"]["pseudoSE_max_read_length"]*2*\
 #                                settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100,\
                         ###precentage from the full length SE sequence
-                        len(seq)*settings["pseudoSE"]["pseudoSE_mismatch_precentage"]/100)
+                        len(seq)*settings["mismatch_precentage"]/100)
             
             #Testing mismatch levels   
             if tot_mismatch > mismatch_limit:

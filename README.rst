@@ -126,7 +126,7 @@ Starpa is depending on following tools which have to be installed in your system
 Python3 requires following packages which will be installed (if missing) during 
 the installation of starpa:
 
-pyfaidx, docopt, schema, cutadapt
+pyfaidx, docopt, schema, cutadapt, sympy
 
 Compatibility
 -------------

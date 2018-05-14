@@ -14,6 +14,10 @@ max_length = 300		#Maximum length of reads,shorter reads will be discarded [inte
 non_overlap = 2		#Number of bases allowed to not overlap between read and processing product
 					#It can be up to around square root of the 'min_length' parameter (minimal length of the allowed reads)
 min_pp_reads = 10	#Minimum number of reads matching processing product to be considered
+allowed_mismatch = 2		#Maximum number of mismatches allowed [integer, eg. 2]
+mismatch_precentage = 0		#Maximum percentage of mismatches allowed in sequenced region [integer: 0-100]
+							#If the read pairs (in case of PE) are not overlapping then the mismatches are calculated 
+							#only for the region of reads.
 #Important only for tasks "trim","sma_sort","pseudoSE":
 paired = True		#Are reads in paired-end format [True or False]
 
@@ -48,6 +52,7 @@ align_sensitive = False		#Alignment in sensitive mode (two step process) [True o
 align_input_file_suffix_for = _1_trim.fq		#Suffix for forward input file names as name format above [Default: _1_trim.fq]
 align_input_file_suffix_rev = _2_trim.fq		#Suffix for reverse input file names as name format above [Default: _2_trim.fq]
 												#They should be "_1_trim.fq" and "_2_trim.fq" if input data is coming from STARPA pipeline
+align_max_read_length = 49		#Maximum length of read from pair [integer, eg. 49]
 ##Important only in non paired (single-end) mode  [paired = False]:
 align_input_file_suffix_SE = _trim.fq		#Suffix for input file names as name format above [Default: _trim.fq]
 											#It should be "_trim.fq" if input data is coming from STARPA pipeline
@@ -69,11 +74,6 @@ pseudoSE_oligoA = True		#Are reads with extragenomic A-s at the 3' end and havin
 							#In bacteria RNAs are often oligoadenylated [True or False]
 pseudoSE_quality_base = 33		#Phred quality encoding of input data for task "psudoSE" [64 if Phred+64 or 33 if Phred+33]
 								#If input for task "pseudoSE" originates from task "align" the initially Phred+64 data is converted to Phred+33.
-pseudoSE_allowed_mismatch = 2		#Maximum number of mismatches allowed [integer, eg. 2]
-pseudoSE_mismatch_precentage = 0		#Maximum percentage of mismatches allowed in sequenced region [integer: 0-100]
-										#If the read pairs (in case of PE) are not overlapping then the mismatches are calculated 
-										#only for the region of reads.
-#pseudoSE_max_read_length = 49		#Maximum length of read from pair [integer, eg. 49]
 pseudoSE_input_file_suffix = _sort.sam		#Suffix for input file names as name format above [eg. _sort.sam]
 											#It should be "_sort.sam" if input data is coming from STARPA pipeline
 
