@@ -7,7 +7,7 @@ setuptools.setup(
     name="starpa",
     version=src.starpa.__version__,
     url="https://github.com/luidale/starpa",
-	download_url="https://github.com/luidale/starpa/archive/v0.3.0.tar.gz",
+	download_url="https://github.com/luidale/starpa/archive/v0.3.1.tar.gz",
     author="Hannes Luidalepp",
     author_email="luidale@gmail.com",
 	license=src.starpa.__license__,

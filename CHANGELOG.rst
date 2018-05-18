@@ -7,11 +7,19 @@ v0.3.1 (pre-release)
 
 * Identify - pp quantification via featureCounts
 * Cluster
-  a)bam file is parsed using pybam (converted to Pyhton3).
-  b)Parsing is conducted contig at the time which results low memory consumption (especially large genomes).
-  c)added option to choose are contig data files (sam, fasta) created.
 
-v0.3.0 (2018-05-24)
+  a)bam file is parsed using pybam (converted to Pyhton3).
+  
+  b)Parsing is conducted contig at the time which results low memory consumption (especially large genomes).
+  
+  c)added option to choose are contig data files (sam, fasta) created.
+* Quantify
+
+  a)statistic is collected over various tasks
+  
+  b)pp-s are selected by coverage
+
+v0.3.0 (2018-04-24)
 -----------------
 
 * Added tests

@@ -39,7 +39,9 @@ confidence.
 
 - *align*
 
-Bowtie2 is used to align reads to the genome. All matches to the genome are recorded.
+Bowtie2 is used to align reads to the genome. All matches to the genome are reported.
+More sensitive alignment can be chosen from parameter file. Then the initially unmapped reads will be remapped with 
+shorter seed length (in first alignment 22, second alignment 14).
 
 - *sam_sort*
 
@@ -52,7 +54,13 @@ are excluded.
 Alignments with too many mismatches and reads with too many genomic alignments are discarded.
 All other reads get NH tag (if not present) describing the number of reported alignments. 
 Sequence and quality fields of secondary alignments are filled with sequence and quality data.
-In the end the PE reads are converted to pseudo SE reads to ease subsequent analysis steps. 
+In the end the PE reads are converted to pseudo SE reads to ease subsequent analysis steps.
+
+In bacteria poly(A) tailing is relatively common and it thought to function in regulation of RNA stability 
+(decreasing). Nevertheless RNA-seq data can contain many reads with poly(A) tail 
+which are could be discarded while having too many mismatches. 
+Poly(A) (here termed as oligo(A)) reads can be allowed in parameter file, resulting that A mismatches at 3' end 
+are not counted as mismatches. Oligo(A) reads are stored separately allowing to investigate them alone.
 
 - *identify*
 
@@ -141,7 +149,7 @@ Starpa in compatible with:
 CPython (Standard Python implementation)
 
 PyPy -  thanks to its Just-in-Time compiler, Python programs often run faster on PyPy.
-	(Starpa is not throughly tested to measure potential speed advantage in PyPy)
+	(Starpa is not thoroughly tested to measure potential speed advantage in PyPy)
 
 **Input:**
 
@@ -339,6 +347,7 @@ of the task.
 | XXX - library name
 | strand - For or Rev
 | Y -	order number of fragmented read group
+| ZZZ - count threshold
 
 
 - *trim*
@@ -380,8 +389,8 @@ of the task.
 
 ::
 
- sort_info/
-	XXX_sortinfo.log	-	log of task
+ sam_sort_info/
+	XXX_sam_sortinfo.log	-	log of task
 	
  XXX_unmapped.sam		-	unmapped reads
  XXX_sort.sam			-	processed reads
@@ -510,15 +519,31 @@ of the task.
 
 ::
 
- libraries/					-	data in library wise
-	XXX.biotype_annotation.statistics	-	read alignement statistics
-							by annotation biotypes
-	XXX.gene_annotation.statistics		-	read alignement statistics
-							by genes
-	pp_metacontig_XXX_counted.BED		-	absolute quantification of 
-							predicted processing products 
-							in BED format
-													
+ libraries/						-	data in library wise
+	XXX/
+		XXX.biotype_annotation.statistics	-	read alignement statistics
+								by annotation biotypes
+		XXX.gene_annotation.statistics		-	read alignement statistics
+								by genes
+		pp_metacontig_XXX_counted.BED		-	absolute quantification of 
+								predicted processing products 
+								in BED format
+								
+ collected_statistics/	
+	collected_stat_XXX.log			-	statistics from tasks in library wise
+	
+ selected_pps/				-	
+	pp_clustered_stat_total.log		-	number of processing products when 
+							threshold is applied on total read count
+	pp_clustered_stat_RPM.log		-	number of processing products when 
+							threshold is applied on RPM read count
+	pp_clustered_counts_total_min_ZZZ.tsv		-	absolute quantification of 
+							predicted processing products over given threshold (ZZZ)
+	pp_clustered_counts_RPM_min_ZZZ.tsv			-	relative quantification of 
+							predicted processing products
+							as read per million mapped reads
+							(RPM) over giver threshold (ZZZ)
+							
  collected.annotation2.statistics 		-	combined alignement	statistics
 							by annotation biotypes
  pp_metacontig_biotype.BED			-	predicted processing products
@@ -528,18 +553,16 @@ of the task.
 							format
  pp_metacontig_counts_total.tsv			-	absolute quantification of 
 							predicted processing products 
-							in BED format
  pp_metacontig_counts_RPM.tsv			-	relative quantification of 
 							predicted processing products
 							as read per million mapped reads
-							(RPM) in BED format
+							(RPM)
  pp_metacontig_counts_biotype_RPM.tsv		-	relative quantification of 
 							predicted processing products
-							as RPM of biotype in BED format
+							as RPM of biotype
  pp_metacontig_counts_groupped_biotype_RPM.tsv	-	relative quantification of 
 							predicted processing products
-							as RPM of biotype groups in BED 
-							format
+							as RPM of biotype groups
  pp_metacontig_cons_qual.tsv			-	quality of consensus sequence 
  							of predicted processing products
 							expressed as frequency of the most

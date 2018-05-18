@@ -43,8 +43,8 @@ class trim():
         if not os.path.exists(os.path.join(settings["--output"],"trim")):
             os.makedirs(os.path.join(settings["--output"],"trim"))
 
-        if not os.path.exists(os.path.join(settings["--output"],"trim","triminfo")):
-            os.makedirs(os.path.join(settings["--output"],"trim","triminfo"))
+        if not os.path.exists(os.path.join(settings["--output"],"trim","trim_info")):
+            os.makedirs(os.path.join(settings["--output"],"trim","trim_info"))
         if not os.path.exists(os.path.join(settings["--output"],"trim","discard")):
             os.makedirs(os.path.join(settings["--output"],"trim","discard"))
             
@@ -61,9 +61,9 @@ class trim():
         short_folder = os.path.join(settings["--output"],"trim",\
                                     "discard",library)
         trim_info_file = os.path.join(settings["--output"],"trim",\
-                                      "triminfo",library+"_triminfo.log")
+                                      "trim_info",library+"_triminfo.log")
         trim_error_file = os.path.join(settings["--output"],"trim",\
-                                      "triminfo",library+"_trimerror.log")
+                                      "trim_info",library+"_trimerror.log")
         cutadapt_command = (
                     settings["trim"]["trim_call"],
                     "-a", "file:"+settings["trim"]["trim_adapter_for"],
@@ -93,9 +93,9 @@ class trim():
         short_folder = os.path.join(settings["--output"],"trim",\
                                     "discard",library)
         trim_info_file = os.path.join(settings["--output"],"trim",\
-                                      "triminfo",library+"_triminfo.txt")
+                                      "trim_info",library+"_triminfo.txt")
         trim_error_file = os.path.join(settings["--output"],"trim",\
-                                      "triminfo",library+"_trimerror.log")
+                                      "trim_info",library+"_trimerror.log")
         cutadapt_command = (
                     settings["trim"]["trim_call"],
                     "-a", "file:"+settings["trim"]["trim_adapter_for"],
@@ -116,7 +116,7 @@ class trim():
         Tests are any error files containing a error raport
         '''
         info_folder = os.path.join(settings["--output"],"trim",\
-                                          "triminfo")
+                                          "trim_info")
         if len(os.listdir(info_folder)) == 0:
             sys.exit('Task "trim" incomplete! Infofiles missing in folder ' + info_folder)
         for file in os.listdir(info_folder):

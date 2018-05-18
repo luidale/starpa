@@ -42,6 +42,13 @@ class quantify():
             os.makedirs(os.path.join(settings["--output"],"quantify"))
         if not os.path.exists(os.path.join(settings["--output"],"quantify","libraries")):
             os.makedirs(os.path.join(settings["--output"],"quantify","libraries"))
+        for library in sorted(settings["libraries"]):
+            if not os.path.exists(os.path.join(settings["--output"],"quantify","libraries",library)):
+                os.makedirs(os.path.join(settings["--output"],"quantify","libraries",library))
+        if not os.path.exists(os.path.join(settings["--output"],"quantify","selected_pps")):
+            os.makedirs(os.path.join(settings["--output"],"quantify","selected_pps"))
+        if not os.path.exists(os.path.join(settings["--output"],"quantify","collected_statistics")):
+            os.makedirs(os.path.join(settings["--output"],"quantify","collected_statistics"))
             
     def quantify(self,settings,first_task):
         '''
@@ -80,7 +87,7 @@ class quantify():
         self.split_by_strand_BED(settings)
 ##        for strand_name in strand_list:
 ##            pp_stranded_file = os.path.join(settings["--output"],"quantify",\
-##                                              "pp_metacontig"+"_"+strand_name+".BED")
+##                                              "pp_clustered"+"_"+strand_name+".BED")
 ##            self.fragment_BED(pp_stranded_file,overlap,size_range)
 
         #GET LISTS FOR PP-s
@@ -94,7 +101,7 @@ class quantify():
                 strand = "-"
             pp_list[strand] = self.genes_from_BED(os.path.join(settings["--output"],\
                                                                     "quantify",\
-                                              "pp_metacontig"+"_"+strand_name+".BED"))
+                                              "pp_clustered"+"_"+strand_name+".BED"))
                     
         #Version 4 -creates lists with start and end positions of genes, and names of the genes
         #at those positions
@@ -131,7 +138,7 @@ class quantify():
         #REMOVE SPLITTED PP_FILE
         for strand_name in strand_list:
             os.remove(os.path.join(settings["--output"],"quantify",\
-                                   "pp_metacontig"+"_"+strand_name+".BED"))
+                                   "pp_clustered"+"_"+strand_name+".BED"))
 
         #WRITE COMBINED BIOTYPE COUNT DATA
         ##get biotypes
@@ -149,7 +156,7 @@ class quantify():
                                             pp_dict[library]["biotype_counts"][biotype]),1)))
                 f_out.write("\n")
                 
-        #Write data
+        #Write counts
         print("\tWrite normalized pp counts")
         comment = "Read counts given in absolute numbers"
         self.write_pp_recalc_file(settings,pp_dict,"total",comment)
@@ -177,12 +184,52 @@ class quantify():
         comment = "Coverage of reads of pp +/- "+str(settings["non_overlap"])+" nucleotides "+\
                                  "(extra nucleotides separated by *): eg. 0;2;*;50;50...50...50;49;*10;0"
         self.write_pp_data_file(settings,pp_dict,"coverage",comment)
-        comment = "Genomic uniqness of pp calculated by taking average of mapping number of "+\
+        comment = "Genomic uniqness of pp calculated by taking an average of mapping number of "+\
                                                                                 "all reads of the pp"
         self.write_pp_data_file(settings,pp_dict,"uniqness",comment)
         comment = "Relative coverage of calculated by calculating coverage of pp divided by "+\
                                                                              "coverage in the region"
-        self.write_pp_data_file(settings,pp_dict,"rel_cov",comment)        
+        self.write_pp_data_file(settings,pp_dict,"rel_cov",comment)
+
+        #Write pp-s selected by counts
+        comment = "Read counts given in absolute numbers"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"total",comment)
+        comment = "Read counts given in RPM-s"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"RPM",comment)
+
+        #Collect statistics
+        self.collect_statistics(settings)
+        
+    def collect_statistics(self,settings):
+        '''
+        Collects library specific data to statistics folder
+        '''
+        tasks = ["trim", "align", "sam_sort", "pseudoSE", "identify"]
+        folder = []
+        folder.append(os.path.normpath(os.path.join(setting["--input"],"..")))
+        folder.append(os.path.normpath(settings["--output"]))
+        for libraries in settings["libraries"]:
+            with open(os.path.join(settings["--output"],"quantify","collected_statistics",\
+                                   "collected_stat_"+library+".log"),"w") as f_out:
+                for task in tasks:
+                    for folder_path in folder:
+                        if os.path.isdir(os.path.join(folder_path,path)):
+                            f_out.write("#"+task+"\n")
+                            if task == "identify":
+                                for strand in ["For","Rev"]:
+                                    f_out.write("#"+strand+"\n")
+                                    with open(os.path.join(folder_path,path,task+"_info",
+                                                           library+"_"+strand+"_"+task+"info.log")) as f_in:
+                                        for line in f_in:
+                                            f_out.write(line)
+                                        f_out.write("\n")                                
+                            else:
+                                with open(os.path.join(folder_path,path,task+"_info",
+                                                       library+"_"+task+"info.log")) as f_in:
+                                    for line in f_in:
+                                        f_out.write(line)
+                                    f_out.write("\n")
+                            break
 
     def genes_from_BED(self,annotation_file):
         '''
@@ -284,8 +331,8 @@ class quantify():
         '''
         Split BED by strand
         '''
-        input_file = os.path.join(settings["--output"],"quantify","pp_metacontig_biotype.BED")
-        output_file = os.path.join(settings["--output"],"quantify","pp_metacontig")
+        input_file = os.path.join(settings["--output"],"quantify","pp_clustered_biotype.BED")
+        output_file = os.path.join(settings["--output"],"quantify","pp_clustered")
         f_in = open(input_file)
         f_out_pos = open(output_file+"_For.BED","w")
         f_out_neg = open(output_file+"_Rev.BED","w")
@@ -307,9 +354,9 @@ class quantify():
         #match pp-s and genes
         print("\tMatch pp-s and genes")
         if first_task == "quantify":
-            pp_input_file = os.path.join(settings["--input"],"pp_metacontig.BED")
+            pp_input_file = os.path.join(settings["--input"],"pp_clustered.BED")
         else:
-            pp_input_file = os.path.join(settings["--output"],"cluster","pp_metacontig.BED")
+            pp_input_file = os.path.join(settings["--output"],"cluster","pp_clustered.BED")
             
         pp_gene_match_command = (
                         settings["bedtools_call"], "intersect",
@@ -318,7 +365,7 @@ class quantify():
                                        .split(".")[:-1])+".BED",
                         "-wao",
                         ">", os.path.join(settings["--output"],"quantify",\
-                                          "pp_metacontig_biotype_match.BED")
+                                          "pp_clustered_biotype_match.BED")
                         )
         os.system(" ".join(pp_gene_match_command))
 
@@ -326,7 +373,7 @@ class quantify():
         pp_match_biotype_dic = {}
         pp_match_gene_dic = {}
         with open(os.path.join(settings["--output"],"quantify",\
-                                          "pp_metacontig_biotype_match.BED")) as f_pp_match:
+                                          "pp_clustered_biotype_match.BED")) as f_pp_match:
             for line in f_pp_match:
                 line = line.strip().split("\t")
                 pp_strand,pp_name,gene_strand = line[5],line[3],line[11]
@@ -386,7 +433,7 @@ class quantify():
         ##write biotype in to the file
         print("\tWrite pp biotype file") 
         pp_bio_out = open(os.path.join(settings["--output"],"quantify",\
-                                          "pp_metacontig_biotype.BED"),"w")
+                                          "pp_clustered_biotype.BED"),"w")
         with open(pp_input_file) as pp_in:
             for line in pp_in:
                 line = line.strip().split("\t")
@@ -395,7 +442,7 @@ class quantify():
         pp_bio_out.close()
         print("\tWrite pp gene file") 
         pp_bio_out = open(os.path.join(settings["--output"],"quantify",\
-                                          "pp_metacontig_gene.BED"),"w")
+                                          "pp_clustered_gene.BED"),"w")
         with open(pp_input_file) as pp_in:
             for line in pp_in:
                 line = line.strip().split("\t")
@@ -409,8 +456,8 @@ class quantify():
         Makes empty dictionary to save data for pps.
         '''
         #file name
-        input_file_biotype = os.path.join(settings["--output"],"quantify","pp_metacontig_biotype.BED")
-        input_file_gene = os.path.join(settings["--output"],"quantify","pp_metacontig_gene.BED")        
+        input_file_biotype = os.path.join(settings["--output"],"quantify","pp_clustered_biotype.BED")
+        input_file_gene = os.path.join(settings["--output"],"quantify","pp_clustered_gene.BED")        
         with open(input_file_biotype) as f_in:
             pp_data = {}
             for line in f_in:
@@ -502,8 +549,11 @@ class quantify():
 
         #write pp data to the file
         print("\t\t"+library,"Write data")
-        with open(os.path.join(settings["--output"],"quantify","libraries",\
-                               "pp_metacontig_"+library+"_counted.BED"),"w") as f_out:
+        with open(os.path.join(settings["--output"],"quantify","libraries",library,\
+                               "pp_clustered_"+library+"_counted.BED"),"w") as f_out:
+            f_out.write("\t".join(["#Chromosome","Start","End","PP_name","Score","Strand",\
+                                   "Count","Consensus_seq","Consensus_qual","Genomic_qual",\
+                                   "Coverage","Uniqness","Relative_coverage"])+"\n")
             for pp_name in sorted(pp_data,key=lambda y:(pp_data[y]["data"])):
                 #pp-s with count
                 if pp_data[pp_name]["count"]["total"][0] != 0:
@@ -516,8 +566,7 @@ class quantify():
                                            pp_data[pp_name]["consens_seq"],\
                                            pp_data[pp_name]["consens_qual"],\
                                            pp_data[pp_name]["genomic_seq"],\
-                                           ";".join([str(x) for x in \
-                                                     pp_data[pp_name]["coverage"]]),\
+                                           pp_data[pp_name]["coverage"],\
                                            str(pp_data[pp_name]["uniqness"]),\
                                            str(pp_data[pp_name]["rel_cov"])])+"\n")
                 else:
@@ -529,9 +578,9 @@ class quantify():
         print("\t\t"+library,"Write data")
         self.write_annotation_statistics(gene_list_lib,\
                                     os.path.join(settings["--output"],"quantify","libraries",\
-                                                 library+".gene_annotation.statistics"),
+                                                 library,library+".gene_annotation.statistics"),
                                     os.path.join(settings["--output"],"quantify","libraries",\
-                                                 library+".biotype_annotation.statistics"))
+                                                 library,library+".biotype_annotation.statistics"))
         #Get biotype counts
         biotype_counts = {}
         biotype_strand_counts = {}
@@ -796,10 +845,20 @@ class quantify():
                     coverage = ";".join(coverage[:settings["non_overlap"]*2+1])+\
                                "..."+coverage[settings["non_overlap"]*2+2]+"..."+\
                                ";".join(coverage[-settings["non_overlap"]*2-1:])
+            #convert genomic sequence (eg ..*...C.....*A)
+            genomic_seq_conv = []
+            for j,pos in enumerate(genomic_seq):
+                if pos == "*":
+                    genomic_seq_conv.append("*")
+                elif pos == consensus_seq[i]:
+                    genomic_seq_conv.append(".")
+                else:
+                    genomic_seq_conv.append(pos)
+            genomic_seq_conv = "".join(genomic_seq_conv)
             
             pp_data_single["consens_seq"] = consensus_seq
             pp_data_single["consens_qual"] = consensus_qual
-            pp_data_single["coverage"], pp_data_single["genomic_seq"] = coverage,genomic_seq
+            pp_data_single["coverage"], pp_data_single["genomic_seq"] = coverage,genomic_seq_conv
 
         return pp_data_single
 
@@ -864,7 +923,7 @@ class quantify():
         '''
         print("\tWrite pp counts:",count_type)
         with open(os.path.join(settings["--output"],"quantify",\
-                               "pp_metacontig_counts_"+count_type+".tsv"),"w") as f_out:
+                               "pp_clustered_counts_"+count_type+".tsv"),"w") as f_out:
             #write comment
             f_out.write("#"+comment+"\n")
             #write header
@@ -896,7 +955,7 @@ class quantify():
         '''
         print("\tWrite pp data:",data_type)
         with open(os.path.join(settings["--output"],"quantify",\
-                               "pp_metacontig_"+data_type+".tsv"),"w") as f_out:
+                               "pp_clustered_"+data_type+".tsv"),"w") as f_out:
             #write comment
             f_out.write("#"+comment+"\n")
             #write header
@@ -921,21 +980,109 @@ class quantify():
                         f_out.write("\t.")
                 f_out.write("\n")
 
+    def write_pp_recalc_file_selected(self,settings,pp_dict,count_type,comment):
+        '''
+        Writes pp-s selected by the minimal count files.
+        '''
+        print("\tWrite selected pp counts:",count_type)
+        first_library = sorted(settings["libraries"])[0]
+        max_pp_count = max(max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+                               library in settings["libraries"])
+                            for pp_name in pp_dict[first_library] if pp_name != "biotype_counts")      
+        min_pp_count = min(max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+                               library in settings["libraries"])
+                            for pp_name in pp_dict[first_library] if pp_name != "biotype_counts")     
+        min_range = list(range(len(str(int(float(min_pp_count)))),len(str(int(float(max_pp_count))))))
+        f_stat =  open(os.path.join(settings["--output"],"quantify","selected_pps",\
+                                   "pp_clustered_stat_"+count_type+".log"),"w")
+        f_stat.write("#Number of PP-s with at least given "+count_type+" counts\n")
+        f_stat.write("#Count threshold\tpp-s\n")
+        f_stat.write("\t".join(["0",str(len(pp_dict[first_library]))])+"\n")
+        for minimum in min_range:
+            min_count = 10**minimum 
+            with open(os.path.join(settings["--output"],"quantify","selected_pps",\
+                                   "pp_clustered_counts_"+count_type+"_min_"+str(min_count)+".tsv")
+                      ,"w") as f_out:
+                #write comment
+                f_out.write("#"+comment+". PP-s selected having " +count_type +" counts over "+
+                            str(min_count)+"\n")
+                #write header
+                f_out.write("#library")
+                f_out.write("\tbiotype")
+                for library in sorted(settings["libraries"]):
+                    f_out.write("\t"+library)
+                f_out.write("\n")
+                #write content
+                pp_count = 0
+                for pp_name in sorted(pp_dict[first_library]):
+                    if pp_name == "biotype_counts":
+                        continue
+                    #skips pp-s which are below minimum count
+                    pp_max_count = max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+                               library in settings["libraries"])
+                    if pp_max_count < min_count:
+                        continue
+                    pp_count += 1
+                    #checks are there multiple values for read count
+                    #if there was several biotypes then reads can be calculated for both                    
+                    for i, x in enumerate(pp_dict[first_library][pp_name]["count"][count_type]):
+                        f_out.write(pp_name)
+                        if len(pp_dict[first_library][pp_name]["count"][count_type]) == 1:
+                            f_out.write("\t"+";".join(pp_dict[first_library][pp_name]["biotype"]))
+                        else:
+                            f_out.write("\t"+pp_dict[first_library][pp_name]["biotype"][i])
+                        for library in sorted(settings["libraries"]):
+                            f_out.write("\t"+str(pp_dict[library][pp_name]["count"][count_type][i]))        
+                        f_out.write("\n")
+            f_stat.write("\t".join([str(min_count),str(pp_count)])+"\n")
+        f_stat.close()
+
+    def collect_statistics(self,settings):
+        '''
+        Collects library specific data to statistics folder
+        '''
+        tasks = ["trim", "align", "sam_sort", "pseudoSE", "identify"]
+        folder = []
+        folder.append(os.path.normpath(os.path.join(settings["--input"],"..")))
+        folder.append(os.path.normpath(settings["--output"]))
+        for library in settings["libraries"]:
+            with open(os.path.join(settings["--output"],"quantify","collected_statistics",\
+                                   "collected_stat_"+library+".log"),"w") as f_out:
+                for task in tasks:
+                    for folder_path in folder:
+                        if os.path.isdir(os.path.join(folder_path,task)):
+                            f_out.write("#"*(len(task)+8)+"\n##  "+task+"  ##\n"+"#"*(len(task)+8)+"\n\n")
+                            if task == "identify":
+                                for strand in ["For","Rev"]:
+                                    f_out.write("#"+strand+"\n")
+                                    with open(os.path.join(folder_path,task,task+"_info",
+                                                           library+"_"+strand+"_"+task+"info.log")) as f_in:
+                                        for line in f_in:
+                                            f_out.write(line)
+                                        f_out.write("\n")                                
+                            else:
+                                with open(os.path.join(folder_path,task,task+"_info",
+                                                       library+"_"+task+"info.log")) as f_in:
+                                    for line in f_in:
+                                        f_out.write(line)
+                                    f_out.write("\n")
+                            break
+                        
     def test_errors(self,settings):
         '''
         Testing size of output files
         '''
         for data_type in ["consens_seq","genomic_seq","consens_qual","coverage","uniqness","rel_cov"]:
             if not os.path.isfile(os.path.join(settings["--output"],"quantify",\
-                                            "pp_metacontig_"+data_type+".tsv")):
+                                            "pp_clustered_"+data_type+".tsv")):
                 sys.exit('Task "quantify" incomplete!A')
             if os.stat(os.path.join(settings["--output"],"quantify",\
-                                   "pp_metacontig_"+data_type+".tsv")).st_size == 0:
+                                   "pp_clustered_"+data_type+".tsv")).st_size == 0:
                 sys.exit('Task "quantify" incomplete!B')
         for count_type in ["total","RPM","biotype_RPM","groupped_biotype_RPM"]:
             if not os.path.isfile(os.path.join(settings["--output"],"quantify",\
-                                        "pp_metacontig_counts_"+count_type+".tsv")):
+                                        "pp_clustered_counts_"+count_type+".tsv")):
                 sys.exit('Task "quantify" incomplete!C')		
             if os.stat(os.path.join(settings["--output"],"quantify",\
-                                   "pp_metacontig_counts_"+count_type+".tsv")).st_size == 0:
+                                   "pp_clustered_counts_"+count_type+".tsv")).st_size == 0:
                 sys.exit('Task "quantify" incomplete!D')

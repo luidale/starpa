@@ -488,8 +488,8 @@ def check_input_files(args):
 
     elif args["--start"] == "quantify":
         #testing clustered pp file
-        if not os.path.isfile(os.path.join(args["--input"],"pp_metacontig.BED")):
-            sys.exit('File "pp_metacontig.BED" missing in input folder '+
+        if not os.path.isfile(os.path.join(args["--input"],"pp_clustered.BED")):
+            sys.exit('File "pp_clustered.BED" missing in input folder '+
                      os.path.join(args["--input"]))
 ##        #test existence of bam folder
 ##        if not os.path.isdir(os.path.normpath(os.path.join(args["--input"],\

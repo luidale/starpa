@@ -123,7 +123,7 @@ class cluster():
         print("\tWrite clustered pp representatives to file")                      
         #print(pp_clust_represent_file)
         f_pp_clust = open(os.path.join(settings["--output"],\
-                                       "cluster","pp_metacontig_unsorted.BED"),"w")
+                                       "cluster","pp_clustered_unsorted.BED"),"w")
         for pp_rep in sorted(pp_representatives):
             strand = pp_rep.split("_")[1][0]
             chrom = "_".join(pp_rep.split("_")[1:-2])[1:]
@@ -136,11 +136,11 @@ class cluster():
         print("\tSort clustered pp representatives") 
         sort_command = (
             settings["bedtools_call"], "sort",
-            "-i",os.path.join(settings["--output"],"cluster","pp_metacontig_unsorted.BED"),
-            ">",os.path.join(settings["--output"],"cluster","pp_metacontig.BED")
+            "-i",os.path.join(settings["--output"],"cluster","pp_clustered_unsorted.BED"),
+            ">",os.path.join(settings["--output"],"cluster","pp_clustered.BED")
             )
         os.system(" ".join(sort_command))
-        os.remove(os.path.join(settings["--output"],"cluster","pp_metacontig_unsorted.BED"))
+        os.remove(os.path.join(settings["--output"],"cluster","pp_clustered_unsorted.BED"))
 
         #remone unnecessary files
         os.remove(os.path.join(settings["--output"],"cluster","pp_combined.fa"))
@@ -149,7 +149,7 @@ class cluster():
 
         #WRITE STATISTICS
         f_info.write("Uniq processing products:\t\t\t"+str(len(combined_pp_dict))+"\n")
-        f_info.write("Processing products clustered by overlap:\t"+\
+        f_info.write("Processing products combined by overlap:\t"+\
                      str(len(pp_list_representatives))+"\n")
         f_info.write("Reduction by clustering step:\t\t\t"+\
                      str(round((len(combined_pp_dict)-len(pp_list_representatives))/\
@@ -1345,7 +1345,7 @@ class cluster():
 
 
         #Write clustering file
-        f_out = open(os.path.join(settings["--output"],"cluster","pp_metacontig.cluster"),"w")
+        f_out = open(os.path.join(settings["--output"],"cluster","pp_clustered.cluster"),"w")
         for pp in sorted(pp_representatives):
             if pp_representatives[pp] == []:
                 f_out.write(pp+"\n")

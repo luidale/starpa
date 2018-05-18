@@ -49,12 +49,12 @@ class align():
             if not os.path.exists(os.path.join(settings["--output"],"align","round_"+mode)):
                 os.makedirs(os.path.join(settings["--output"],"align","round_"+mode))
             if not os.path.exists(os.path.join(settings["--output"],"align","round_"+\
-                                               mode,"aligninfo")):
+                                               mode,"align_info")):
                 os.makedirs(os.path.join(settings["--output"],"align","round_"+\
-                                         mode,"aligninfo"))
+                                         mode,"align_info"))
         if mode != "I":
-            if not os.path.exists(os.path.join(settings["--output"],"align","aligninfo")):
-                os.makedirs(os.path.join(settings["--output"],"align","aligninfo"))
+            if not os.path.exists(os.path.join(settings["--output"],"align","align_info")):
+                os.makedirs(os.path.join(settings["--output"],"align","align_info"))
 
     def make_index(self,settings):
         '''
@@ -100,7 +100,7 @@ class align():
             output_file = os.path.join(settings["--output"],"align","round_"+mode,library+\
                                        "_"+mode+".sam")
             align_info_file = os.path.join(settings["--output"],"align","round_"+mode,\
-                                      "aligninfo",library+"_"+mode+"_aligninfo.log")       
+                                      "align_info",library+"_"+mode+"_aligninfo.log")       
 
         else:
             if first_task == "align":
@@ -115,7 +115,7 @@ class align():
                                            settings["align"]["align_input_file_suffix_rev"])
             output_file = os.path.join(settings["--output"],"align",library+".sam")
             align_info_file = os.path.join(settings["--output"],"align",\
-                                      "aligninfo",library+"_aligninfo.log")
+                                      "align_info",library+"_aligninfo.log")
        
         #set phred score type
         if str(settings["trim"]["trim_quality_base"]) == "64":
@@ -174,7 +174,7 @@ class align():
             output_file = os.path.join(settings["--output"],"align","round_"+mode,library+\
                                        "_"+mode+".sam")
             align_info_file = os.path.join(settings["--output"],"align","round_"+mode,\
-                                      "aligninfo",library+"_"+mode+"_aligninfo.log")       
+                                      "align_info",library+"_"+mode+"_aligninfo.log")       
 
         else:
             if first_task == "align":
@@ -185,7 +185,7 @@ class align():
                                           settings["align"]["align_input_file_suffix_SE"])
             output_file = os.path.join(settings["--output"],"align",library+".sam")
             align_info_file = os.path.join(settings["--output"],"align",\
-                                      "aligninfo",library+"_aligninfo.log")
+                                      "align_info",library+"_aligninfo.log")
                 
         #set phred score type
         if str(settings["trim"]["trim_quality_base"]) == 64:
@@ -224,9 +224,9 @@ class align():
         for library in sorted(settings["libraries"]):
             #create common info file
             report_file1 = os.path.join(settings["--output"],"align","round_I",\
-                                           "aligninfo",library+"_I_aligninfo.log")
+                                           "align_info",library+"_I_aligninfo.log")
             report_file2 = os.path.join(settings["--output"],"align","round_II",\
-                                           "aligninfo",library+"_II_aligninfo.log")
+                                           "align_info",library+"_II_aligninfo.log")
             #create parameters
             total_reads = 0
             group_reads = 0
@@ -258,7 +258,7 @@ class align():
                 
             ##write new reportfile
             report_file = os.path.join(settings["--output"],"align",\
-                                           "aligninfo",library+"_aligninfo.log")                
+                                           "align_info",library+"_aligninfo.log")                
             with open(report_file, "w") as f_out:
                 f_out.write(str(total_reads) + " reads; of these:\n")
                 if settings["paired"]: 
@@ -297,10 +297,10 @@ class align():
         #info folder names
         if mode != "all": 
             info_folder = os.path.join(settings["--output"],"align","round_"+mode,\
-                                      "aligninfo")       
+                                      "align_info")       
         else:
             info_folder = os.path.join(settings["--output"],"align",\
-                                      "aligninfo")
+                                      "align_info")
         if len(os.listdir(info_folder)) == 0:
             sys.exit('Task "align" incomplete! Infofiles missing in folder ' + info_folder)
         #test content of info files

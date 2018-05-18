@@ -43,12 +43,12 @@ class sam_sort():
             if not os.path.exists(os.path.join(settings["--output"],"sam_sort","round_"+mode)):
                 os.makedirs(os.path.join(settings["--output"],"sam_sort","round_"+mode))
             if not os.path.exists(os.path.join(settings["--output"],"sam_sort","round_"+\
-                                               mode,"sort_info")):
+                                               mode,"sam_sort_info")):
                 os.makedirs(os.path.join(settings["--output"],"sam_sort","round_"+\
-                                         mode,"sort_info"))
+                                         mode,"sam_sort_info"))
         if mode != "I":
-            if not os.path.exists(os.path.join(settings["--output"],"sam_sort","sort_info")):
-                os.makedirs(os.path.join(settings["--output"],"sam_sort","sort_info"))                   
+            if not os.path.exists(os.path.join(settings["--output"],"sam_sort","sam_sort_info")):
+                os.makedirs(os.path.join(settings["--output"],"sam_sort","sam_sort_info"))                   
 
     def sam_sort_PE(self,settings,mode,first_task):
         '''
@@ -466,17 +466,17 @@ class sam_sort():
         '''
         if mode != "all":
             report_file = os.path.join(settings["--output"],"sam_sort","round_"+mode,\
-                                       "sort_info",library+"_"+mode+"_sort_info.log")
+                                       "sam_sort_info",library+"_"+mode+"sam_sortinfo.log")
 
         else:
             report_file = os.path.join(settings["--output"],"sam_sort",\
-                                       "sort_info",library+"_sort_info.log")
+                                       "sam_sort_info",library+"_sam_sortinfo.log")
         f_report = open(report_file,"w")
         f_report.write("Mapped reads "+str(mapped_reads) +"\n")
         f_report.write("Unmapped reads "+str(unmapped_reads) +"\n")
-        f_report.write("Problematic overlapping reads "+str(problem_reads) +"\n")
-        f_report.write("Mapping distribution" + "\n")
-        for element in mapping_distribution:
+        f_report.write("Problematic (with adapter) overlapping reads "+str(problem_reads) +"\n")
+        f_report.write("Mapping distribution:" + "\n")
+        for element in sorted(mapping_distribution):
             f_report.write(str(element) +"\t" + str(mapping_distribution [element])+ "\n")
         f_report.close()
 
@@ -566,9 +566,9 @@ class sam_sort():
 
             #create common info file
             report_file1 = os.path.join(settings["--output"],"sam_sort","round_I",\
-                                           "sort_info",library+"_I_sort_info.log")
+                                           "sam_sort_info",library+"_I_sam_sortinfo.log")
             report_file2 = os.path.join(settings["--output"],"sam_sort","round_II",\
-                                           "sort_info",library+"_II_sort_info.log")
+                                           "sam_sort_info",library+"_II_sam_sortinfo.log")
             ##read in from file I
             with open(report_file1) as f_in1:
                 mapping_distribution = {}
@@ -598,7 +598,7 @@ class sam_sort():
                                                             int(line.strip().split("\t")[1])
             ##write new reportfile
             report_file = os.path.join(settings["--output"],"sam_sort",\
-                                           "sort_info",library+"_aligninfo.log")                
+                                           "sam_sort_info",library+"_aligninfo.log")                
             with open(report_file, "w") as f_out:
                 f_out.write("Mapped reads "+str(mapped_reads) +"\n")
                 f_out.write("Unmapped reads "+str(unmapped_reads) +"\n")
@@ -614,9 +614,9 @@ class sam_sort():
         '''
         if mode != "all":
             info_folder = os.path.join(settings["--output"],"sam_sort",\
-                                       "round_"+mode,"sort_info")
+                                       "round_"+mode,"sam_sort_info")
         else:
-            info_folder = os.path.join(settings["--output"],"sam_sort","sort_info")
+            info_folder = os.path.join(settings["--output"],"sam_sort","sam_sort_info")
         #testing log file
         if settings["paired"]:
             wanted_read_beginnings = {"Mapped","Unmapped","Problematic","Mapping"}

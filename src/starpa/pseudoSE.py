@@ -132,6 +132,7 @@ class pseudoSE():
         oligoA_mismatch_mappings = 0
         
         mapping_distribution = {}
+        length_distribution = {}
 
         #pars input_file
         mate1_new = f_input.readline()
@@ -336,7 +337,7 @@ class pseudoSE():
                 mismatched_reads += 1
                 continue
             
-            #cound oligoA mismatch reads (reads which would fail if oligoA is not considered
+            #count oligoA mismatch reads (reads which would fail if oligoA is not considered
             if oligoA_passed_mismatches == len(good_mappings):
                 oligoA_mismatch_reads += 1
                 
@@ -363,6 +364,11 @@ class pseudoSE():
                     mapping_distribution[len(good_mappings)] = 1
                 else:
                     mapping_distribution[len(good_mappings)] += 1
+
+                if len(good_mappings[0][9]) not in length_distribution:
+                    length_distribution[len(good_mappings[0][9])] = 1
+                else:
+                    length_distribution[len(good_mappings[0][9])] += 1
 
                 #saving reads separately which have mismatch A at 3'
                 if settings["pseudoSE"]["pseudoSE_oligoA"]:
@@ -399,7 +405,7 @@ class pseudoSE():
         self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
                               mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
                               mismatched_mappings,many_match_mappings,mappings_counter,
-                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution)
+                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution,length_distribution)
         #close files
         f_input.close()
         f_pseudoSE.close()
@@ -477,6 +483,7 @@ class pseudoSE():
         oligoA_mismatch_mappings = 0
             
         mapping_distribution = {}
+        length_distribution = {}
 
         ##parse and write header
         mate1_new = f_input.readline()
@@ -521,30 +528,31 @@ class pseudoSE():
             total_reads,total_mappings,mapped_reads,mappings_counter,\
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
-            mapping_distribution = self.process_mappings_SE(settings,mappings,genome,
+            mapping_distribution,length_distribution = self.process_mappings_SE(settings,mappings,genome,
                                         f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
                                         f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
                                         many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
                                         oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
-                                        mapping_distribution)
+                                        mapping_distribution,length_distribution)
         #process last single mapping
         if mate1_new != "":
             mappings = [[mate1_next.strip().split("\t")]]
             total_reads,total_mappings,mapped_reads,mappings_counter,\
             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
-            mapping_distribution = self.process_mappings_SE(settings,mappings,genome,
+            mapping_distribution,length_distribution = self.process_mappings_SE(settings,mappings,genome,
                                         f_input,f_pseudoSE,f_mismatch,f_many_match,f_info,f_oligoA,
                                         f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
                                         many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
                                         oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
-                                        mapping_distribution)
+                                        mapping_distribution,length_distribution)
 
 
         self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
                               mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
                               mismatched_mappings,many_match_mappings,mappings_counter,
-                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution)                                
+                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution,
+                              length_distribution)                                
 
         f_input.close()
         f_pseudoSE.close()
@@ -758,7 +766,12 @@ class pseudoSE():
                 mapping_distribution[len(good_mappings)] = 1
             else:
                 mapping_distribution[len(good_mappings)] += 1
-
+                
+            if len(good_mappings) not in length_distribution:
+                length_distribution[len(good_mappings[0][9])] = 1
+            else:
+                length_distribution[len(good_mappings[0][9])] += 1
+                    
             #saving reads separately which have mismatch A at 3'
             if settings["pseudoSE"]["pseudoSE_oligoA"]:
                 oligoA = 0
@@ -792,7 +805,7 @@ class pseudoSE():
         return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
-                mapping_distribution
+                mapping_distribution,length_distribution
 
     def convert_to_phred33(self,phred_string):
         '''
@@ -915,7 +928,8 @@ class pseudoSE():
     def write_statistics(self,settings,library,total_reads,mismatched_reads,many_match_reads,
                             mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
                             mismatched_mappings,many_match_mappings,mappings_counter,
-                            oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution):
+                            oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution,
+                            length_distribution):
         '''
         Writes data about pseudoSE generation.
         '''
@@ -951,6 +965,11 @@ class pseudoSE():
         if many_match_reads > 0:
             f_info.write(">"+str(settings["pseudoSE"]["pseudoSE_max_mappings"]) + "\t" +\
                          str(many_match_reads) + "\n")
+        f_info.write("\n")
+
+        f_info.write("Length distribution:" + "\n")
+        for element in sorted(length_distribution):
+            f_info.write(str(element) + "\t" + str(length_distribution[element]) + "\n")
         f_info.close()
 
     def test_errors(self,settings):
