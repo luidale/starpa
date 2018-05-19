@@ -550,7 +550,7 @@ def get_libraries(args):
     with open(args["library_file"]) as f:
         #list comprehenisons, removes header
         libraries_dic = {line.strip().split("\t")[0]: line.strip().split("\t")[1:] for line\
-                     in f if line[0] != "#"}
+                     in f if line[0] != "#" and len(line.split("/t")) == 1}
         args["libraries"] = libraries_dic
     return args
 
