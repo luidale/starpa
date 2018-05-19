@@ -405,7 +405,8 @@ class pseudoSE():
         self.write_statistics(settings,library,total_reads,mismatched_reads,many_match_reads,
                               mapped_reads,oligoA_reads,oligoA_mismatch_reads,total_mappings,
                               mismatched_mappings,many_match_mappings,mappings_counter,
-                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution,length_distribution)
+                              oligoA_mappings,oligoA_mismatch_mappings,mapping_distribution,
+                              length_distribution)
         #close files
         f_input.close()
         f_pseudoSE.close()
@@ -570,7 +571,7 @@ class pseudoSE():
                             f_oligoA_mismatch,total_reads,total_mappings,mapped_reads,mappings_counter,
                             many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,
                             oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,
-                            mapping_distribution):
+                            mapping_distribution,length_distribution):
         '''
         Processing mappings
         '''
@@ -734,7 +735,7 @@ class pseudoSE():
             return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
-                mapping_distribution
+                mapping_distribution,length_distribution
         
         #cound oligoA mismatch reads (reads which would fail in oligoA is not considered
         if oligoA_passed_mismatches == len(good_mappings):
@@ -754,7 +755,7 @@ class pseudoSE():
             return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\
                 oligoA_reads,oligoA_mappings,oligoA_mismatch_reads,oligoA_mismatch_mappings,\
-                mapping_distribution
+                mapping_distribution,length_distribution
         else:
             for mapping in good_mappings:
                 f_pseudoSE.write("\t".join(mapping)+"\n")
@@ -767,7 +768,7 @@ class pseudoSE():
             else:
                 mapping_distribution[len(good_mappings)] += 1
                 
-            if len(good_mappings) not in length_distribution:
+            if len(good_mappings[0][9]) not in length_distribution:
                 length_distribution[len(good_mappings[0][9])] = 1
             else:
                 length_distribution[len(good_mappings[0][9])] += 1
