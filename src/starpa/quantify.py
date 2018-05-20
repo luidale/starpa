@@ -850,7 +850,7 @@ class quantify():
             for j,pos in enumerate(genomic_seq):
                 if pos == "*":
                     genomic_seq_conv.append("*")
-                elif pos == consensus_seq[i]:
+                elif pos == consensus_seq[j]:
                     genomic_seq_conv.append(".")
                 else:
                     genomic_seq_conv.append(pos)
