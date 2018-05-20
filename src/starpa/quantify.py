@@ -193,9 +193,21 @@ class quantify():
 
         #Write pp-s selected by counts
         comment = "Read counts given in absolute numbers"
-        self.write_pp_recalc_file_selected(settings,pp_dict,"total",comment)
+        self.write_pp_recalc_file_selected(settings,pp_dict,"total",comment,"total")
+        comment = "Read counts given in absolute numbers"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"RPM",comment,"total")
+        comment = "Read counts given in absolute numbers"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"biotype_RPM",comment,"total")
+        comment = "Read counts given in absolute numbers"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"groupped_biotype_RPM",comment,"total")
         comment = "Read counts given in RPM-s"
-        self.write_pp_recalc_file_selected(settings,pp_dict,"RPM",comment)
+        self.write_pp_recalc_file_selected(settings,pp_dict,"total",comment,"RPM")
+        comment = "Read counts given in RPM-s"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"RPM",comment,"RPM")
+        comment = "Read counts given in RPM-s"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"biotype_RPM",comment,"RPM")
+        comment = "Read counts given in RPM-s"
+        self.write_pp_recalc_file_selected(settings,pp_dict,"groupped_biotype_RPM",comment,"RPM")
 
         #Collect statistics
         self.collect_statistics(settings)
@@ -798,7 +810,7 @@ class quantify():
                 #if the most frequent nucleotide is not at least in 50% of the cases give N 
                 if pos_counts == 0: #no counts in that position
                     consensus_seq += " "
-                    consensus_qual += str(0)
+                    consensus_qual += " "
                     genomic_seq += " "
                 elif max_value < pos_counts*0.5:
                     consensus_seq += "N"
@@ -850,6 +862,8 @@ class quantify():
             for j,pos in enumerate(genomic_seq):
                 if pos == "*":
                     genomic_seq_conv.append("*")
+                elif pos == " ":
+                    genomic_seq_conv.append(" ")
                 elif pos == consensus_seq[j]:
                     genomic_seq_conv.append(".")
                 else:
@@ -980,31 +994,32 @@ class quantify():
                         f_out.write("\t.")
                 f_out.write("\n")
 
-    def write_pp_recalc_file_selected(self,settings,pp_dict,count_type,comment):
+    def write_pp_recalc_file_selected(self,settings,pp_dict,count_type,comment,threshold_type):
         '''
         Writes pp-s selected by the minimal count files.
         '''
-        print("\tWrite selected pp counts:",count_type)
+        print("\tWrite selected pp counts:",count_type,)
         first_library = sorted(settings["libraries"])[0]
-        max_pp_count = max(max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+        max_pp_count = max(max(max(float(y) for y in pp_dict[library][pp_name]["count"][threshold_type]) for
                                library in settings["libraries"])
                             for pp_name in pp_dict[first_library] if pp_name != "biotype_counts")      
-        min_pp_count = min(max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+        min_pp_count = min(max(max(float(y) for y in pp_dict[library][pp_name]["count"][threshold_type]) for
                                library in settings["libraries"])
                             for pp_name in pp_dict[first_library] if pp_name != "biotype_counts")     
         min_range = list(range(len(str(int(float(min_pp_count)))),len(str(int(float(max_pp_count))))))
         f_stat =  open(os.path.join(settings["--output"],"quantify","selected_pps",\
-                                   "pp_clustered_stat_"+count_type+".log"),"w")
-        f_stat.write("#Number of PP-s with at least given "+count_type+" counts\n")
+                                   "pp_clustered_stat_"+count_type+"_threshold_"+threshold_type+".log"),"w")
+        f_stat.write("#Number of PP-s with at least given "+threshold_type+" counts\n")
         f_stat.write("#Count threshold\tpp-s\n")
         f_stat.write("\t".join(["0",str(len(pp_dict[first_library]))])+"\n")
         for minimum in min_range:
             min_count = 10**minimum 
             with open(os.path.join(settings["--output"],"quantify","selected_pps",\
-                                   "pp_clustered_counts_"+count_type+"_min_"+str(min_count)+".tsv")
+                                   "pp_clustered_counts_"+count_type+"_threshold_"+threshold_type+
+                                   "_min_"+str(min_count)+".tsv")
                       ,"w") as f_out:
                 #write comment
-                f_out.write("#"+comment+". PP-s selected having " +count_type +" counts over "+
+                f_out.write("#"+comment+". PP-s selected having " +threshold_type +" counts at least "+
                             str(min_count)+"\n")
                 #write header
                 f_out.write("#library")
@@ -1018,7 +1033,7 @@ class quantify():
                     if pp_name == "biotype_counts":
                         continue
                     #skips pp-s which are below minimum count
-                    pp_max_count = max(max(float(y) for y in pp_dict[library][pp_name]["count"][count_type]) for
+                    pp_max_count = max(max(float(y) for y in pp_dict[library][pp_name]["count"][threshold_type]) for
                                library in settings["libraries"])
                     if pp_max_count < min_count:
                         continue
