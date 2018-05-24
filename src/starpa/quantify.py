@@ -927,7 +927,7 @@ class quantify():
             #write comment
             f_out.write("#"+comment+"\n")
             #write header
-            f_out.write("#library")
+            f_out.write("#pp")
             f_out.write("\tbiotype")
             for library in sorted(settings["libraries"]):
                 f_out.write("\t"+library)
@@ -959,7 +959,7 @@ class quantify():
             #write comment
             f_out.write("#"+comment+"\n")
             #write header
-            f_out.write("#library")
+            f_out.write("#pp")
             f_out.write("\tbiotype")
             for library in sorted(settings["libraries"]):
                 f_out.write("\t"+library)
@@ -1007,7 +1007,7 @@ class quantify():
                 f_out.write("#"+comment+". PP-s selected having " +count_type +" counts over "+
                             str(min_count)+"\n")
                 #write header
-                f_out.write("#library")
+                f_out.write("#pp")
                 f_out.write("\tbiotype")
                 for library in sorted(settings["libraries"]):
                     f_out.write("\t"+library)
