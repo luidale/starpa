@@ -466,7 +466,7 @@ class sam_sort():
         '''
         if mode != "all":
             report_file = os.path.join(settings["--output"],"sam_sort","round_"+mode,\
-                                       "sam_sort_info",library+"_"+mode+"sam_sortinfo.log")
+                                       "sam_sort_info",library+"_"+mode+"_sam_sortinfo.log")
 
         else:
             report_file = os.path.join(settings["--output"],"sam_sort",\
@@ -576,7 +576,7 @@ class sam_sort():
                     if line.startswith("Mapped"):
                         mapped_reads = int(line.strip().split(" ")[2])
                     if line.startswith("Problematic"):
-                        problem_reads = int(line.strip().split(" ")[3])
+                        problem_reads = int(line.strip().split(" ")[-1])
                     elif len(line.strip().split("\t")) == 2:
                         mapping_distribution[line.strip().split("\t")[0]] = \
                                                             int(line.strip().split("\t")[1])
@@ -588,7 +588,7 @@ class sam_sort():
                     elif line.startswith("Unmapped"):
                         unmapped_reads = int(line.strip().split(" ")[2])
                     elif line.startswith("Problematic"):
-                        problem_reads += int(line.strip().split(" ")[3])
+                        problem_reads += int(line.strip().split(" ")[-1])
                     elif len(line.strip().split("\t")) == 2:
                         if line.strip().split("\t")[0] not in mapping_distribution:
                             mapping_distribution[line.strip().split("\t")[0]] = \
@@ -598,12 +598,12 @@ class sam_sort():
                                                             int(line.strip().split("\t")[1])
             ##write new reportfile
             report_file = os.path.join(settings["--output"],"sam_sort",\
-                                           "sam_sort_info",library+"_aligninfo.log")                
+                                           "sam_sort_info",library+"_sam_sortinfo.log")                
             with open(report_file, "w") as f_out:
                 f_out.write("Mapped reads "+str(mapped_reads) +"\n")
                 f_out.write("Unmapped reads "+str(unmapped_reads) +"\n")
                 if settings["paired"]:
-                    f_out.write("Problematic overlapping reads "+str(problem_reads) +"\n")
+                    f_out.write("Problematic (with adapter) overlapping reads "+str(problem_reads) +"\n")
                 f_out.write("Mapping distribution" + "\n")
                 for element in sorted(mapping_distribution):
                     f_out.write(str(element) +"\t" + str(mapping_distribution [element])+ "\n")

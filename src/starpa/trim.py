@@ -93,7 +93,7 @@ class trim():
         short_folder = os.path.join(settings["--output"],"trim",\
                                     "discard",library)
         trim_info_file = os.path.join(settings["--output"],"trim",\
-                                      "trim_info",library+"_triminfo.txt")
+                                      "trim_info",library+"_triminfo.log")
         trim_error_file = os.path.join(settings["--output"],"trim",\
                                       "trim_info",library+"_trimerror.log")
         cutadapt_command = (
