@@ -830,7 +830,7 @@ class pseudoSE():
                 new_seq += seq2[x]
                 new_qual += qual2[x]
             for x in range (0,len(seq1)-max(offset2,0)): #overlap region
-                best =  self.best_base(seq1,seq2,qual1,qual2,x,offset1,offset2)
+                best =  self.best_base2(seq1,seq2,qual1,qual2,x,offset1,offset2)
                 new_seq += best[0]
                 new_qual += best[1]
             if offset2 > 0: #3' no overlap region
@@ -844,7 +844,7 @@ class pseudoSE():
                 new_seq += seq1[x]
                 new_qual += qual1[x]
             for x in range (0,len(seq2)+min(offset2,0)): #overlap region
-                best =  self.best_base(seq2,seq1,qual2,qual1,x,-offset1,offset2)
+                best =  self.best_base2(seq2,seq1,qual2,qual1,x,-offset1,offset2)
                 new_seq += best[0]
                 new_qual += best[1]
             if offset2 > 0: #3' no overlap region
@@ -868,7 +868,56 @@ class pseudoSE():
             return(seq1[pos], pos_qual1)
         else:
             return(seq2[pos+offset1], pos_qual2)
-                                                               
+
+	def best_base2(self,seq1,seq2,qual1,qual2,pos,offset1,offset2):
+		'''
+		Combines overlapping nucleotides with converted phred score
+		'''
+		phred33="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJ"
+		pos_qual1 = math.pow(10,(-phred33.find(qual1[pos])/10))
+		pos_qual2 = math.pow(10,(-phred33.find(qual2[pos+offset1])/10))
+		pos_seq1 = seq1[pos]
+		pos_seq2 = seq2[pos+offset1]
+		if pos_seq1 == pos_seq2:
+			# shortcut to avoid math
+			# If nuclotide are the same and both qualities are over
+			# 18 in phred33 then give maximum score 41(J)
+			if (pos_qual1 < 0.0125892541179417 and pos_qual2 < 0.0125892541179417):
+				return (pos_seq1,"J")
+			# do math
+			else:
+				pos_qual = seq_qual_match(pos_qual1,pos_qual2)
+				return (pos_seq1,phred33[int(pos_qual)])
+		#if there is mismatch
+		else:
+			if pos_qual1 < pos_qual2:
+				pos_qual = seq_qual_mismatch(pos_qual1,pos_qual2)
+				return (pos_seq1,phred33[int(pos_qual)])
+			elif pos_qual1 > pos_qual2:
+				pos_qual = seq_qual_mismatch(pos_qual2,pos_qual1)
+				return (pos_seq2,phred33[int(pos_qual)])
+			else:
+				pos_qual = seq_qual_mismatch(pos_qual2,pos_qual1)
+				return ("N",phred33[int(pos_qual)])
+
+	def seq_qual_match(self,pos_qual1,pos_qual2):
+		'''
+		Returns reconstructed sequencing score for the position
+		if sequencies match
+		'''
+		rec_score = (pos_qual1*pos_qual2/3)/\
+			(1-pos_qual1-pos_qual2+4*pos_qual1*pos_qual2/3)
+		return round(-10*math.log10(rec_score),0)
+
+	def seq_qual_mismatch(self,pos_qual1,pos_qual2):
+		'''
+		Returns reconstructed sequencing score for the position
+		if sequencies mismatch
+		'''
+		rec_score = pos_qual1*(1-pos_qual2/3)/\
+			(pos_qual1+pos_qual2-4*pos_qual1*pos_qual2/3)
+		return round(-10*math.log10(rec_score),0)
+	
     def change_sam_flag(self,mapping,good_mappings):
         '''
         Changing FLAG to indicate only strand and primary or secondary alignment
