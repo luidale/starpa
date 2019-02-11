@@ -5,6 +5,7 @@ Changes
 v0.3.1 (pre-release)
 -----------------
 
+* PseudeSE - sequence quality conversion a la Edgar & Flyvbjerg, 2015
 * Identify - pp quantification via featureCounts
 * Cluster
 

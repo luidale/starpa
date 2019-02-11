@@ -16,6 +16,7 @@ import sys
 import copy
 from itertools import groupby
 import multiprocessing as mp
+import math
 
 from pyfaidx import Fasta
 
