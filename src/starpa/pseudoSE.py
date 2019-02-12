@@ -887,18 +887,18 @@ class pseudoSE():
                 return (pos_seq1,"J")
             # do math
             else:
-                pos_qual = seq_qual_match(pos_qual1,pos_qual2)
+                pos_qual = self.seq_qual_match(pos_qual1,pos_qual2)
                 return (pos_seq1,phred33[int(pos_qual)])
         #if there is mismatch
         else:
             if pos_qual1 < pos_qual2:
-                pos_qual = seq_qual_mismatch(pos_qual1,pos_qual2)
+                pos_qual = self.seq_qual_mismatch(pos_qual1,pos_qual2)
                 return (pos_seq1,phred33[int(pos_qual)])
             elif pos_qual1 > pos_qual2:
-                pos_qual = seq_qual_mismatch(pos_qual2,pos_qual1)
+                pos_qual = self.seq_qual_mismatch(pos_qual2,pos_qual1)
                 return (pos_seq2,phred33[int(pos_qual)])
             else:
-                pos_qual = seq_qual_mismatch(pos_qual2,pos_qual1)
+                pos_qual = self.seq_qual_mismatch(pos_qual2,pos_qual1)
                 return ("N",phred33[int(pos_qual)])
 
     def seq_qual_match(self,pos_qual1,pos_qual2):
