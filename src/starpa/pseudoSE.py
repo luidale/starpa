@@ -399,7 +399,7 @@ class pseudoSE():
                                     break
                                 i +=1
                     #count oligoA reads
-                    if oligoA == len(good_mappings):
+                    if oligoA > 0:
                         oligoA_reads += 1
                             
         #write info file
@@ -802,7 +802,7 @@ class pseudoSE():
                                 break
                             i +=1
                 #count oligoA reads
-                if oligoA == len(good_mappings):
+                if oligoA > 0:
                     oligoA_reads += 1
         return total_reads,total_mappings,mapped_reads,mappings_counter,\
                 many_match_reads,many_match_mappings,mismatched_reads,mismatched_mappings,\

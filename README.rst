@@ -64,7 +64,7 @@ are not counted as mismatches. Oligo(A) reads are stored separately allowing to 
 
 - *identify*
 
-Flaimapper2 is used to predict stable RNA processing products. To ensure prediction of all
+Flaimapper3 is used to predict stable RNA processing products. To ensure prediction of all
 processing products which share start or end positions, the reads are fractionated according 
 to their length. Subsequently, Flaimmper2 is run on each fraction of reads separately and 
 the predicted processing products are filtered by the read count (estimation by 
@@ -83,7 +83,7 @@ Clustering is two step process:
 
 a) clustering by overlap.
 
-As the prediction of processing products by Flaimapper-2 is probabilistic, the predicted ends 
+As the prediction of processing products by Flaimapper-3 is probabilistic, the predicted ends 
 of the processing products in different libraries might slightly vary, as also the true ends. 
 Therefore, the predicted processing products which do largely overlap and have some bases 
 (adjustable) not overlapping are clustered and representative processing products for clusters 
@@ -126,7 +126,7 @@ Starpa is depending on following tools which have to be installed in your system
 `Python3.4+ <https://www.python.org/>`_,
 `bowtie2 <http://bowtie-bio.sourceforge.net/bowtie2/index.shtml>`_,
 `samtools <http://www.htslib.org/doc/samtools.html>`_,
-`Flaimapper-2 <hhttps://github.com/yhoogstrate/flaimapper>`_,
+`Flaimapper-3 <hhttps://github.com/yhoogstrate/flaimapper>`_,
 `bedtools <http://bedtools.readthedocs.io/en/latest/#>`_,
 `CDI-HIT-EST <http://weizhongli-lab.org/cd-hit/>`_,
 `featureCounts <http://bioinf.wehi.edu.au/featureCounts/>`_ (Release 1.6.1+).

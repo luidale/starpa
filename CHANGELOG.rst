@@ -5,13 +5,14 @@ Changes
 v0.3.1 (pre-release)
 -----------------
 
-* PseudeSE - sequence quality conversion a la Edgar & Flyvbjerg, 2015
+* PseudeSE - sequence quality conversion a la Edgar & Flyvbjerg, 2015.
+			- corrected counting of oligoA reads.
 * Identify - pp quantification via featureCounts
 * Cluster
 
   a)bam file is parsed using pybam (converted to Pyhton3).
   
-  b)Parsing is conducted contig at the time which results low memory consumption (especially large genomes).
+  b)Parsing is conducted contig at the time which results low memory consumption (especially important large genomes).
   
   c)added option to choose are contig data files (sam, fasta) created.
 * Quantify
